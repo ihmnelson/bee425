@@ -1,8 +1,9 @@
 /* Question generators for the arcade games. Each make(level) returns:
    { prompt, code?, info?, kind: 'choice'|'fields'|'flags'|'multi'|'order', ... , grade(ans) -> {ok, detail} } */
-(function () {
+(function (root) {
   'use strict';
-  const { Sim, MASK } = M68K;
+  const SN = root.Snippet68K || require('./snippet.js');
+  const { Sim, MASK } = SN;
   const rnd = (n) => Math.floor(Math.random() * n);
   const pick = (a) => a[rnd(a.length)];
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -96,7 +97,7 @@
     const sim = new Sim({ D: { 0: a, 1: b } });
     sim.exec(`CMP.${s} D0,D1`);
     const taken = BCC.filter((c) => sim.taken(c));
-    const sg = (v) => M68K.toSigned(v, s);
+    const sg = (v) => SN.toSigned(v, s);
     return {
       kind: 'multi', prompt: 'After this compare, which branches are TAKEN? Select all.', code: `CMP.${s} D0,D1`,
       info: `<table class="regs"><tr><td>D0</td><td>${hex(a, SZ[s])}</td><td>signed ${sg(a)}, unsigned ${a}</td></tr><tr><td>D1</td><td>${hex(b, SZ[s])}</td><td>signed ${sg(b)}, unsigned ${b}</td></tr></table>`,
@@ -193,5 +194,6 @@
     return { kind: 'choice', prompt: q.q, options: opts, answer: opts.indexOf(q.correct), detail: esc(q.why), world: q.world };
   }
 
-  window.Games = { tracerQ, flagQ, branchQ, modeQ, bugQ, numberQ, hardwareQ, quizQ, shuffle, pick, esc };
-})();
+  const api = { tracerQ, flagQ, branchQ, modeQ, bugQ, numberQ, hardwareQ, quizQ, shuffle, pick, esc };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Games = api;
+})(typeof window !== 'undefined' ? window : globalThis);

@@ -45,7 +45,7 @@
       <div class="hero">
         <div class="panel"><h1>Learn 68000 assembly by playing.</h1>
           <p class="lede">Flashcards with spaced repetition, a built-in 68K simulator that makes endless practice problems, and quick arcade drills, all drawn from your Lesson 3&ndash;8 slides.</p>
-          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a><a class="btn" href="#/sandbox">Open sandbox</a></div></div>
+          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a><a class="btn" href="#/guides">Guides</a><a class="btn" href="#/sandbox">Open sandbox</a></div></div>
         <div class="panel"><h3>Your run</h3><div class="statgrid" style="grid-template-columns:1fr 1fr">
           <div class="panel"><b>${S.state.stats.right}</b>correct</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div></div>
       </div>
@@ -60,7 +60,7 @@
     $app.innerHTML = `<p><a href="#/">← Map</a></p><div class="panel"><h1>${w.icon} ${esc(w.name)}</h1><p class="lede">${esc(w.blurb)} · from ${w.lesson}</p>
       <div class="bar" style="margin:10px 0"><i style="width:${Math.round((m.m / m.n) * 100)}%"></i></div>
       <p class="stat"><b>${m.m}</b> of ${m.n} cards mastered · <b>${due}</b> due now</p>
-      <div class="row"><a class="btn go" href="#/study/${id}">Study cards</a><a class="btn" href="#/game/blitz/${id}">Boss quiz (${nq} questions)</a></div></div>`;
+      <div class="row"><a class="btn go" href="#/study/${id}">Study cards</a><a class="btn" href="#/game/blitz/${id}">Boss quiz (${nq} questions)</a>${QUEST_GUIDES.DECK_GUIDE[id] ? `<a class="btn" href="#/guide/${QUEST_GUIDES.DECK_GUIDE[id]}">📖 Read the guide</a>` : ''}</div></div>`;
   }
 
   function viewCards() {
@@ -129,6 +129,7 @@
       $app.innerHTML = `<p><a href="#/cards">← Decks</a></p><div class="gamehead"><h1>${esc(label)}</h1><div class="progress bar"><i style="width:${(i / deck.length) * 100}%"></i></div><span class="stat"><b>${i + 1}</b>/${deck.length}</span></div>
         <div class="fc"><button class="fcard ${back ? 'back' : ''}" id="flip" aria-label="Flip card"><div class="tag">${w.icon} ${esc(w.name)} · ${c.src}</div>
         <div>${back ? esc(c.a) : esc(c.q)}</div>${back ? '' : '<div class="hint">Think of the answer, then flip (Space)</div>'}</button></div>
+        ${back && QUEST_GUIDES.DECK_GUIDE[c.deck] ? `<p class="stat" style="text-align:center"><a href="#/guide/${QUEST_GUIDES.DECK_GUIDE[c.deck]}">📖 Read more in the guide</a></p>` : ''}
         ${back ? '<div class="row"><button class="btn bad" id="miss">Missed it (1)</button><button class="btn go" id="got">Got it (2)</button></div>' : '<div class="row"><button class="btn" id="flip2">Show answer</button></div>'}`;
       const flip = () => { back = true; draw(); };
       document.getElementById('flip').onclick = back ? null : flip;
@@ -155,7 +156,7 @@
     blitz:    { title: 'Quiz Blitz', icon: '⚡', timer: 20, make: (l, world) => G.quizQ(world) },
   };
   const ROUNDS = 8;
-  let cleanup = null;
+  let cleanup = null, leaveHook = null;
 
   function viewGame(id, arg) {
     setNav('arcade');
@@ -307,9 +308,107 @@
     cleanup = null; load();
   }
 
+
+  /* ---------- Read Code: what each line does ---------- */
+  function explainHtml(e, open) {
+    const flags = e.flags ? `<p><b>Flags:</b> ${esc(e.flags)}</p>` : '';
+    const notes = e.notes && e.notes.length ? `<ul>${e.notes.map((n) => `<li>${esc(n).replace(/`([^`]+)`/g, '<code>$1</code>')}</li>`).join('')}</ul>` : '';
+    return `<p><b>${esc(e.title)}</b></p><p>${e.lines.map(esc).join(' ')}</p>${flags}${notes}`;
+  }
+  function viewRead() {
+    setNav('read');
+    const ex = window.EXAMPLES_68K;
+    $app.innerHTML = `<h1>Read Code</h1><p class="lede">What does each line actually do? Type any 68K line for a plain-English breakdown, or open a lecture program and read it line by line.</p>
+      <div class="panel"><h3>Anatomy of a line</h3>
+        <pre class="code"><span class="kw">LABEL</span>    <span class="kw">OPCODE</span>.<span class="kw">SIZE</span> <span class="kw">OPERAND1</span>,<span class="kw">OPERAND2</span>  <span class="cm">* COMMENT</span>
+loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the pointer</span></pre>
+        <p class="lede" style="margin:0">Label: starts in column 1 (optional). Opcode: what to do. Size: <code>.B</code> byte, <code>.W</code> word, <code>.L</code> long. Operands: comma-separated, no spaces; for two-operand instructions the <b>source comes first and the destination last</b>. Comment: after <code>*</code> or <code>;</code>.</p></div>
+      <div class="panel" style="margin-top:12px"><h3>Explain a line</h3>
+        <input id="rdline" class="addr" style="width:100%;font-size:1rem" value="        MOVE.B (A0)+,D1" aria-label="Assembly line to explain" spellcheck="false" autocomplete="off">
+        <div id="rdout" style="margin-top:10px"></div></div>
+      <div class="sec"><h2>Annotated programs</h2><small>click a line to open its explanation</small></div>
+      <div class="row" style="margin-bottom:10px"><select id="rdsel" class="btn" aria-label="Choose a program">${ex.map((e, i) => `<option value="${i}">${esc(e.name)}</option>`).join('')}</select></div>
+      <div id="rdprog"></div>
+      <div class="row" style="margin-top:14px"><a class="btn" href="#/guide/instructions">📖 Instruction reference</a><a class="btn" href="#/guide/modes">📖 Addressing modes</a><a class="btn" href="#/guide/branches">📖 Branches</a><a class="btn" href="#/sandbox">Try it in the sandbox</a></div>`;
+    const out = document.getElementById('rdout'), inp = document.getElementById('rdline');
+    const run = () => { out.innerHTML = explainHtml(Explain.explain(inp.value)); };
+    inp.oninput = run; run();
+    const show = () => {
+      const src = ex[+document.getElementById('rdsel').value].src.split('\n');
+      document.getElementById('rdprog').innerHTML = `<div class="listing" style="height:auto;max-height:70vh">${src.filter((l, i) => !(i === src.length - 1 && !l.trim())).map((l) => {
+        if (!l.trim()) return '<div class="ln">&nbsp;</div>';
+        return `<details class="rl"><summary class="ln"><span class="tx">${esc(l)}</span></summary><div class="rx">${explainHtml(Explain.explain(l))}</div></details>`;
+      }).join('')}</div>`;
+    };
+    document.getElementById('rdsel').onchange = show; show();
+  }
+
+
+  /* ---------- Guides & glossary ---------- */
+  function viewGuides() {
+    setNav('guides');
+    const tiles = QUEST_GUIDES.GUIDES.map((g) => `<a class="tile" href="#/guide/${g.id}"><span class="ico">${g.icon}</span><span class="nm">${esc(g.title)}</span><span class="sub">${esc(g.summary)}</span><span class="meta"><span>${g.lesson}</span></span></a>`).join('');
+    $app.innerHTML = `<h1>Guides</h1><p class="lede">Readable explanations of how everything works, in the order you'll need it. Each ends with a link to practice the topic.</p>
+      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">📖 Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a><a class="btn" href="#/tests">✔ Tests &amp; audit report</a></div><div class="grid">${tiles}</div>
+      <div class="sec"><h2>References &amp; further reading</h2><small>opens in a new tab</small></div>
+      <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
+  }
+  function viewGuide(id) {
+    setNav('guides');
+    const list = QUEST_GUIDES.GUIDES, k = list.findIndex((g) => g.id === id); if (k < 0) return (location.hash = '#/guides');
+    const g = list[k], prev = list[k - 1], next = list[k + 1];
+    const world = QUEST.WORLDS.find((w) => w.id === g.practice[0]);
+    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><article class="guide"><h1>${g.icon} ${esc(g.title)}</h1><p class="stat">Source: ${g.lesson}</p>${QUEST_GUIDES.render(g.md)}</article>
+      <div class="panel" style="margin-top:16px"><h3>Practice this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">${esc(g.practice[1])}</a><a class="btn" href="#/sandbox">Sandbox</a></div></div>
+      ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel" style="margin-top:12px"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${t.icon} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">📖 Glossary</a>${g.id !== 'errata' ? '<a class="btn" href="#/guide/errata">⚠️ Slide errata</a>' : ''}</div></div>` : ''}
+      <div class="row" style="justify-content:space-between;margin-top:14px">${prev ? `<a class="btn" href="#/guide/${prev.id}">← ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/guide/${next.id}">${esc(next.title)} →</a>` : ''}</div>`;
+  }
+  function viewGlossary() {
+    setNav('guides');
+    const all = QUEST_GUIDES.GLOSSARY;
+    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>Glossary</h1><input id="gq" class="addr" style="width:100%;font-size:1rem" placeholder="Search terms and definitions…" aria-label="Search the glossary" autocomplete="off"><p class="stat" id="gcount"></p><dl id="gl" class="gloss"></dl>`;
+    const draw = () => {
+      const q = document.getElementById('gq').value.trim().toLowerCase();
+      const hit = all.filter((t) => !q || t.term.toLowerCase().includes(q) || t.def.toLowerCase().includes(q));
+      document.getElementById('gcount').textContent = `${hit.length} of ${all.length} terms`;
+      document.getElementById('gl').innerHTML = hit.map((t) => `<dt>${esc(t.term)} <span class="pill">${t.cat} · ${t.lesson}</span></dt><dd>${esc(t.def)}${QUEST_GUIDES.CAT_GUIDE[t.cat] ? ` <a href="#/guide/${QUEST_GUIDES.CAT_GUIDE[t.cat]}">Read more →</a>` : ''}</dd>`).join('');
+    };
+    document.getElementById('gq').oninput = draw; draw();
+  }
+
+
+  /* ---------- Tests & audit report ---------- */
+  function viewTests() {
+    setNav('guides');
+    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>Tests &amp; content audit</h1>
+      <p class="lede">Every flashcard, quiz question, glossary term and guide section was checked against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation, and a real EASy68K assembler/simulator built locally and used as an oracle. Items found wrong were corrected on this site (see <a href="#/guide/errata">Slide errata</a>).</p>
+      <div class="panel"><h3>Emulator verification</h3><ul>
+        <li>The assembler reproduces the lecture's published list file byte for byte, and all bundled example programs assemble to the same machine code and finish in the same state as the real EASy68K.</li>
+        <li>A differential fuzzer (<code>tests/oracle/fuzz.js</code>) generates random instructions, assembles and runs each in both the real EASy68K and this site's assembler and CPU, and compares machine code, registers, flags and memory. Known, intentional differences: MULS/DIVU flag handling, BCD N/V flags, CHK exception frames (see Slide errata).</li>
+        <li>This page does not yet re-run those vectors inside your browser; that is on the roadmap.</li></ul></div>
+      <div id="auditbox"><p class="stat">Loading audit results…</p></div>`;
+    const draw = () => {
+      const rows = window.AUDIT_DATA || []; const box = document.getElementById('auditbox'); if (!box) return;
+      const kinds = ['card', 'quiz', 'guide', 'glossary'], verdicts = ['CONFIRMED', 'CORRECTED', 'UNVERIFIED'];
+      const tbl = kinds.map((k) => `<tr><td>${k}</td>${verdicts.map((v) => `<td class="mono">${rows.filter((r) => r.kind === k && r.verdict === v).length}</td>`).join('')}<td class="mono">${rows.filter((r) => r.kind === k).length}</td></tr>`).join('');
+      box.innerHTML = `<div class="panel" style="margin-top:12px"><h3>Audit summary</h3><div class="tablewrap"><table class="gt"><thead><tr><th>Content</th><th>Confirmed</th><th>Corrected</th><th>Unverified</th><th>Total</th></tr></thead><tbody>${tbl}</tbody></table></div>
+        <p class="stat">Audited by small-model reviewers using the sources above; every executable claim was run on the real EASy68K. Some checks of Motorola/Zilog manual details rely on the reviewer's recollection and are marked in the evidence.</p></div>
+        <div class="row" style="margin:12px 0"><select id="avk" class="btn" aria-label="Filter by content"><option value="">All content</option>${kinds.map((k) => `<option>${k}</option>`).join('')}</select>
+        <select id="avv" class="btn" aria-label="Filter by verdict"><option value="">All verdicts</option>${verdicts.map((v) => `<option>${v}</option>`).join('')}</select><input id="avq" class="addr" style="flex:1;min-width:160px" placeholder="Search…" aria-label="Search audit results"></div>
+        <div id="avlist"></div>`;
+      const list = () => {
+        const k = document.getElementById('avk').value, v = document.getElementById('avv').value, q = document.getElementById('avq').value.toLowerCase();
+        const hit = rows.filter((r) => (!k || r.kind === k) && (!v || r.verdict === v) && (!q || (r.title + r.evidence).toLowerCase().includes(q)));
+        document.getElementById('avlist').innerHTML = `<p class="stat">${hit.length} of ${rows.length} items</p>` + hit.slice(0, 250).map((r) => `<details class="rl"><summary class="ln"><span class="pill v-${r.verdict}">${r.verdict}</span><span class="tx" style="white-space:normal">${esc(r.title.slice(0, 140))}</span></summary><div class="rx"><p>${esc(r.evidence)}</p><p class="dim">Sources: ${esc(r.sources.join(', ') || '-')}${r.fixed ? ' · corrected on this site' : ''}</p></div></details>`).join('') + (hit.length > 250 ? '<p class="stat">Showing the first 250. Narrow the filter to see more.</p>' : '');
+      };
+      ['avk', 'avv', 'avq'].forEach((id) => (document.getElementById(id).oninput = list)); list();
+    };
+    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
+  }
+
   /* ---------- router ---------- */
   function route() {
-    cleanup = null;
+    cleanup = null; if (leaveHook) { try { leaveHook(); } catch (e) { /* ignore */ } leaveHook = null; }
     const raw = location.hash.replace(/^#\/?/, ''), [pathq] = raw.split('?'), parts = pathq.split('/').filter(Boolean);
     window.scrollTo(0, 0);
     try {
@@ -321,7 +420,12 @@
         case 'arcade': viewArcade(); break;
         case 'game': viewGame(parts[1], parts[2]); break;
         case 'progress': viewProgress(); break;
-        case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award }); } else viewHome(); break;
+        case 'read': viewRead(); break;
+        case 'guides': viewGuides(); break;
+        case 'guide': viewGuide(parts[1]); break;
+        case 'glossary': viewGlossary(); break;
+        case 'tests': viewTests(); break;
+        case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewHome(); break;
         default: viewHome();
       }
     } catch (err) {
