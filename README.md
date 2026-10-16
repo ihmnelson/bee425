@@ -11,7 +11,7 @@ A fully static website for learning **Motorola 68000 assembly**, built as a stud
 | **Arcade** | Nine eight-question games: Register Tracer, Flag Flipper, Branch Oracle, Mode Match, Bug Hunt, Program Sorter, Number Ninja, Hardware Lab and Quiz Blitz. Tracer/Flag/Branch questions are generated and graded by running real code on the emulator. |
 | **Guides** | 13 written guides (CPU, number systems, programmer's model, machine code, syntax and directives, instruction reference, addressing modes, branches, stack, memory and buses, transistors, Z80, and **slide errata and EASy68K quirks**), an 84-term searchable glossary, and a list of references. |
 | **Read Code** | Type any 68K line for a plain-English breakdown, or open a lecture program and read it line by line. |
-| **Sandbox** | An EASy68K-compatible editor, assembler and simulator that runs real 68000 machine code. Listing with machine code, step / step over / **step back** / run / pause, breakpoints, registers with changed values highlighted, flags, SR, memory, stack and symbol views, **TRAP #15 console I/O** (text and number input/output, halt), .X68/.S68/.L68 download, file open, and shareable links. |
+| **Sandbox** | An EASy68K-compatible editor, assembler and simulator that runs real 68000 machine code. Listing with machine code, step / step over / **step back** / run / pause, breakpoints, registers with changed values highlighted, flags, SR, memory, stack and symbol views, **TRAP #15 console I/O** (text and number input/output, halt), .X68/.S68/.L68 download, file open, shareable links, **named projects** saved in the browser, **Export all (.zip)** of every project as .X68 files, and a **JSON backup / restore** of projects plus study progress (also on the Progress page). |
 | **Homework** | Homework 2 (problems 1-4): hints, a collapsed walkthrough, a try-it box that checks your program on several test inputs, and verified solutions with an instruction-by-instruction trace. Plus a guide to the EASy68K workflow (files, list file, S-records). |
 | **Tests** | The content audit results (every card, quiz item, glossary term and guide section) and a description of how the emulator was verified. |
 | **Progress** | XP, levels, a daily streak, badges and per-world mastery. |
@@ -39,6 +39,7 @@ js/games.js           question generators for the arcade games
 js/store.js           XP, levels, badges, spaced-repetition state (localStorage)
 js/homework.js        homework problems, solutions, checker and tracer
 js/homework-ui.js     homework pages
+js/projects.js        named projects, JSON backup/restore, ZIP export
 js/sandbox-ui.js      sandbox page
 js/app.js             router, flashcards, game engine, progress and tests pages
 tests/data/audit.js   content audit results (generated)
@@ -65,7 +66,7 @@ The homework solutions were also run on the real EASy68K. The workflow guide, th
 
 ## Roadmap
 
-- **Saving work** (not started): export/import of progress and projects, named projects, and optional sync across devices. Today only autosave in the browser exists, plus Save .X68 and share links.
+- **Saving work, next steps:** projects and progress can now be exported and restored by hand. Still to do: optional sync across devices and automatic periodic backups.
 - Run the oracle test vectors live in the browser and show them case by case on the Tests page.
 - Structured assembly, `INCLUDE`, a disassembler view, cycle counts, graphics and file `TRAP #15` tasks.
 - More fuzz coverage (multi-instruction sequences, exceptions).

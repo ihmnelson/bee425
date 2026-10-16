@@ -99,7 +99,13 @@
       <div class="panel"><b>${tot ? Math.round((s.stats.right / tot) * 100) : 0}%</b>accuracy (${tot})</div><div class="panel"><b>${s.bestRun}</b>best run</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div>
       <div class="sec"><h2>Mastery</h2></div><div class="panel"><table style="width:100%;border-collapse:collapse">${worlds}</table></div>
       <div class="sec"><h2>Badges</h2></div><div class="badges">${badges}</div>
+      <div class="sec"><h2>Back up your work</h2></div>
+      <div class="panel"><p class="lede" style="margin-top:0">Everything is stored in this browser only. Export a backup before clearing site data or switching computers; it includes your saved sandbox projects and your study progress.</p>
+        <div class="row"><button class="btn go" id="bk">Export backup (.json)</button><button class="btn" id="bkzip">Export projects as .X68 files (.zip)</button><label class="btn ghost" for="bkrest">Restore from backup…</label><input type="file" id="bkrest" accept=".json,application/json" hidden></div><p class="stat" id="bkmsg"></p></div>
       <div class="sec"><h2>Reset</h2></div><button class="btn bad" id="reset">Erase all progress</button>`;
+    document.getElementById('bk').onclick = () => { Projects.download(`68k-quest-backup-${Projects.stamp()}.json`, Projects.backup({ editor: null, progress: S.state }), 'application/json'); document.getElementById('bkmsg').textContent = 'Backup downloaded.'; };
+    document.getElementById('bkzip').onclick = () => { const z = Projects.zipAll(''); document.getElementById('bkmsg').textContent = z ? (Projects.download(`68k-quest-projects-${Projects.stamp()}.zip`, z, 'application/zip'), 'ZIP downloaded.') : 'You have no saved projects yet. Save one in the Sandbox first.'; };
+    document.getElementById('bkrest').onchange = (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const res = Projects.restore(String(r.result)); let msg = `Restored ${res.added} new and ${res.replaced} updated project(s).`; if (res.progress && confirm('Replace your current study progress with the progress in this backup?')) { Object.assign(S.state, res.progress); S.save(); renderHud(); msg += ' Progress restored.'; } document.getElementById('bkmsg').textContent = msg; if (res.progress) viewProgress(); } catch (err) { document.getElementById('bkmsg').textContent = err.message; } }; r.readAsText(f); e.target.value = ''; };
     document.getElementById('reset').onclick = () => { if (confirm('Erase all XP, cards and badges in this browser?')) { S.reset(); renderHud(); viewProgress(); } };
   }
 
@@ -403,7 +409,7 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
       };
       ['avk', 'avv', 'avq'].forEach((id) => (document.getElementById(id).oninput = list)); list();
     };
-    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js?v=20261016a'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
+    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js?v=20261016b'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
   }
 
   /* ---------- router ---------- */
@@ -426,7 +432,7 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
         case 'glossary': viewGlossary(); break;
         case 'tests': viewTests(); break;
         case 'homework': setNav('homework'); if (parts[2]) HomeworkUI.viewProblem($app, +parts[2], { Store: S, award }); else HomeworkUI.viewList($app, { Store: S, award }); break;
-        case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewHome(); break;
+        case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, afterRestore: renderHud, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewHome(); break;
         default: viewHome();
       }
     } catch (err) {

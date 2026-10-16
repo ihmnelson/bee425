@@ -34,6 +34,16 @@
         <button class="btn ghost" id="dl-l68" disabled>.L68</button>
         <button class="btn ghost" id="share">Share link</button>
       </div>
+      <div class="toolbar projbar">
+        <label class="stat" for="proj">Project</label>
+        <select id="proj" class="btn" aria-label="Saved projects"></select>
+        <button class="btn" id="psave">Save</button><button class="btn" id="psaveas">Save as…</button><button class="btn ghost" id="pdel">Delete</button>
+        <span class="sep"></span>
+        <button class="btn" id="pzip" title="Download every saved project (and the editor) as .X68 files in one ZIP">Export all (.zip)</button>
+        <button class="btn" id="pback" title="Download a backup of your projects and study progress">Backup (.json)</button>
+        <label class="btn ghost" for="prest">Restore…</label><input type="file" id="prest" accept=".json,application/json" hidden>
+      </div>
+      <p class="stat" id="projnote"></p>
       <div class="sbgrid">
         <div class="col-main">
           <div id="editorbox" class="edwrap"><pre id="gutter" class="gutter" aria-hidden="true">1</pre><textarea id="src" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Assembly source"></textarea></div>
@@ -243,7 +253,7 @@
     $('pause').onclick = () => { stop(); note = 'Paused.'; afterAction(); };
     $('rst').onclick = reset;
     root.querySelectorAll('.tab').forEach((t) => (t.onclick = () => { tab = t.dataset.tab; syncTabs(); drawPane(); }));
-    $('ex').onchange = (e) => { if (e.target.value === '') return; stop(); src.value = EX[+e.target.value].src; keep(KEY, src.value); gutter(); e.target.value = ''; result = null; cpu = null; $('listing').hidden = true; $('editorbox').hidden = false; $('problems').hidden = true; status('Example loaded. Click Assemble (or Ctrl+Enter).'); draw(); setButtons(); };
+    $('ex').onchange = (e) => { if (e.target.value === '') return; stop(); src.value = EX[+e.target.value].src; keep(KEY, src.value); gutter(); e.target.value = ''; curName = ''; keep(CURKEY, ''); result = null; cpu = null; $('listing').hidden = true; $('editorbox').hidden = false; $('problems').hidden = true; status('Example loaded as a scratch program. Click Assemble (or Ctrl+Enter), or Save as… to keep your edits.'); draw(); setButtons(); projList(); };
     $('inform').onsubmit = (e) => {
       e.preventDefault(); const v = $('inp').value; if (!con) { status('Assemble a program first.', 'bad'); return; }
       con.feedLine(v); $('inp').value = '';
@@ -262,6 +272,55 @@
       else { location.hash = '#/sandbox?c=' + b64.enc(src.value); status('Link placed in the address bar.', 'ok'); }
     };
     root.querySelector('.tabs').addEventListener('keydown', () => {});
+
+    /* ---------- projects: save / switch / export ---------- */
+    const CURKEY = 'q68k.sandbox.current';
+    let curName = saved(CURKEY) || '';
+    if (q && q.get('c')) curName = '';          // a shared link opens as an unsaved scratch program
+    const isDirty = () => (curName ? Projects.get(curName) !== src.value : src.value.trim() !== '');
+    function projNote(msg) {
+      const n = $('projnote'); if (!n) return;
+      n.textContent = msg || (curName ? `Project "${curName}"${isDirty() ? '  ·  ● unsaved changes' : '  ·  saved in this browser'}` : 'Scratch program (autosaved here). Use Save as… to keep it as a named project.');
+    }
+    function projList() {
+      const sel = $('proj'); const list = Projects.list();
+      sel.innerHTML = `<option value="">(scratch)</option>` + list.map((p) => `<option value="${esc(p.name)}"${p.name === curName ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
+      if (!curName) sel.value = '';
+      projNote();
+    }
+    function loadProject(name) {
+      stop(); const text = name ? Projects.get(name) : null;
+      if (name && text == null) { curName = ''; keep(CURKEY, ''); projList(); return; }
+      curName = name; keep(CURKEY, name);
+      if (name) { src.value = text; keep(KEY, text); gutter(); }
+      result = null; cpu = null; $('listing').hidden = true; $('editorbox').hidden = false; $('problems').hidden = true;
+      status(name ? `Opened "${name}". Click Assemble.` : ''); draw(); setButtons(); projList();
+    }
+    function saveAs(defaultName) {
+      const name = window.prompt('Name for this project:', defaultName || curName || ''); if (name == null) return;
+      try { curName = Projects.save(name, src.value); keep(CURKEY, curName); projList(); status(`Saved "${curName}" in this browser. Use Export all (.zip) to keep copies outside the browser.`, 'ok'); } catch (e) { status(e.message, 'bad'); }
+    }
+    $('psave').onclick = () => { if (!curName) return saveAs(); Projects.save(curName, src.value); projList(); status(`Saved "${curName}".`, 'ok'); };
+    $('psaveas').onclick = () => saveAs();
+    $('pdel').onclick = () => { if (!curName) { status('Nothing to delete: this is the scratch program.', ''); return; } if (!window.confirm(`Delete the saved project "${curName}"? This cannot be undone (export first if unsure).`)) return; Projects.remove(curName); curName = ''; keep(CURKEY, ''); projList(); status('Project deleted. The text is still in the editor as a scratch program.', ''); };
+    $('proj').onchange = (e) => { const to = e.target.value; if (isDirty() && !window.confirm('Switch projects? Unsaved changes in the editor will be replaced. (Cancel, then Save first to keep them.)')) { projList(); return; } loadProject(to); };
+    src.addEventListener('input', () => projNote());
+    $('pzip').onclick = () => { const z = Projects.zipAll(src.value); if (!z) { status('Nothing to export yet.', 'bad'); return; } Projects.download(`68k-quest-projects-${Projects.stamp()}.zip`, z, 'application/zip'); status('Downloaded a ZIP with one .X68 file per project plus the editor text.', 'ok'); };
+    $('pback').onclick = () => { Projects.download(`68k-quest-backup-${Projects.stamp()}.json`, Projects.backup({ editor: src.value, progress: window.Store ? Store.state : null }), 'application/json'); status('Downloaded a backup of your projects and study progress. Restore it from any browser with Restore…', 'ok'); };
+    $('prest').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return; const r = new FileReader();
+      r.onload = () => {
+        try {
+          const res = Projects.restore(String(r.result));
+          let msg = `Restored ${res.added} new and ${res.replaced} updated project${res.added + res.replaced === 1 ? '' : 's'} from the backup.`;
+          if (res.progress && window.Store && window.confirm('This backup also contains study progress (XP, cards, badges). Replace your current progress with it?')) { Object.assign(Store.state, res.progress); Store.save(); msg += ' Progress restored.'; if (opts.afterRestore) opts.afterRestore(); }
+          projList(); status(msg, 'ok');
+        } catch (err) { status(err.message, 'bad'); }
+      };
+      r.readAsText(f); e.target.value = '';
+    };
+    projList();
+    if (curName && Projects.get(curName) != null && !(q && q.get('c'))) { const t = Projects.get(curName); if (saved(KEY) === null || saved(KEY) === t) { src.value = t; gutter(); } }
     draw(); setButtons();
     if (opts.onLeave) opts.onLeave(() => { stop(); });
   } };
