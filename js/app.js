@@ -45,7 +45,7 @@
       <div class="hero">
         <div class="panel"><h1>Learn 68000 assembly by playing.</h1>
           <p class="lede">Flashcards with spaced repetition, a built-in 68K simulator that makes endless practice problems, and quick arcade drills, all drawn from your Lesson 3&ndash;8 slides.</p>
-          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a><a class="btn" href="#/guides">Guides</a><a class="btn" href="#/sandbox">Open sandbox</a></div></div>
+          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a><a class="btn" href="#/guides">Guides</a><a class="btn" href="#/homework">Homework 2</a><a class="btn" href="#/sandbox">Open sandbox</a></div></div>
         <div class="panel"><h3>Your run</h3><div class="statgrid" style="grid-template-columns:1fr 1fr">
           <div class="panel"><b>${S.state.stats.right}</b>correct</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div></div>
       </div>
@@ -349,7 +349,7 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
     setNav('guides');
     const tiles = QUEST_GUIDES.GUIDES.map((g) => `<a class="tile" href="#/guide/${g.id}"><span class="ico">${g.icon}</span><span class="nm">${esc(g.title)}</span><span class="sub">${esc(g.summary)}</span><span class="meta"><span>${g.lesson}</span></span></a>`).join('');
     $app.innerHTML = `<h1>Guides</h1><p class="lede">Readable explanations of how everything works, in the order you'll need it. Each ends with a link to practice the topic.</p>
-      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">📖 Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a><a class="btn" href="#/tests">✔ Tests &amp; audit report</a></div><div class="grid">${tiles}</div>
+      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">📖 Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a><a class="btn" href="#/homework">📝 Homework 2 walkthrough</a><a class="btn" href="#/tests">✔ Tests &amp; audit report</a></div><div class="grid">${tiles}</div>
       <div class="sec"><h2>References &amp; further reading</h2><small>opens in a new tab</small></div>
       <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
   }
@@ -403,7 +403,7 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
       };
       ['avk', 'avv', 'avq'].forEach((id) => (document.getElementById(id).oninput = list)); list();
     };
-    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js?v=20261015b'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
+    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js?v=20261016a'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
   }
 
   /* ---------- router ---------- */
@@ -425,6 +425,7 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
         case 'guide': viewGuide(parts[1]); break;
         case 'glossary': viewGlossary(); break;
         case 'tests': viewTests(); break;
+        case 'homework': setNav('homework'); if (parts[2]) HomeworkUI.viewProblem($app, +parts[2], { Store: S, award }); else HomeworkUI.viewList($app, { Store: S, award }); break;
         case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewHome(); break;
         default: viewHome();
       }

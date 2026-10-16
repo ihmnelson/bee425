@@ -9,4 +9,4 @@ These scripts compare this site's assembler and CPU (`js/asm.js`, `js/cpu.js`) w
 4. `node fuzz.js 3000 99` generates 3000 random instructions, assembles and runs each in both implementations, and compares machine code, D0-D7, A0-A7, flags and memory.
    `node cmp_asm.js program.X68` compares the machine code of a whole program line by line.
 
-Known, intentional differences (the site follows Motorola's manual): MULS leaves V alone in EASy68K; DIVU/DIVS overflow leaves C alone; ABCD/SBCD/NBCD N and V are "undefined"; CHK exception frames differ. One open item: `ASL.B Dn,Dn` with a large register count gave a different V flag in one of 3000 random cases.
+Known, intentional differences (the site follows Motorola's manual): MULS leaves V alone in EASy68K; DIVU/DIVS overflow leaves C alone; ABCD/SBCD/NBCD N and V are "undefined"; CHK exception frames differ. `ASL` by a register count larger than the operand size also differs (hardware sets V; EASy68K does not).

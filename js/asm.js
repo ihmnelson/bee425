@@ -366,6 +366,7 @@
     let tail = m[3], ops = '', i = 0, q = false, depth = 0;
     if (tail && !/^\s/.test(tail)) fail('Invalid opcode or size');
     tail = tail.replace(/^\s+/, '');
+    if (tail[0] === '*' || /^(NOP|RTS|RTE|RTR|TRAPV|RESET|ILLEGAL|SIMHALT)$/i.test(m[1])) tail = '';   // a comment (or trailing text) after a no-operand instruction
     for (; i < tail.length; i++) {
       const ch = tail[i];
       if (ch === "'") q = !q;
@@ -555,8 +556,12 @@
       bytes.push(...data); const cnt = bytes.length + 1; let sum = cnt; bytes.forEach((b) => (sum += b));
       return type + hex(cnt, 2) + bytes.map((b) => hex(b, 2)).join('') + hex(~sum & 0xFF, 2);
     };
-    out.push(rec('S0', 0, 2, [...(name || 'PROG')].map((c) => c.charCodeAt(0))));
-    for (const seg of result.image) for (let i = 0; i < seg.bytes.length; i += 32) out.push(rec('S2', seg.addr + i, 3, seg.bytes.slice(i, i + 32)));
+    // header text matches what EASy68K writes
+    out.push(rec('S0', 0, 2, [...('68KPROG   20CREATED BY EASY68K')].map((c) => c.charCodeAt(0))));
+    for (const seg of result.image) for (let i = 0; i < seg.bytes.length; i += 32) {
+      const chunk = seg.bytes.slice(i, i + 32), a = seg.addr + i;
+      out.push(a + chunk.length - 1 <= 0xFFFF ? rec('S1', a, 2, chunk) : rec('S2', a, 3, chunk));   // S1: 16-bit address, S2: 24-bit
+    }
     out.push(rec('S8', result.start, 3, []));
     return out.join('\n') + '\n';
   }

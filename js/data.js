@@ -164,7 +164,13 @@ QUEST.CARDS = [
   C("z80", "Z80 flags vs 68K flags?", "Z, S (=N), C, P/V (overflow and parity). Z80 also has H (half-carry) and N (subtract); 68K has X (extend).", "L3"),
   C("z80", "How are Z80 hex numbers written?", "Trailing H (55H); prefix a 0 if it starts with A-F (0FF20H).", "L3"),
   C("z80", "Z80 data directives vs 68K?", "DEFB / DEFW / DEFS vs DC.B / DC.W / DS.B. Oshonsoft needs a leading period (.END).", "L4"),
-  C("z80", "Z80 stack ops and instruction length?", "PUSH/POP; CALL pushes the PC; the stack grows toward lower memory. The first instruction byte is the opcode (68K: a 16-bit op-code word).", "L3"),
+  C("z80", "Z80 stack ops and instruction length?", "PUSH/POP; CALL pushes the PC; the stack grows toward lower memory. The first instruction byte is the opcode (68K: a 16-bit op-code word).", "L3"),  C("dirs", "Which three files does EASy68K work with for one program, and what is each for?", ".X68 is your assembly source; .L68 is the listing (addresses, machine code, errors, symbol table); .S68 is the S-record executable the simulator loads. If assembly fails, only the listing is produced.", "HW2"),
+  C("dirs", "What is an S-record?", "A text format for executable code. Each line is a record: type (S0 header, S1/S2 data with 16/24-bit addresses, S8 start address), byte count, address, data bytes and a checksum. The simulator loads it, and it can be burned into a ROM.", "HW2"),
+  C("dirs", "What is an instruction set simulator (ISS)?", "A program on your computer that executes object code as if it were the target CPU (here a 68000), so you can step through programs and watch registers and memory without the hardware.", "HW2"),
+  C("dirs", "Why type a program into the editor instead of pasting it from a document?", "Pasted text can carry invisible formatting characters that cause confusing assembly errors. Typing it (or pasting as plain text) avoids that.", "HW2"),
+  C("dirs", "In an EASy68K source file, what goes in column 1 and what must not?", "Labels, including the names on EQU lines, start in column 1. Opcodes and directives such as MOVE or ORG start in column 2 or later (usually one tab in). Comment lines start with *.", "HW2"),
+  C("num", "The word $4515 is stored at $4000. How does the simulator's memory window show it?", "As bytes: 45 at $4000 and 15 at $4001. The 68000 is big-endian and the window always shows bytes, even if a word or long was written.", "HW2"),
+  C("modes", "MOVE.B D1,(A0)+ then MOVE.B D2,(A0)+ with A0 = $4000: where do the bytes go and what is A0 afterwards?", "D1's low byte goes to $4000, D2's low byte to $4001, and A0 ends at $4002 (post-increment adds 1 after each byte store).", "HW2"),
 ];
 
 /* ---------- Quiz bank: [world, question, correct, wrongs[], explanation] ---------- */

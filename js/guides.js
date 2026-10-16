@@ -887,6 +887,76 @@ The course uses two processors: the **68000** (32-bit registers, 16-bit data bus
 The 68000's bus cycle is more complicated; the Z80's is simple enough to watch on a logic analyser, which is why it is used for debugging labs. The 68000's instruction set is easier to read. Assembly language is not portable: a program for one architecture will not run on another. A C++ program, once recompiled, might.
 ` },
     /* ===================================================== */
+    { id: 'workflow', title: 'Using EASy68K: from source file to running program', lesson: 'HW2', icon: '🛠️', practice: ['dirs', 'Bug Hunt'], summary: 'Source, listing and S-record files, assembling, single-stepping, and reading the memory window.', md: `
+This guide follows the workflow from Homework 2: write a source file, assemble it, and run it in an **instruction set simulator** (ISS). Everything here also works in this site's **Sandbox**, which behaves like EASy68K.
+
+## The tool chain
+
+\`\`\`
+  you type          assembler           loader / simulator
+  HW2.X68  ──────►  HW2.L68  (listing)
+  (source)   F9     HW2.S68  (S-record) ──►  Sim68K runs it as if it were a 68000
+\`\`\`
+
+| File | What it is | When it exists |
+|---|---|---|
+| \`.X68\` | Your assembly source (plain text) | You write it. Always save with the .X68 extension |
+| \`.L68\` | The **list file**: addresses, machine code, your source, errors, symbol table | Always, even when there are errors |
+| \`.S68\` | The executable, as a **Motorola S-record** | Only when there were no assembly errors |
+
+An **ISS** is a program on your PC that executes the object code and behaves like the target CPU, so you can run and inspect programs without a real 68000.
+
+## Steps (EASy68K)
+
+1. Install EASy68K from easy68k.com (Windows). On a Mac the course notes suggest running it under Wine; there is also an open-source native macOS port, and this site's Sandbox needs no install.
+2. Open the editor. It gives you a template with a title block and the line \`ORG $1000\`.
+3. **Type the program in** (do not paste). Pasted text can carry invisible formatting characters that produce baffling assembly errors. Name it \`HW2.X68\` and save before doing anything else.
+4. Keep the layout rules: labels (including the names on \`EQU\` lines) start in **column 1**; instructions and directives start in **column 2 or later**, usually one tab in; comment lines start with \`*\`.
+5. Assemble with **F9** (or the Project tab, or the green arrow). If there are errors, open the \`.L68\` file: the offending lines are marked "ERROR".
+6. With no errors you are asked whether to run the simulation. Choose **EXECUTE**. You can ignore the Sim I/O window and use the main simulator window.
+7. **Single-step** and watch the registers change. Open **View > Memory** to see memory.
+
+The sandbox equivalent: **Assemble** (Ctrl+Enter), then **Step**; the right-hand panel shows registers and flags, and the **Memory** tab shows the bytes. Use **Save .X68 / .S68 / .L68** to get the same three files.
+
+## Reading the list file
+
+\`\`\`
+00001000  303C A7FF                 13  start   MOVE.W #data2,D0     * Load D0
+00001004  123C 004F                 14          MOVE.B #data6,D1     * Load D1
+00000000  =00004000                  4  addr1 EQU $4000
+\`\`\`
+
+Columns: **address**, **machine code** (the instruction word, then any extension words), **line number**, then your source. An \`EQU\` line shows \`=\` and its value because it generates no code. At the end comes a **symbol table**. Printing the listing in landscape with a small font keeps each instruction on one line.
+
+## S-records
+
+An **S-record** is a text version of the executable. Each line is one record:
+
+\`\`\`
+S0 21 0000 36384B50524F47...            header text ("68KPROG ... CREATED BY EASY68K")
+S1 23 1000 303CA7FF123C004F...C751FFFF 07  data: 16-bit address $1000, 32 bytes
+S8 04 001000 EB                         start address $001000
+\`\`\`
+
+- **Type:** S0 header, S1 data with a 16-bit address, S2 data with a 24-bit address, S8 start address.
+- **Count:** number of bytes that follow (address + data + checksum), in hex.
+- **Address and data**, then a **checksum** (the one's complement of the low byte of the sum of count, address and data bytes).
+
+It is the same format you would use to burn code into a programmable memory device, and it is the file the simulator loads.
+
+## Reading memory
+
+The simulator's memory window shows **bytes**, even when your program wrote words or long words. The 68000 is **big-endian**, so the word $4515 stored at $4000 appears as \`45\` at $4000 and \`15\` at $4001.
+
+## Debugging habits
+
+- Single-step the first time through; check each register against what you expect.
+- Open the memory window before the run and again after: compare.
+- Use a breakpoint (click the dot beside a line in the Sandbox listing) to skip ahead, and **Step back** to undo a step.
+- A program that ends with \`BRA start\` runs forever. End test programs with \`SIMHALT\` so Run can finish.
+` },
+
+    /* ===================================================== */
     { id: 'errata', title: 'Slide errata and EASy68K quirks', lesson: 'L3-8', icon: '⚠️', practice: ['dirs', 'Bug Hunt'], summary: 'Where the lecture slides disagree with the manuals or the real tool, and how EASy68K bends the rules.', md: `
 This site was audited against the lecture slides, Motorola's M68000 Programmer's Reference Manual (PRM), the EASy68K documentation, and a **real EASy68K assembler/simulator** used as a test oracle. Where they disagree, the cards and guides follow the manuals and the tool, and the differences are collected here so you are not surprised on an exam or in a lab. (The audit's full results are on the Tests page.)
 
@@ -933,6 +1003,7 @@ The sandbox follows the manual where the manual defines a behaviour:
 - **MULS** : the manual clears V; EASy68K leaves V as it was.
 - **DIVU / DIVS overflow:** the manual clears C; EASy68K leaves C as it was.
 - **ABCD, SBCD, NBCD:** the N and V flags are "undefined" in the manual, and EASy68K produces particular values for them. Do not rely on either.
+- **ASL by a register count larger than the operand size:** the hardware sets V (the sign changed on the first shift); EASy68K leaves V clear.
 - **CHK exception frames:** the stacked values differ in minor ways.
 
 > Rule of thumb: if a lab result depends on one of these, the real EASy68K is the reference for grading; if you want to understand the chip, the manual is.
@@ -1025,15 +1096,18 @@ The sandbox follows the manual where the manual defines a behaviour:
     G('VBE', 'Base-emitter voltage of a conducting BJT, about 0.6 V.', 'L8', 'Transistors'),
     G('von Neumann architecture', 'One memory space for both instructions and data (the 68000).', 'L3', 'CPU'),
     G('Wait state', 'An extra clock cycle added to a memory access so slow memory can keep up.', 'L7', 'Memory'),
+    G('S-record', 'Motorola text format for executable code: records of type S0 (header), S1/S2 (data with 16/24-bit addresses) and S8 (start address), each with a byte count, address, data and checksum. The simulator loads it; it can also be burned into a ROM.', 'HW2', 'Tools'),
+    G('Instruction set simulator (ISS)', 'A program that executes a processor\'s object code on another computer, behaving like the target CPU so programs can be stepped through without hardware. EASy68K\'s Sim68K is an ISS for the 68000.', 'HW2', 'Tools'),
+    G('Source file (.X68)', 'The plain-text assembly program you write for EASy68K. Assembling it produces the .L68 listing and, if there are no errors, the .S68 S-record.', 'HW2', 'Tools'),
     G('Zero (Z)', 'Flag set when the result is zero (all bits 0).', 'L3', 'Flags'),
   ].sort((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()));
 
   /* cross-links */
   const SEE = {
     cpu: ['numbers', 'programmers-model'], numbers: ['programmers-model', 'branches'], 'programmers-model': ['modes', 'instructions'],
-    'machine-code': ['modes', 'instructions'], syntax: ['instructions', 'branches'], instructions: ['modes', 'branches'],
+    'machine-code': ['modes', 'instructions'], syntax: ['workflow', 'instructions', 'branches'], instructions: ['modes', 'branches'],
     modes: ['instructions', 'stack'], branches: ['numbers', 'stack'], stack: ['branches', 'syntax'], memory: ['cpu', 'z80'],
-    transistor: ['memory'], z80: ['programmers-model', 'instructions'], errata: ['instructions', 'syntax'],
+    transistor: ['memory'], z80: ['programmers-model', 'instructions'], errata: ['instructions', 'syntax'], workflow: ['syntax', 'machine-code', 'memory'],
   };
   const DECK_GUIDE = { regs: 'programmers-model', num: 'numbers', dirs: 'syntax', inst: 'instructions', modes: 'modes', flow: 'branches', hw: 'memory', io: 'transistor', z80: 'z80' };
   const CAT_GUIDE = { Addressing: 'modes', Flags: 'numbers', '68K': 'programmers-model', CPU: 'cpu', Tools: 'syntax', Instructions: 'instructions', Control: 'branches', Hardware: 'memory', Memory: 'memory', Transistors: 'transistor', Numbers: 'numbers' };
