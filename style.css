@@ -143,14 +143,6 @@ table.regs td { padding: 2px 14px 2px 0; } table.regs td:first-child { color: va
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
 /* sandbox */
-.sbgrid { display: grid; gap: 14px; grid-template-columns: 1fr; }
-@media (min-width: 900px) { .sbgrid { grid-template-columns: 1.15fr 1fr; } }
-#src { width: 100%; height: 440px; resize: vertical; font: .9rem/1.5 var(--mono); background: #070c17; color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; tab-size: 8; white-space: pre; overflow: auto; }
-.listing { height: 440px; overflow: auto; background: #070c17; border: 1px solid var(--line); border-radius: 10px; font: .88rem/1.5 var(--mono); position: relative; }
-.listing .lhead { position: sticky; top: 0; background: #070c17; padding: 4px 6px; border-bottom: 1px solid var(--line); z-index: 1; }
-.ln { display: flex; gap: 12px; padding: 0 10px; white-space: pre; }
-.ln .ad { color: var(--dim); min-width: 62px; }
-.ln.cur { background: #3a3010; outline: 1px solid var(--amber); }
 .ln.last { background: #0f3a2a55; }
 .sbstatus { margin-top: 8px; font: .85rem var(--mono); white-space: pre-wrap; color: var(--dim); min-height: 1.5em; }
 .sbstatus.bad { color: var(--red); } .sbstatus.ok { color: var(--green); }
@@ -203,7 +195,6 @@ table.gt th { background: var(--panel2); } table.gt td code { white-space: nowra
 .listing .lhead { position: sticky; top: 0; background: #070c17; padding: 4px 6px; border-bottom: 1px solid var(--line); z-index: 1; display: flex; align-items: center; }
 .ln { display: flex; gap: 10px; padding: 0 10px 0 4px; white-space: pre; min-width: max-content; }
 .ln .ad { color: var(--dim); min-width: 5.2em; } .ln .mc { color: #7fa6d9; min-width: 11em; } .ln .lno { color: #556a8f; min-width: 2.6em; text-align: right; }
-.ln.cur { background: #3a3010; outline: 1px solid var(--amber); }
 .bp { width: 14px; height: 14px; margin: 4px 0; border-radius: 50%; border: 1px solid #556a8f; background: transparent; cursor: pointer; padding: 0; align-self: center; flex: none; }
 .bp:disabled { visibility: hidden; } .bp.on { background: var(--red); border-color: var(--red); }
 .problems { margin-top: 8px; display: grid; gap: 4px; }
@@ -224,9 +215,20 @@ tr.cur td { background: #3a3010; }
 details.rl summary .pill { margin: 3px 8px 3px 4px; align-self: center; }
 
 /* keep the page from scrolling sideways: wide content scrolls inside its own box */
-html, body { max-width: 100%; overflow-x: hidden; }
+html { overflow-x: hidden; }
+body { max-width: 100%; }
 main, .panel, .grid > *, .hero > *, .sbgrid > *, .col-main, .col-side, .guide { min-width: 0; max-width: 100%; }
 pre, pre.code, .tablewrap, .listing, .out, #mem, .mem { max-width: 100%; overflow-x: auto; }
 .guide p, .guide li, .lede, .stat, dd, .tile .sub { overflow-wrap: anywhere; }
 table.gt, table.regs { max-width: 100%; }
 img, svg, video { max-width: 100%; }
+
+/* fixes: the hidden attribute must win over component display rules; fixed-height editor with matching gutter */
+[hidden] { display: none !important; }
+main { max-width: 1180px; }
+.edwrap { height: 460px; }
+.edwrap .gutter { height: 100%; }
+.edwrap textarea { height: 100%; resize: none; }
+#src { width: auto; }
+.listing { overflow: auto; }
+@media (max-width: 700px) { .edwrap, .listing { height: 380px; } .out { height: 120px; } }

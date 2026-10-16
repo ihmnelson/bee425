@@ -403,7 +403,7 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
       };
       ['avk', 'avv', 'avq'].forEach((id) => (document.getElementById(id).oninput = list)); list();
     };
-    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
+    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js?v=20261015b'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
   }
 
   /* ---------- router ---------- */
