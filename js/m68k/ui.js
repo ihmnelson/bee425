@@ -4,10 +4,13 @@ window.PACK_UI = {
   projects: { key: 'q68k.projects.v1', ext: 'X68', label: '68K' },
   tagline: 'Registers D0-D7 and A0-A7, MOVE and friends, EASy68K-compatible sandbox, Homework 2.',
   hero: {
-    title: 'Learn 68000 assembly by playing.',
-    lede: 'Flashcards with spaced repetition, a built-in 68K simulator that makes endless practice problems, and quick arcade drills, all drawn from your Lesson 3&ndash;8 slides.',
-    buttons: [['#/guides', 'Guides', ''], ['#/homework', 'Homework 2', ''], ['#/sandbox', 'Open sandbox', '']],
+    title: '68000 assembly',
+    lede: 'Topics follow lectures 3 to 8 and the tools you use in the EASy68K labs and homework.',
+    buttons: [['#/homework', 'Homework 2', '']],
   },
+  topicGames: { regs: ['tracer', 'flags'], num: ['numbers'], dirs: ['bugs', 'sorter'], inst: ['tracer', 'flags'], modes: ['modes'], flow: ['branch', 'sorter'], hw: ['hardware'], io: ['hardware'], z80: [] },
+  topicSandbox: ['dirs', 'inst', 'modes', 'flow'],
+  guideGroups: [['Foundations', ['cpu', 'numbers', 'programmers-model']], ['Writing programs', ['machine-code', 'syntax', 'instructions', 'modes', 'branches', 'stack']], ['Hardware', ['memory', 'transistor']], ['Tools and reference', ['workflow', 'z80', 'errata']]],
   arcade: [
     ['tracer', '🧮', 'Register Tracer', 'Run code in your head. Results come from a real 68K simulator.', 'L4-5'],
     ['flags', '🚩', 'Flag Flipper', 'Set the X N Z V C flags after ADD, SUB, CMP...', 'L3, L5'],
@@ -17,7 +20,7 @@ window.PACK_UI = {
     ['sorter', '🧩', 'Program Sorter', 'Put real lecture programs back in order.', 'L4-5'],
     ['numbers', '🥷', 'Number Ninja', 'Hex, binary, decimal and two\'s complement.', 'L3'],
     ['hardware', '🧱', 'Hardware Lab', 'Address lines, page decoding, base resistors.', 'L6-8'],
-    ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across every world.', 'all'],
+    ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across all topics.', 'all'],
   ],
   navExtra: [{ href: '#/homework', name: 'homework', label: 'Homework' }],
   guidesButtons: [['#/homework', 'Homework 2 walkthrough']],
@@ -52,7 +55,7 @@ loop    ADD.B  D1,D0
     },
   },
   auditFile: 'tests/m68k/data/audit.js',
-  testsIntro: `<p class="lede">Every flashcard, quiz question, glossary term and guide section was checked against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation, and a real EASy68K assembler/simulator built locally and used as an oracle. Items found wrong were corrected on this site (see <a href="#/guide/errata">Slide errata</a>).</p>
+  testsIntro: `<p class="lede"><b>In short:</b> the simulator was compared with the real EASy68K, and the flashcards, quizzes and guides were checked against the lecture slides and Motorola's manual. Where something was wrong, it was fixed. Details follow.</p><p class="lede">Every flashcard, quiz question, glossary term and guide section was checked against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation, and a real EASy68K assembler/simulator built locally and used as an oracle. Items found wrong were corrected on this site (see <a href="#/guide/errata">Slide errata</a>).</p>
       <div class="panel"><h3>Emulator verification</h3><ul>
         <li>The assembler reproduces the lecture's published list file byte for byte, and all bundled example programs assemble to the same machine code and finish in the same state as the real EASy68K.</li>
         <li>A differential fuzzer (<code>tests/m68k/oracle/fuzz.js</code>) generates random instructions, assembles and runs each in both the real EASy68K and this site's assembler and CPU, and compares machine code, registers, flags and memory. Known, intentional differences: MULS/DIVU flag handling, BCD N/V flags, CHK exception frames (see Slide errata).</li>

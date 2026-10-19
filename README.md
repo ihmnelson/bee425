@@ -7,7 +7,7 @@ Pick a processor on the home page (or with the switcher in the header). XP, leve
 | URL | Page |
 |---|---|
 | `#/` | BEE 425 home: two live machines, one per processor |
-| `#/68k/...` and `#/z80/...` | that processor's map, cards, arcade, guides, Read Code, sandbox (the 68000 also has Homework 2) |
+| `#/68k/...` and `#/z80/...` | that processor's Topics, Guides, Flashcards, Practice, Explain code and Sandbox (the 68000 also has Homework 2) |
 | `#/progress` | shared progress, badges, backup and restore |
 
 Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) still work and open the 68000 pages.
@@ -16,14 +16,14 @@ Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) stil
 
 | Area | What you get |
 |---|---|
-| **World map** | Topic "worlds" with a mastery bar each (68000: nine; Z80: ten, including the Oshonsoft IDE and a 68K contrast). |
+| **Topics** | Numbered topics in lecture order, each a lesson plan with a mastery trace (68000: nine; Z80: ten, including the Oshonsoft IDE and a 68K contrast). |
 | **Flashcards** | 147 (68000) and 159 (Z80) cards with Leitner-box spaced repetition. |
-| **Arcade** | Nine eight-question games: Register Tracer, Flag Flipper, Branch Oracle, Mode Match, Bug Hunt, Program Sorter, Number Ninja, Hardware Lab, Quiz Blitz. Tracer/Flag/Branch answers come from running real code on that processor's simulator. |
+| **Practice** | Nine eight-question games: Register Tracer, Flag Flipper, Branch Oracle, Mode Match, Bug Hunt, Program Sorter, Number Ninja, Hardware Lab, Quiz Blitz. Tracer/Flag/Branch answers come from running real code on that processor's simulator. |
 | **Guides** | 13 (68000) and 14 (Z80) written guides, a searchable glossary (84 and 92 terms), and references. |
-| **Read Code** | Type any line for a plain-English breakdown, or open an example program and read it line by line. The Z80 version also shows the machine code and T-states. |
+| **Explain code** | Type any line for a plain-English breakdown, or open an example program and read it line by line. The Z80 version also shows the machine code and T-states. |
 | **Sandbox** | **68000:** an EASy68K-compatible editor, assembler and simulator (TRAP #15 console I/O, step back, breakpoints, .X68/.S68/.L68). **Z80:** an Oshonsoft-style editor, assembler and simulator with exact T-states, six run rates, starting address, a terminal on port 02H and an input device on port 01H with "prompt before IN", INT/NMI buttons, `.asm`/`.lst`/Intel-HEX downloads. Both: named projects, shareable links, ZIP export, JSON backup/restore. |
 | **Homework** | 68000 only: Homework 2 (problems 1-4) with hints, walkthrough, a try-it box and verified solutions. |
-| **Tests** | What was verified and how, plus a content-audit table for that processor. |
+| **How accurate is this site?** | What was verified and how, plus a content-audit table for that processor. |
 
 ## Layout
 
@@ -79,6 +79,10 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 - Run the oracle test vectors live in the browser.
 - 68000: structured assembly, `INCLUDE`, a disassembler view, cycle counts. Z80: homework-style walkthroughs when the lab handouts are available.
 - Optional sync of progress across devices.
+
+## How the site is organised
+
+For each processor the pages follow one loop: **Learn** (guides), **Remember** (flashcards), **Practice** (drills), **Build** (sandbox and Explain code). *Topics* hold it together: they run in lecture order, and each topic page is a short lesson plan (read its guide, review its cards, practise the matching drills, take a quiz, try it in the sandbox) with links to the previous and next topic. The home page says which processor to open (EASy68K labs: 68000; Oshonsoft IDE: Z80), and every page tells a new student what to do next.
 
 ## Design
 

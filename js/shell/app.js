@@ -31,7 +31,7 @@
   function renderHud() {
     const due = (P() ? [PACKS.list[P()]] : PACKS.order.map((id) => PACKS.list[id])).reduce((n, pk) => n + pk.QUEST.CARDS.filter((c) => S.cardState(c).due <= Date.now()).length, 0);
     const days = S.streakDays();
-    document.getElementById('hud').innerHTML = `<span><b>${due}</b> cards due</span><span>${days ? `<b>${days}</b> day streak` : 'No streak yet'}</span>`;
+    document.getElementById('hud').innerHTML = `<a href="${P() ? here() + 'study/all' : '#/'}" title="Review the cards that are due"><b>${due}</b> cards due</a>${days ? `<span><b>${days}</b> day streak</span>` : ''}`;
   }
   const colorize = (src) => esc(src).split('\n').map((l) => UI().colorize(l)).join('\n');
 
@@ -51,16 +51,28 @@
   // a list row: icon, name and description, optional trace, and a short note on the right
   const item = (href, icon, name, sub, mid, end) => `<a class="item" href="${href}"><span class="ico">${icon ? ico(icon) : ''}</span><span class="main"><span class="nm">${esc(name)}</span><span class="sub">${esc(sub || '')}</span></span><span class="mid">${mid || ''}</span><span class="end">${end || ''}</span></a>`;
 
+  const lessonText = (l) => (/^L\d/.test(l) ? (/-/.test(l) ? 'Lessons ' : 'Lesson ') + l.slice(1) : l);
+  const gameById = (id) => UI().arcade.find((g) => g[0] === id);
+  const topicsFor = (gid) => Object.entries(UI().topicGames).filter(([, gs]) => gs.includes(gid)).map(([t]) => worldById(t)).filter(Boolean);
+  // the four things you do with a processor's pages, in the order that works
+  const HOW = `<ol class="how">
+    <li><a href="#/guides"><b>Learn</b><span>Read the guide for a topic.</span></a></li>
+    <li><a href="#/cards"><b>Remember</b><span>Review flashcards. A card you miss comes back sooner.</span></a></li>
+    <li><a href="#/arcade"><b>Practice</b><span>Drills with a new question every time.</span></a></li>
+    <li><a href="#/sandbox"><b>Build</b><span>Write a program, run it, step through it.</span></a></li>
+  </ol>`;
+
   /* ---------- views ---------- */
   function viewMap() {
     setNav('home');
-    const due = dueCards().length;
-    const rows = QUEST.WORLDS.map((w) => { const m = mastery(w.id); return item('#/world/' + w.id, w.icon, w.name, w.blurb, traceOf(m.cs), `${m.m} of ${m.n} mastered<br>${esc(w.lesson)}`); }).join('');
+    const due = dueCards().length, fresh = QUEST.CARDS.every((c) => S.cardState(c).seen === 0), first = QUEST.WORLDS[0];
+    const rows = QUEST.WORLDS.map((w, i) => { const m = mastery(w.id); return item('#/world/' + w.id, w.icon, `${i + 1}. ${w.name}`, w.blurb, traceOf(m.cs), `${m.m} of ${m.n} mastered<br>${esc(lessonText(w.lesson))}`); }).join('');
     $app.innerHTML = `
       <h1>${UI().hero.title}</h1>
       <p class="lede">${UI().hero.lede}</p>
-      <div class="row"><a class="btn go" href="#/study/all">Review due cards (${due})</a><a class="btn" href="#/game/tracer">Trace some code</a>${UI().hero.buttons.map((b) => `<a class="btn ${b[2]}" href="${b[0]}">${b[1]}</a>`).join('')}</div>
-      <div class="sec"><h2>Topics</h2><small>each bit in the trace is one card: high means mastered</small></div>
+      <h2 class="h-s">How to study</h2>${HOW}
+      <div class="row" style="margin-top:var(--s4)">${fresh ? `<a class="btn go" href="#/world/${first.id}">Start with topic 1: ${esc(first.name)}</a>` : `<a class="btn go" href="#/study/all">Review due cards (${due})</a>`}${UI().hero.buttons.map((b) => `<a class="btn ${b[2]}" href="${b[0]}">${b[1]}</a>`).join('')}</div>
+      <div class="sec"><h2>Topics</h2><small>in lecture order; in each trace, one bit per flashcard, high when mastered</small></div>
       <div class="items">${rows}</div>`;
   }
 
@@ -74,34 +86,48 @@
         <div class="mfoot">${traceOf(Q.CARDS)}<span class="stat">${m} of ${n} cards mastered, ${due} due</span><a class="btn go" href="#/${ui.slug}/">Open ${esc(ui.name)}</a></div></section>`;
     }).join('');
     $app.innerHTML = `<h1>BEE 425 Quest</h1>
-      <p class="lede">Study tools for Microprocessor System Design: flashcards with spaced repetition, drills built on real simulators, written guides, and an assembler and simulator in the browser for each processor in the course. The two machines below are running now. Progress carries across both.</p>
+      <p class="lede">Study tools for Microprocessor System Design. Each processor has the same set of pages: topics that follow the lectures, written guides, flashcards, practice drills, and an assembler and simulator that run in the browser.</p>
+      <h2 class="h-s">Which processor first?</h2>
+      <ul class="plain"><li>If your lab or homework uses <b>EASy68K</b>, open the 68000.</li><li>If it uses the <b>Oshonsoft Z80 Simulator IDE</b>, open the Z80.</li><li>Not sure? Start with the 68000, which the lectures introduce first. The Z80 pages cover the same ideas on an 8-bit machine, so they work well for comparison.</li></ul>
+      <h2 class="h-s">The two machines</h2>
+      <p class="stat" style="margin:0 0 var(--s2)">Both are running real code now, on the same simulators the sandboxes use. Press Step to advance one instruction.</p>
       <div class="machines">${machines}</div>
-      <p class="stat" style="margin-top:var(--s4)"><a href="#/progress">Progress and backup</a></p>`;
+      <p class="stat" style="margin-top:var(--s4)">Your progress is shared across both. <a href="#/progress">See progress and back it up</a>.</p>`;
     $app.querySelectorAll('.machine').forEach((el) => Demo.mount(el.querySelector('.mbody'), PACKS.list[el.dataset.pack]));
   }
 
   function viewWorld(id) {
     setNav('home');
     const w = worldById(id); if (!w) return go('#/');
+    const idx = QUEST.WORLDS.indexOf(w), prev = QUEST.WORLDS[idx - 1], nextW = QUEST.WORLDS[idx + 1];
     const m = mastery(id), due = dueCards(id).length, nq = QUEST.QUIZ.filter((q) => q.world === id).length;
-    $app.innerHTML = `<p><a href="#/">← Map</a></p><div class="panel"><h1>${ico(w.icon)} ${esc(w.name)}</h1><p class="lede">${esc(w.blurb)} · from ${w.lesson}</p>
-      <div style="margin:var(--s3) 0">${traceOf(m.cs)}</div>
-      <p class="stat"><b>${m.m}</b> of ${m.n} cards mastered · <b>${due}</b> due now</p>
-      <div class="row"><a class="btn go" href="#/study/${id}">Study cards</a><a class="btn" href="#/game/blitz/${id}">Boss quiz (${nq} questions)</a>${QUEST_GUIDES.DECK_GUIDE[id] ? `<a class="btn" href="#/guide/${QUEST_GUIDES.DECK_GUIDE[id]}">${ico('book')} Read the guide</a>` : ''}</div></div>`;
+    const gid = QUEST_GUIDES.DECK_GUIDE[id], guide = gid && QUEST_GUIDES.GUIDES.find((g) => g.id === gid);
+    const games = (UI().topicGames[id] || []).map(gameById).filter(Boolean);
+    const step = (title, text, extra, act) => `<li class="step"><div class="stepmain"><h3>${title}</h3><p>${text}</p>${extra || ''}</div><div class="stepact">${act}</div></li>`;
+    const steps = [];
+    if (guide) steps.push(step('Read the guide', `<b>${esc(guide.title)}.</b> ${esc(guide.summary)}`, '', `<a class="btn go" href="#/guide/${guide.id}">Open guide</a>`));
+    steps.push(step('Review the flashcards', `${m.n} cards, ${due} due. ${m.m} mastered so far.`, traceOf(m.cs), `<a class="btn ${guide ? '' : 'go'}" href="#/study/${id}">Study cards</a>`));
+    if (games.length) steps.push(step('Practice', games.map((g) => `<b>${esc(g[2])}.</b> ${esc(g[3])}`).join('<br>'), '', games.map((g) => `<a class="btn" href="#/game/${g[0]}">${esc(g[2])}</a>`).join('')));
+    if (nq) steps.push(step('Check yourself', `A quiz of up to ${nq} multiple-choice questions on this topic.`, '', `<a class="btn" href="#/game/blitz/${id}">Start the quiz</a>`));
+    if (UI().topicSandbox.includes(id)) steps.push(step('Try it yourself', 'Run a program in the sandbox, or paste any line into Explain code to see what it does.', '', '<a class="btn" href="#/sandbox">Open sandbox</a><a class="btn" href="#/read">Explain code</a>'));
+    $app.innerHTML = `<p class="crumb"><a href="#/">Topics</a></p>
+      <h1>${ico(w.icon)} ${idx + 1}. ${esc(w.name)}</h1><p class="lede">${esc(w.blurb)}. Covers ${esc(lessonText(w.lesson).toLowerCase())}.</p>
+      <ol class="steps">${steps.join('')}</ol>
+      <div class="row" style="justify-content:space-between;margin-top:var(--s5)">${prev ? `<a class="btn" href="#/world/${prev.id}">Previous: ${esc(prev.name)}</a>` : '<span></span>'}${nextW ? `<a class="btn" href="#/world/${nextW.id}">Next: ${esc(nextW.name)}</a>` : ''}</div>`;
   }
 
   function viewCards() {
     setNav('cards');
     const weak = QUEST.CARDS.filter((c) => { const s = S.cardState(c); return s.miss > 0 && s.box < 4; }).length;
     const rows = QUEST.WORLDS.map((w) => { const m = mastery(w.id), d = dueCards(w.id).length; return item('#/study/' + w.id, w.icon, w.name, '', traceOf(m.cs), `${m.n} cards<br>${d} due`); }).join('');
-    $app.innerHTML = `<h1>Flashcards</h1><p class="lede">A card you miss comes back sooner. A card you know moves up one of five boxes and returns after 1, 2, 4 or 8 days; box 4 and above counts as mastered.</p>
+    $app.innerHTML = `<h1>Flashcards</h1><p class="lede">Each session shows up to 14 cards, hardest first. Answer from memory, flip the card, then say whether you knew it. A card you miss comes back sooner; one you know moves up one of five boxes and returns after 1, 2, 4 or 8 days. Box 4 and above counts as mastered.</p>
       <div class="row"><a class="btn go" href="#/study/all">Review all due cards (${dueCards().length})</a><a class="btn" href="#/study/weak">Weak spots (${weak})</a></div><div class="sec"><h2>Decks</h2></div><div class="items">${rows}</div>`;
   }
 
   function viewArcade() {
     setNav('arcade');
     const games = UI().arcade;
-    $app.innerHTML = `<h1>Arcade</h1><p class="lede">Eight questions per run. Correct answers earn XP, and a streak of correct answers earns a little more.</p><div class="items">${games.map((g) => item('#/game/' + g[0], g[1], g[2], g[3], '', g[4] === 'all' ? 'all lessons' : g[4])).join('')}</div>`;
+    $app.innerHTML = `<h1>Practice</h1><p class="lede">Drills with a new question every time. Most have easy, medium and hard levels. Each run is eight questions; correct answers earn XP. Not sure where to begin? Try Register Tracer on easy.</p><div class="items">${games.map((g) => { const ts = topicsFor(g[0]); return item('#/game/' + g[0], g[1], g[2], g[3], '', ts.length ? 'Topics: ' + ts.map((t) => esc(t.name)).join(', ') : (g[4] === 'all' ? 'All topics' : esc(g[4]))); }).join('')}</div>`;
   }
 
   function viewProgress() {
@@ -135,7 +161,7 @@
     if (!pool.length || practice) {
       const base = which === 'all' || which === 'weak' ? QUEST.CARDS : QUEST.CARDS.filter((c) => c.deck === which);
       if (!pool.length && !practice) {
-        $app.innerHTML = `<p><a href="#/cards">← Cards</a></p><div class="panel"><h2>Nothing due</h2><p class="lede">${esc(label)} has no cards due right now. You can still practice the lowest-box cards.</p><a class="btn go" href="#/study/${which}?practice">Practice anyway</a></div>`; return;
+        $app.innerHTML = `<p class="crumb"><a href="#/cards">Flashcards</a></p><div class="panel"><h2>Nothing due</h2><p class="lede">${esc(label)} has no cards due right now. You can still practice the lowest-box cards.</p><a class="btn go" href="#/study/${which}?practice">Practice anyway</a></div>`; return;
       }
       pool = base.slice().sort((a, b) => S.cardState(a).box - S.cardState(b).box);
     }
@@ -144,13 +170,13 @@
     function draw() {
       if (i >= deck.length) {
         const xp = known * 4 + 10; award(xp, 'session done');
-        $app.innerHTML = `<div class="panel"><h2>Session complete</h2><p class="lede">${known} of ${deck.length} remembered. Missed cards will return soon.</p><div class="row"><a class="btn go" href="#/study/${which}">Another round</a><a class="btn" href="#/cards">Decks</a></div></div>`; return;
+        $app.innerHTML = `<div class="panel"><h2>Session complete</h2><p class="lede">${known} of ${deck.length} remembered. Missed cards will return soon.</p><div class="row"><a class="btn go" href="#/study/${which}">Another round</a><a class="btn" href="${worldById(which) ? '#/world/' + which : '#/cards'}">${worldById(which) ? 'Back to the topic' : 'All decks'}</a><a class="btn" href="#/arcade">Practice drills</a></div></div>`; return;
       }
       const c = deck[i], w = worldById(c.deck);
-      $app.innerHTML = `<p><a href="#/cards">← Decks</a></p><div class="gamehead"><h1>${esc(label)}</h1><div class="progress bar"><i style="width:${(i / deck.length) * 100}%"></i></div><span class="stat"><b>${i + 1}</b>/${deck.length}</span></div>
+      $app.innerHTML = `<p class="crumb"><a href="#/cards">Flashcards</a></p><div class="gamehead"><h1>${esc(label)}</h1><div class="progress bar"><i style="width:${(i / deck.length) * 100}%"></i></div><span class="stat"><b>${i + 1}</b>/${deck.length}</span></div>
         <div class="fc"><button class="fcard ${back ? 'back' : ''}" id="flip" aria-label="Flip card"><div class="tag">${ico(w.icon)} ${esc(w.name)}, ${esc(c.src)}</div>
         <div>${back ? esc(c.a) : esc(c.q)}</div>${back ? '' : '<div class="hint">Think of the answer, then flip (Space)</div>'}</button></div>
-        ${back && QUEST_GUIDES.DECK_GUIDE[c.deck] ? `<p class="stat" style="text-align:center"><a href="#/guide/${QUEST_GUIDES.DECK_GUIDE[c.deck]}">${ico('book')} Read more in the guide</a></p>` : ''}
+        ${back && QUEST_GUIDES.DECK_GUIDE[c.deck] ? `<p class="stat" style="text-align:center"><a href="#/guide/${QUEST_GUIDES.DECK_GUIDE[c.deck]}">${ico('book')} Read the guide for this topic</a></p>` : ''}
         ${back ? '<div class="row"><button class="btn bad" id="miss">Missed it (1)</button><button class="btn go" id="got">Got it (2)</button></div>' : '<div class="row"><button class="btn" id="flip2">Show answer</button></div>'}`;
       const flip = () => { back = true; draw(); };
       document.getElementById('flip').onclick = back ? null : flip;
@@ -184,7 +210,7 @@
     if (id === 'sorter') return viewSorter();
     const def = GAMES[id]; if (!def) return go('#/arcade');
     if (def.levels && !arg) {
-      $app.innerHTML = `<p><a href="#/arcade">← Arcade</a></p><div class="panel"><h1>${ico(def.icon)} ${def.title}</h1><p class="lede">Choose a difficulty.</p><div class="row">
+      $app.innerHTML = `<p class="crumb"><a href="#/arcade">Practice</a></p><div class="panel"><h1>${ico(def.icon)} ${def.title}</h1><p class="lede">Choose a difficulty.</p><div class="row">
         <a class="btn go" href="#/game/${id}/easy">Easy</a><a class="btn" href="#/game/${id}/medium">Medium</a><a class="btn" href="#/game/${id}/hard">Hard</a></div></div>`; return;
     }
     const level = def.levels ? arg : null, world = id === 'blitz' ? arg : null;
@@ -201,7 +227,7 @@
       if (q.kind === 'fields') body = `<div class="fields">${q.fields.map((f, k) => `<label>${esc(f.label)}<input data-f="${k}" placeholder="${esc(f.ph || '')}" autocomplete="off" spellcheck="false" autocapitalize="off"></label>`).join('')}</div><button class="btn go" id="check">Check (Enter)</button>`;
       if (q.kind === 'flags') body = `<div class="flags">${q.flags.map((f) => `<button class="flag" data-flag="${f}" aria-pressed="false">${f} <span>0</span></button>`).join('')}</div><button class="btn go" id="check">Check (Enter)</button>`;
       if (q.kind === 'multi') body = `<div class="flags">${q.options.map((o) => `<button class="flag" data-flag="${o}" aria-pressed="false">${o}</button>`).join('')}</div><button class="btn go" id="check">Check (Enter)</button>`;
-      $app.innerHTML = `<p><a href="#/arcade">← Arcade</a></p><div class="gamehead"><h1>${ico(def.icon)} ${def.title}${level ? ` <span class="pill">${level}</span>` : ''}</h1>
+      $app.innerHTML = `<p class="crumb"><a href="#/arcade">Practice</a></p><div class="gamehead"><h1>${ico(def.icon)} ${def.title}${level ? ` <span class="pill">${level}</span>` : ''}</h1>
         <div class="progress bar"><i style="width:${(i / total) * 100}%"></i></div><span class="stat">Question <b>${i + 1}</b> of ${total}, <b>${right}</b> correct, streak <b>${streak}</b></span></div>
         ${def.timer ? '<div class="timer"><i id="tbar"></i></div>' : ''}
         <div class="panel"><p class="q">${esc(q.prompt)}</p>${code}${q.info || ''}${body}<div id="fb"></div></div>`;
@@ -273,7 +299,7 @@
       roundXp += award(bonus);
       if (right === total && !S.state.badges.perfect) { S.state.badges.perfect = 'x'; }
       $app.innerHTML = `<div class="panel"><h1>${ico(def.icon)} ${right} of ${total} correct</h1><p class="lede">${roundXp} XP earned this round.${missed.length ? ' Questions you missed:' : ''}</p>${missed.length ? `<ol class="missed">${missed.map((m) => `<li>${esc(m)}</li>`).join('')}</ol>` : ''}
-        <div class="row"><a class="btn go" href="#/game/${id}${arg ? '/' + arg : ''}" id="again">Play again</a><a class="btn" href="#/arcade">Arcade</a></div></div>`;
+        <div class="row"><a class="btn go" href="#/game/${id}${arg ? '/' + arg : ''}" id="again">Play again</a><a class="btn" href="#/arcade">More practice drills</a><a class="btn" href="#/cards">Review flashcards</a><a class="btn" href="#/sandbox">Open sandbox</a></div></div>`;
       cleanup = null;
     }
     next();
@@ -292,7 +318,7 @@
           const hint = hints && P.hints[it.idx] ? `<span class="cm">; ${esc(P.hints[it.idx])}</span>` : '';
           return `<button class="line ${extra || ''}" data-w="${where}" data-i="${it.idx}">${esc(it.t)}${hint}</button>`;
         };
-        $app.innerHTML = `<p><a href="#/arcade">← Arcade</a></p><div class="gamehead"><h1>${ico('sort--ascending')} Program Sorter</h1><span class="stat">${esc(P.title)} · ${P.src}</span></div>
+        $app.innerHTML = `<p class="crumb"><a href="#/arcade">Practice</a></p><div class="gamehead"><h1>${ico('sort--ascending')} Program Sorter</h1><span class="stat">${esc(P.title)} · ${P.src}</span></div>
           <div class="panel"><p class="q">${esc(P.goal)}</p><p class="lede">Click lines to add them to your program, in order. Click a placed line to send it back.</p>
           <div class="sort"><div class="col"><h3>Available lines</h3>${pool.map((it) => ln(it, 'pool')).join('') || '<span class="lede">(all placed)</span>'}</div>
           <div class="col"><h3>Your program</h3>${built.map((it, k) => ln(it, 'built', checked ? (okPos(k) ? 'right' : 'wrong') : '')).join('')}</div></div>
@@ -339,7 +365,7 @@
   function viewRead() {
     setNav('read');
     const ex = UI().examples();
-    $app.innerHTML = `<h1>Read Code</h1><p class="lede">${UI().readIntro}</p>
+    $app.innerHTML = `<h1>Explain code</h1><p class="lede">${UI().readIntro}</p>
       <div class="panel"><h3>Anatomy of a line</h3>
         ${UI().readAnatomy}</div>
       <div class="panel" style="margin-top:12px"><h3>Explain a line</h3>
@@ -366,10 +392,14 @@
   /* ---------- Guides & glossary ---------- */
   function viewGuides() {
     setNav('guides');
-    const tiles = QUEST_GUIDES.GUIDES.map((g) => item('#/guide/' + g.id, g.icon, g.title, g.summary, '', esc(g.lesson))).join('');
-    $app.innerHTML = `<h1>Guides</h1><p class="lede">Readable explanations of how everything works, in the order you'll need it. Each ends with a link to practice the topic.</p>
-      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">${ico('book')} Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a>${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}<a class="btn" href="#/tests">${ico('checkmark')} Tests &amp; audit report</a></div><div class="items" style="margin-top:var(--s4)">${tiles}</div>
-      <div class="sec"><h2>References &amp; further reading</h2><small>opens in a new tab</small></div>
+    const byId = Object.fromEntries(QUEST_GUIDES.GUIDES.map((g) => [g.id, g]));
+    const used = new Set(UI().guideGroups.flatMap(([, ids]) => ids));
+    const groups = [...UI().guideGroups, ...(QUEST_GUIDES.GUIDES.some((g) => !used.has(g.id)) ? [['More', QUEST_GUIDES.GUIDES.filter((g) => !used.has(g.id)).map((g) => g.id)]] : [])];
+    const sections = groups.map(([name, ids]) => `<div class="sec"><h2>${esc(name)}</h2></div><div class="items">${ids.map((id) => byId[id]).filter(Boolean).map((g) => item('#/guide/' + g.id, g.icon, g.title, g.summary, '', esc(lessonText(g.lesson)))).join('')}</div>`).join('');
+    $app.innerHTML = `<h1>Guides</h1><p class="lede">Written explanations, grouped from the fundamentals to reference material. Read them top to bottom, or open the one a topic points you to. Each guide ends with links to practise what it covered.</p>
+      <div class="row"><a class="btn" href="#/glossary">${ico('book')} Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Explain code</a>${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}</div>
+      ${sections}
+      <div class="sec"><h2>References and further reading</h2><small>open in a new tab</small></div>
       <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
   }
   function viewGuide(id) {
@@ -377,20 +407,27 @@
     const list = QUEST_GUIDES.GUIDES, k = list.findIndex((g) => g.id === id); if (k < 0) return go('#/guides');
     const g = list[k], prev = list[k - 1], next = list[k + 1];
     const world = QUEST.WORLDS.find((w) => w.id === g.practice[0]);
-    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><article class="guide"><h1>${ico(g.icon)} ${esc(g.title)}</h1><p class="stat">Source: ${g.lesson}</p>${QUEST_GUIDES.render(g.md)}</article>
-      <div class="panel" style="margin-top:16px"><h3>Practice this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">${esc(g.practice[1])}</a><a class="btn" href="#/sandbox">Sandbox</a></div></div>
+    let n = 0; const heads = [...g.md.matchAll(/^## (.+)$/gm)].map((m) => m[1].replace(/`/g, ''));
+    const body = QUEST_GUIDES.render(g.md).replace(/<h2>/g, () => `<h2 id="sec-${n++}">`);
+    const toc = heads.length >= 4 ? `<nav class="toc" aria-label="On this page"><b>On this page</b><ol>${heads.map((h, i) => `<li><a href="#sec-${i}" data-sec="${i}">${esc(h)}</a></li>`).join('')}</ol></nav>` : '';
+    $app.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p><article class="guide"><h1>${ico(g.icon)} ${esc(g.title)}</h1><p class="stat">Source: ${esc(lessonText(g.lesson))}</p>${toc}${body}</article>
+      <div class="panel" style="margin-top:16px"><h3>Practise this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">Practice drills</a><a class="btn" href="#/sandbox">Sandbox</a></div></div>
       ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel" style="margin-top:12px"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${ico(t.icon)} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">${ico('book')} Glossary</a>${g.id !== 'errata' ? `<a class="btn" href="#/guide/errata">${ico('warning--alt')} Slide errata</a>` : ''}</div></div>` : ''}
-      <div class="row" style="justify-content:space-between;margin-top:14px">${prev ? `<a class="btn" href="#/guide/${prev.id}">← ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/guide/${next.id}">${esc(next.title)} →</a>` : ''}</div>`;
+      <div class="row" style="justify-content:space-between;margin-top:14px">${prev ? `<a class="btn" href="#/guide/${prev.id}">Previous: ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/guide/${next.id}">Next: ${esc(next.title)}</a>` : ''}</div>`;
   }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('.toc a[data-sec]'); if (!a) return;
+    e.preventDefault(); const el = document.getElementById('sec-' + a.dataset.sec); if (el) el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  });
   function viewGlossary() {
     setNav('guides');
     const all = QUEST_GUIDES.GLOSSARY;
-    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>Glossary</h1><input id="gq" class="addr" style="width:100%;font-size:1rem" placeholder="Search terms and definitions…" aria-label="Search the glossary" autocomplete="off"><p class="stat" id="gcount"></p><dl id="gl" class="gloss"></dl>`;
+    $app.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p><h1>Glossary</h1><input id="gq" class="addr" style="width:100%;font-size:1rem" placeholder="Search terms and definitions…" aria-label="Search the glossary" autocomplete="off"><p class="stat" id="gcount"></p><dl id="gl" class="gloss"></dl>`;
     const draw = () => {
       const q = document.getElementById('gq').value.trim().toLowerCase();
       const hit = all.filter((t) => !q || t.term.toLowerCase().includes(q) || t.def.toLowerCase().includes(q));
       document.getElementById('gcount').textContent = `${hit.length} of ${all.length} terms`;
-      document.getElementById('gl').innerHTML = hit.map((t) => `<dt>${esc(t.term)} <span class="pill">${t.cat} · ${t.lesson}</span></dt><dd>${esc(t.def)}${QUEST_GUIDES.CAT_GUIDE[t.cat] ? ` <a href="#/guide/${QUEST_GUIDES.CAT_GUIDE[t.cat]}">Read more →</a>` : ''}</dd>`).join('');
+      document.getElementById('gl').innerHTML = hit.map((t) => `<dt>${esc(t.term)} <span class="pill">${t.cat} · ${t.lesson}</span></dt><dd>${esc(t.def)}${QUEST_GUIDES.CAT_GUIDE[t.cat] ? ` <a href="#/guide/${QUEST_GUIDES.CAT_GUIDE[t.cat]}">Read the guide</a>` : ''}</dd>`).join('');
     };
     document.getElementById('gq').oninput = draw; draw();
   }
@@ -400,7 +437,7 @@
   function viewTests() {
     setNav('guides');
     const id = P();
-    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>Tests &amp; content audit <span class="pill">${esc(UI().fullName)}</span></h1>
+    $app.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p><h1>How accurate is this site? <span class="pill">${esc(UI().fullName)}</span></h1>
       ${UI().testsIntro}
       <div id="auditbox"><p class="stat">Loading audit results…</p></div>`;
     const draw = () => {
@@ -410,9 +447,10 @@
       const tbl = kinds.map((k) => `<tr><td>${k}</td>${verdicts.map((v) => `<td class="mono">${rows.filter((r) => r.kind === k && r.verdict === v).length}</td>`).join('')}<td class="mono">${rows.filter((r) => r.kind === k).length}</td></tr>`).join('');
       box.innerHTML = `<div class="panel" style="margin-top:12px"><h3>Content audit summary</h3><div class="tablewrap"><table class="gt"><thead><tr><th>Content</th><th>Confirmed</th><th>Corrected</th><th>Unverified</th><th>Total</th></tr></thead><tbody>${tbl}</tbody></table></div>
         <p class="stat">${esc(A.note || '')}</p></div>
+        <details class="more" style="margin-top:var(--s3)"><summary>Show every audited item (${rows.length})</summary>
         <div class="row" style="margin:12px 0"><select id="avk" class="btn" aria-label="Filter by content"><option value="">All content</option>${kinds.map((k) => `<option>${k}</option>`).join('')}</select>
         <select id="avv" class="btn" aria-label="Filter by verdict"><option value="">All verdicts</option>${verdicts.map((v) => `<option>${v}</option>`).join('')}</select><input id="avq" class="addr" style="flex:1;min-width:160px" placeholder="Search…" aria-label="Search audit results"></div>
-        <div id="avlist"></div>`;
+        <div id="avlist"></div></details>`;
       const list = () => {
         const k = document.getElementById('avk').value, v = document.getElementById('avv').value, q = document.getElementById('avq').value.toLowerCase();
         const hit = rows.filter((r) => (!k || r.kind === k) && (!v || r.verdict === v) && (!q || ((r.title || '') + (r.evidence || '')).toLowerCase().includes(q)));
@@ -424,11 +462,12 @@
   }
 
   /* ---------- shell: header, links, router ---------- */
-  const BASE_NAV = [['home', 'Map', '#/'], ['cards', 'Cards', '#/cards'], ['arcade', 'Arcade', '#/arcade'], ['guides', 'Guides', '#/guides'], ['read', 'Read Code', '#/read'], ['sandbox', 'Sandbox', '#/sandbox']];
+  const BASE_NAV = [['home', 'Topics', '#/'], ['guides', 'Guides', '#/guides'], ['cards', 'Flashcards', '#/cards'], ['arcade', 'Practice', '#/arcade'], ['read', 'Explain code', '#/read'], ['sandbox', 'Sandbox', '#/sandbox']];
   function renderHeader() {
     const nav = document.querySelector('.nav'), sw = document.getElementById('cpusw');
     sw.innerHTML = PACKS.order.map((id) => { const u = PACKS.list[id].PACK_UI; return `<a href="#/${u.slug}/" class="${id === P() ? 'on' : ''}" aria-label="${esc(u.fullName)}">${u.chip}</a>`; }).join('');
     const items = P() ? [...BASE_NAV.map(([k, l, h]) => [k, l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['progress', 'Progress', '#/progress']] : [['progress', 'Progress', '#/progress']];
+    const ft = document.getElementById('foot'); if (ft) ft.innerHTML = `Built from BEE 425 F26 Lessons 3&ndash;8. Progress is saved in this browser only. ${P() ? `<a href="${here()}tests">How accurate is this site?</a> &middot; ` : ''}<a href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener">Source code on GitHub</a>`;
     nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('');
   }
   // links written as "#/guide/x" inside a processor's pages point at that processor's page: rewrite them once rendered

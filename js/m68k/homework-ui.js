@@ -11,7 +11,7 @@
 
   function viewList(root, ctx) {
     const hw = H().HW2, S = ctx.Store;
-    root.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>${esc(hw.title)}</h1><p class="stat">Due ${esc(hw.due)}</p>
+    root.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p><h1>${esc(hw.title)}</h1><p class="stat">Due ${esc(hw.due)}</p>
       <p class="lede">${esc(hw.intro)}</p>
       <div class="row" style="margin-bottom:12px"><a class="btn" href="#/guide/workflow">Using EASy68K: files, list file, S-records</a><a class="btn" href="#/sandbox">Open the sandbox</a></div>
       <div class="grid">${hw.problems.map((p) => `<a class="tile" href="#/homework/hw2/${p.n}"><span class="ico">${p.n}</span><span class="nm">Problem ${p.n}: ${esc(p.title)}</span><span class="sub">${esc(p.ask)}</span><span class="meta"><span>${done(S, 'hw2', p.n) ? '✔ checked' : p.check ? 'not checked yet' : ''}</span></span></a>`).join('')}</div>
@@ -29,7 +29,7 @@
     if (!p) { location.hash = '#/68k/homework'; return; }
     const prev = hw.problems[n - 2], next = hw.problems[n];
     const sol = p.solutions.filter((s) => s.code);
-    root.innerHTML = `<p><a href="#/homework">← ${esc(hw.title)}</a></p><h1>Problem ${p.n}: ${esc(p.title)}</h1>
+    root.innerHTML = `<p class="crumb"><a href="#/homework">${esc(hw.title)}</a></p><h1>Problem ${p.n}: ${esc(p.title)}</h1>
       <div class="panel"><b>What it asks</b><p style="margin:.4em 0 0">${esc(p.ask)}</p></div>
       ${p.concepts.length ? `<div class="row" style="margin:10px 0"><span class="stat">Concepts:</span>${p.concepts.map((c) => `<a class="btn ghost" href="${c[1]}">${esc(c[0])}</a>`).join('')}</div>` : ''}
       ${p.hints.length ? `<div class="sec"><h2>Hints</h2><small>one at a time</small></div><div id="hints"></div><button class="btn" id="hintbtn">Show hint 1 of ${p.hints.length}</button>` : ''}
@@ -38,7 +38,7 @@
       <details class="wk"><summary class="btn">Show the walkthrough${p.n === 1 ? ' (includes the answer)' : ''}</summary><div class="guide" style="margin-top:10px">${md(p.walkthrough.map((s, i) => `${i + 1}. **${s[0]}.** ${s[1]}`).join('\n'))}</div></details>
       ${p.check ? `<div class="sec"><h2>Solution and trace</h2></div>
       <details class="wk"><summary class="btn">Show the verified solution${sol.length > 1 ? 's' : ''}</summary><div id="solbox" style="margin-top:10px"></div></details>` : ''}
-      <div class="row" style="justify-content:space-between;margin-top:18px">${prev ? `<a class="btn" href="#/homework/hw2/${prev.n}">← Problem ${prev.n}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/homework/hw2/${next.n}">Problem ${next.n} →</a>` : ''}</div>`;
+      <div class="row" style="justify-content:space-between;margin-top:18px">${prev ? `<a class="btn" href="#/homework/hw2/${prev.n}">Previous: Problem ${prev.n}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/homework/hw2/${next.n}">Next: Problem ${next.n}</a>` : ''}</div>`;
 
     /* hints */
     if (p.hints.length) {

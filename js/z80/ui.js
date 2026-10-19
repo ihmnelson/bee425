@@ -4,10 +4,13 @@ window.PACK_UI = {
   projects: { key: 'qz80.projects.v1', ext: 'asm', label: 'Z80' },
   tagline: 'Registers A, HL, IX, PUSH/POP, LD and friends, Oshonsoft-style sandbox with exact T-states.',
   hero: {
-    title: 'Learn Z80 assembly by playing.',
-    lede: 'Flashcards with spaced repetition, a built-in Z80 simulator that makes endless practice problems, and quick arcade drills, all drawn from your Lesson 3&ndash;8 slides. The sandbox follows the Oshonsoft Z80 Simulator IDE used in the lab.',
-    buttons: [['#/guides', 'Guides', ''], ['#/guide/oshonsoft', 'Oshonsoft guide', ''], ['#/sandbox', 'Open sandbox', '']],
+    title: 'Z80 assembly',
+    lede: 'Topics follow lectures 3 to 8, and the sandbox mirrors the Oshonsoft Z80 Simulator IDE used in the lab.',
+    buttons: [['#/guide/oshonsoft', 'Oshonsoft guide', '']],
   },
+  topicGames: { cpu: ['flags'], num: ['numbers'], dirs: ['bugs', 'sorter'], inst: ['tracer', 'flags'], modes: ['modes'], flow: ['branch', 'sorter'], hw: ['hardware'], io: ['hardware'], sim: [], m68: [] },
+  topicSandbox: ['dirs', 'inst', 'modes', 'flow', 'sim'],
+  guideGroups: [['Foundations', ['cpu', 'numbers', 'model']], ['Writing programs', ['machine-code', 'syntax', 'instructions', 'modes', 'branches', 'stack']], ['Hardware', ['memory', 'transistor']], ['Tools and reference', ['oshonsoft', 'vs68k', 'errata']]],
   arcade: [
     ['tracer', '🧮', 'Register Tracer', 'Run code in your head. Results come from a real Z80 simulator.', 'L4-5'],
     ['flags', '🚩', 'Flag Flipper', 'Set the S Z H P/V N C flags after ADD, SUB, CP...', 'L3, L5'],
@@ -17,7 +20,7 @@ window.PACK_UI = {
     ['sorter', '🧩', 'Program Sorter', 'Put real lecture programs back in order.', 'L4-5'],
     ['numbers', '🥷', 'Number Ninja', 'Hex, binary, decimal and two\'s complement.', 'L3'],
     ['hardware', '🧱', 'Hardware Lab', 'Address lines, page decoding, base resistors.', 'L6-8'],
-    ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across every world.', 'all'],
+    ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across all topics.', 'all'],
   ],
   navExtra: [],
   guidesButtons: [['#/guide/oshonsoft', 'Oshonsoft IDE guide']],
@@ -49,7 +52,7 @@ LOOP:   ADD A,B
     },
   },
   auditFile: 'tests/z80/data/audit.js',
-  testsIntro: `<p class="lede">What was checked, how, and what is still unverified. The simulator is an independent implementation written from Zilog's manual; it was tested against hardware-derived data and real tools, not against the Oshonsoft IDE (which was not available).</p>
+  testsIntro: `<p class="lede"><b>In short:</b> the Z80 simulator passes 1.6 million single-instruction tests derived from real hardware, the assembler agrees with an independent disassembler, and the content was checked against the lecture slides, Zilog's manual and Oshonsoft's help pages. It has not been compared with the Oshonsoft program itself, so small differences in that tool's behaviour are possible. Details follow.</p><p class="lede">What was checked, how, and what is still unverified. The simulator is an independent implementation written from Zilog's manual; it was tested against hardware-derived data and real tools, not against the Oshonsoft IDE (which was not available).</p>
       <div class="panel"><h3>Simulator and assembler verification</h3><ul>
         <li><b>CPU core:</b> run against the <a href="https://github.com/SingleStepTests/z80" target="_blank" rel="noopener">SingleStepTests/z80</a> vectors (MIT licence): 1,604 files &times; 1,000 cases = <b>1,604,000 single-instruction tests</b> covering every documented and undocumented opcode. Each test compares all registers, the alternate set, flags including the undocumented bits 3 and 5, the internal WZ register, memory, port accesses and the <b>exact T-state count</b>. Result: <b>0 failures</b> (<code>node tests/z80/oracle/vectors.js &lt;path to z80/v1&gt;</code>).</li>
         <li><b>Assembler:</b> every opcode byte sequence was disassembled by <code>z80dasm</code> (a real, independent disassembler); its text was assembled by this site's assembler and the bytes compared: <b>1,250 instruction forms, 0 mismatches</b> (538 undefined opcode sequences skipped). Run <code>node tests/z80/oracle/asmcheck.js</code>. The assembler also reproduces the test example printed in the Oshonsoft help.</li>

@@ -16,7 +16,8 @@
 
     root.innerHTML = `
       <h1>Sandbox <span class="pill">EASy68K-compatible</span></h1>
-      <p class="lede">A 68000 editor, assembler and simulator that runs real machine code. Write a program, assemble it, then step or run it and watch registers, flags, memory and the stack. Output and input go through <code>TRAP #15</code>, as in EASy68K.</p>
+      <p class="lede">Write 68000 assembly, assemble it, then run it or step through it one instruction at a time. The assembler and simulator work on real machine code and accept EASy68K source. Output and input go through <code>TRAP #15</code>, as in EASy68K.</p>
+      <ol class="steps-inline"><li>Pick an example, or type your own program.</li><li>Choose <b>Assemble</b> (Ctrl+Enter). Any errors are listed under the editor.</li><li>Choose <b>Step</b> to run one instruction and watch the registers change, or <b>Run</b> to run to the end.</li></ol>
       <div class="toolbar">
         <select id="ex" class="btn" aria-label="Example programs"><option value="">Examples…</option>${EX.map((e, i) => `<option value="${i}">${esc(e.name)}</option>`).join('')}</select>
         <button class="btn go" id="asm" title="Assemble (Ctrl+Enter)">Assemble</button>
@@ -27,7 +28,9 @@
         <button class="btn" id="run" disabled>Run</button>
         <button class="btn" id="pause" disabled>Pause</button>
         <button class="btn ghost" id="rst" disabled>Reset</button>
-        <span class="sep"></span>
+      </div>
+      <details class="more"><summary>Files, options and saved projects</summary>
+      <div class="toolbar">
         <label class="btn ghost" for="openf">Open…</label><input type="file" id="openf" accept=".x68,.X68,.asm,.txt,text/plain" hidden>
         <button class="btn ghost" id="dl-x68">Save .X68</button>
         <button class="btn ghost" id="dl-s68" disabled>.S68</button>
@@ -44,6 +47,7 @@
         <label class="btn ghost" for="prest">Restore…</label><input type="file" id="prest" accept=".json,application/json" hidden>
       </div>
       <p class="stat" id="projnote"></p>
+      </details>
       <div class="sbgrid">
         <div class="col-main">
           <div id="editorbox" class="edwrap"><pre id="gutter" class="gutter" aria-hidden="true">1</pre><textarea id="src" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Assembly source"></textarea></div>

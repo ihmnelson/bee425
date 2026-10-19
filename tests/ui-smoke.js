@@ -71,6 +71,11 @@ async function open(storage) {
   // 68K homework pages (only the 68000 has them)
   app = await go('#/68k/homework/hw2/1'); if (!/Problem 1/.test(app.textContent)) fail('68k homework problem page'); if (![...app.querySelectorAll('a')].every((a) => !/^#\/homework/.test(a.getAttribute('href') || ''))) fail('homework links not prefixed');
   app = await go('#/z80/homework'); if (/Homework 2/.test(app.textContent)) fail('Z80 should not show 68K homework');
+  // a topic is a lesson plan; a long guide has contents; the nav names the four activities
+  app = await go('#/68k/world/inst'); if (app.querySelectorAll('.step').length < 4 || !/Previous|Next/.test(app.textContent)) fail('topic page should be a numbered lesson plan with previous/next');
+  app = await go('#/z80/guide/instructions'); if (!app.querySelector('.toc a')) fail('long guide should show a contents list');
+  app = await go('#/68k/'); if (!/How to study/.test(app.textContent) || !/Start with topic 1/.test(app.textContent)) fail('first visit should say where to start');
+  { const names = [...d.querySelectorAll('.nav a')].map((a) => a.textContent); if (!['Topics', 'Guides', 'Flashcards', 'Practice', 'Explain code', 'Sandbox'].every((n) => names.includes(n))) fail('nav labels: ' + names.join(',')); }
   // header switches with the processor
   await go('#/z80/'); if (!/Z80/.test(d.title) || !d.querySelector('#cpusw a.on') || d.querySelector('#cpusw a.on').textContent !== 'Z80') fail('processor switcher state');
   if (![...d.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#/z80/sandbox')) fail('nav links not prefixed for Z80');

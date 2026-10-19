@@ -18,7 +18,8 @@
 
     root.innerHTML = `
       <h1>Sandbox <span class="pill">Oshonsoft-style Z80</span></h1>
-      <p class="lede">A Z80 editor, assembler and simulator that runs real machine code with exact T-states. Write a program, assemble it, then step or run it and watch registers, flags, memory and the stack. Output goes to the terminal on port <code>02H</code>; <code>IN</code> reads port <code>01H</code> and asks you for a value, as the Oshonsoft IDE does.</p>
+      <p class="lede">Write Z80 assembly, assemble it, then run it or step through it one instruction at a time. The assembler and simulator work on real machine code, with exact T-states, and follow the Oshonsoft Z80 Simulator IDE. Output goes to the terminal on port <code>02H</code>; <code>IN</code> reads port <code>01H</code> and asks you for a value, as the IDE does.</p>
+      <ol class="steps-inline"><li>Pick an example, or type your own program.</li><li>Choose <b>Assemble</b> (Ctrl+Enter). Any errors are listed under the editor.</li><li>Choose <b>Step</b> to run one instruction and watch the registers change, or <b>Run</b> to run to the end.</li></ol>
       <div class="toolbar">
         <select id="ex" class="btn" aria-label="Example programs"><option value="">Examples…</option>${EX.map((e, i) => `<option value="${i}">${esc(e.name)}</option>`).join('')}</select>
         <button class="btn go" id="asm" title="Assemble (Ctrl+Enter)">Assemble</button>
@@ -32,7 +33,9 @@
         <span class="sep"></span>
         <button class="btn" id="int" disabled title="Raise the maskable interrupt (INT) line">INT</button>
         <button class="btn ghost" id="nmi" disabled title="Raise the non-maskable interrupt">NMI</button>
-        <span class="sep"></span>
+      </div>
+      <details class="more"><summary>Files, options and saved projects</summary>
+      <div class="toolbar">
         <label class="btn ghost" for="openf">Open…</label><input type="file" id="openf" accept=".asm,.ASM,.z80,.txt,text/plain" hidden>
         <button class="btn ghost" id="dl-asm">Save .asm</button>
         <button class="btn ghost" id="dl-lst" disabled>.lst</button>
@@ -56,6 +59,7 @@
         <label class="btn ghost" for="prest">Restore…</label><input type="file" id="prest" accept=".json,application/json" hidden>
       </div>
       <p class="stat" id="projnote"></p>
+      </details>
       <div class="sbgrid">
         <div class="col-main">
           <div id="editorbox" class="edwrap"><pre id="gutter" class="gutter" aria-hidden="true">1</pre><textarea id="src" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Assembly source"></textarea></div>

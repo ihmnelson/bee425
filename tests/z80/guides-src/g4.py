@@ -127,7 +127,7 @@ out.append("""/* Written guides and glossary for Z80 Quest. Content follows BEE 
 (function (root) {
   'use strict';
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const inline = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<b>$1</b>');
+  const inline = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<b>$1</b>').split(/(<code>.*?<\\/code>)/).map((seg, i) => (i % 2 ? seg : seg.replace(/(^|[^*\\w])\\*([^*\\n]+)\\*(?![*\\w])/g, '$1<em>$2</em>'))).join('');
 """)
 # reuse the renderer from the 68K site verbatim
 import os
@@ -151,6 +151,6 @@ out.append("""  const api = { GUIDES, GLOSSARY, render, SEE, DECK_GUIDE, CAT_GUI
   else root.QUEST_GUIDES = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 """)
-dest = os.path.join(HERE, '..', '..', 'js', 'guides.js')
+dest = os.path.join(HERE, '..', '..', '..', 'js', 'z80', 'guides.js')
 open(dest, 'w', encoding='utf8').write(''.join(out))
 print('guides:', len(G), 'glossary:', len(GL))
