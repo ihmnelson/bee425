@@ -3,44 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>68K Quest</title>
-<meta name="description" content="Gamified practice for 68000 assembly, from BEE 425 lessons 3-8.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1220'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='bold' text-anchor='middle' fill='%2339ff9c'%3E68%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=20261016b">
+<title>BEE 425 Quest</title>
+<meta name="description" content="Gamified study tools for BEE 425 Microprocessor System Design: 68000 and Z80 assembly, flashcards, arcade games, guides and in-browser simulators.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1220'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='11' font-weight='bold' text-anchor='middle' fill='%2339ff9c'%3E425%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=20261019a">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="#/" aria-label="68K Quest home"><span class="chip">68K</span> Quest</a>
+  <a class="brand" href="#/" aria-label="BEE 425 Quest home"><span class="chip">BEE425</span> Quest</a>
+  <div class="cpusw" id="cpusw" role="navigation" aria-label="Processor"></div>
   <div class="hud" id="hud" aria-live="polite"></div>
-  <nav class="nav">
-    <a href="#/" data-nav="home">Map</a>
-    <a href="#/cards" data-nav="cards">Cards</a>
-    <a href="#/arcade" data-nav="arcade">Arcade</a>
-    <a href="#/guides" data-nav="guides">Guides</a>
-    <a href="#/read" data-nav="read">Read Code</a>
-    <a href="#/sandbox" data-nav="sandbox">Sandbox</a>
-    <a href="#/homework" data-nav="homework">Homework</a>
-    <a href="#/progress" data-nav="progress">Progress</a>
-    <a class="codebtn" href="https://github.com/ihmnelson/bee425-68k-quest" target="_blank" rel="noopener" aria-label="View the source code on GitHub">&lt;/&gt; Code</a>
-  </nav>
+  <nav class="nav"></nav>
 </header>
 <main id="app" tabindex="-1"></main>
 <div id="toasts" aria-live="polite"></div>
-<footer class="foot">Built from BEE 425 F26 Lessons 3&ndash;8. Progress is saved in this browser only. <a href="https://github.com/ihmnelson/bee425-68k-quest" target="_blank" rel="noopener">Source code on GitHub</a></footer>
-<script src="js/cpu.js?v=20261016b"></script>
-<script src="js/asm.js?v=20261016b"></script>
-<script src="js/io.js?v=20261016b"></script>
-<script src="js/examples.js?v=20261016b"></script>
-<script src="js/snippet.js?v=20261016b"></script>
-<script src="js/data.js?v=20261016b"></script>
-<script src="js/store.js?v=20261016b"></script>
-<script src="js/games.js?v=20261016b"></script>
-<script src="js/explain.js?v=20261016b"></script>
-<script src="js/guides.js?v=20261016b"></script>
-<script src="js/homework.js?v=20261016b"></script>
-<script src="js/homework-ui.js?v=20261016b"></script>
-<script src="js/projects.js?v=20261016b"></script>
-<script src="js/sandbox-ui.js?v=20261016b"></script>
-<script src="js/app.js?v=20261016b"></script>
+<footer class="foot">Built from BEE 425 F26 Lessons 3&ndash;8. Progress is saved in this browser only. <a href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener">Source code on GitHub</a></footer>
+<script>window.BUILD = '20261019a';</script>
+<script src="js/shell/packs.js?v=20261019a"></script>
+<script src="js/shell/projects.js?v=20261019a"></script>
+<script src="js/shell/store.js?v=20261019a"></script>
+<!-- 68000 pack -->
+<script src="js/m68k/cpu.js?v=20261019a"></script>
+<script src="js/m68k/asm.js?v=20261019a"></script>
+<script src="js/m68k/io.js?v=20261019a"></script>
+<script src="js/m68k/examples.js?v=20261019a"></script>
+<script src="js/m68k/snippet.js?v=20261019a"></script>
+<script src="js/m68k/data.js?v=20261019a"></script>
+<script src="js/m68k/games.js?v=20261019a"></script>
+<script src="js/m68k/explain.js?v=20261019a"></script>
+<script src="js/m68k/guides.js?v=20261019a"></script>
+<script src="js/m68k/homework.js?v=20261019a"></script>
+<script src="js/m68k/homework-ui.js?v=20261019a"></script>
+<script src="js/m68k/sandbox-ui.js?v=20261019a"></script>
+<script src="js/m68k/ui.js?v=20261019a"></script>
+<script>PACKS.capture('m68k');</script>
+<!-- Z80 pack -->
+<script src="js/z80/cpu.js?v=20261019a"></script>
+<script src="js/z80/asm.js?v=20261019a"></script>
+<script src="js/z80/dis.js?v=20261019a"></script>
+<script src="js/z80/io.js?v=20261019a"></script>
+<script src="js/z80/examples.js?v=20261019a"></script>
+<script src="js/z80/snippet.js?v=20261019a"></script>
+<script src="js/z80/data.js?v=20261019a"></script>
+<script src="js/z80/games.js?v=20261019a"></script>
+<script src="js/z80/explain.js?v=20261019a"></script>
+<script src="js/z80/guides.js?v=20261019a"></script>
+<script src="js/z80/sandbox-ui.js?v=20261019a"></script>
+<script src="js/z80/ui.js?v=20261019a"></script>
+<script>PACKS.capture('z80');</script>
+<script src="js/shell/app.js?v=20261019a"></script>
 </body>
 </html>

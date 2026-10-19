@@ -1,7 +1,7 @@
 // Differential fuzzer: random single instructions run in the real EASy68K (oracle) and in my assembler+CPU.
 // usage: node fuzz.js [count] [seed] [outFile]
 const fs = require('fs'), cp = require('child_process'), path = require('path'); // eslint-disable-line
-const P = path.join(__dirname, '..', '..', 'js') + path.sep;
+const P = path.join(__dirname, '..', '..', '..', 'js', 'm68k') + path.sep;
 const { assemble } = require(P + 'asm.js');
 const { CPU } = require(P + 'cpu.js');
 const ORA = process.env.EASY68K_ORACLE || __dirname;   // directory containing src/bin/asm68k and the osim harness binary

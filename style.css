@@ -240,3 +240,13 @@ details.wk[open] > summary { margin-bottom: 4px; }
 
 .projbar { margin-bottom: 2px; }
 #proj { min-width: 160px; max-width: 100%; }
+
+/* processor switcher and the BEE 425 landing page */
+.cpusw { display: flex; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 2px; }
+.cpusw a { color: var(--dim); text-decoration: none; font: 700 .85rem var(--mono); padding: 4px 10px; border-radius: 8px; }
+.cpusw a:hover { color: var(--text); }
+.cpusw a.on { background: var(--amber); color: #1a1000; }
+.tile.big { padding: 22px; }
+.tile.big .ico { font: 800 1.6rem var(--mono); color: var(--amber); }
+.tile.big .nm { font-size: 1.3rem; }
+@media (max-width: 1100px) { .top { flex-wrap: wrap; } .nav { width: 100%; margin-left: 0; } }

@@ -1,0 +1,25 @@
+  function render(md) {
+    const lines = md.replace(/\r/g, '').split('\n'); const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^```/.test(l)) { const buf = []; i++; while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]); i++; out.push(`<pre class="code">${esc(buf.join('\n'))}</pre>`); continue; }
+      if (/^### /.test(l)) { out.push(`<h3>${inline(l.slice(4))}</h3>`); i++; continue; }
+      if (/^## /.test(l)) { out.push(`<h2>${inline(l.slice(3))}</h2>`); i++; continue; }
+      if (/^> /.test(l)) { const buf = []; while (i < lines.length && /^> /.test(lines[i])) buf.push(lines[i++].slice(2)); out.push(`<aside class="callout">${inline(buf.join(' '))}</aside>`); continue; }
+      if (/^\|/.test(l)) {
+        const rows = []; while (i < lines.length && /^\|/.test(lines[i])) rows.push(lines[i++]);
+        const cells = (r) => r.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+        const head = cells(rows[0]), body = rows.slice(/^\|[\s:|-]+\|?$/.test(rows[1] || '') ? 2 : 1).map(cells);
+        out.push(`<div class="tablewrap"><table class="gt"><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead><tbody>${body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);
+        continue;
+      }
+      if (/^- /.test(l)) { const buf = []; while (i < lines.length && /^- /.test(lines[i])) buf.push(lines[i++].slice(2)); out.push(`<ul>${buf.map((b) => `<li>${inline(b)}</li>`).join('')}</ul>`); continue; }
+      if (/^\d+\. /.test(l)) { const buf = []; while (i < lines.length && /^\d+\. /.test(lines[i])) buf.push(lines[i++].replace(/^\d+\. /, '')); out.push(`<ol>${buf.map((b) => `<li>${inline(b)}</li>`).join('')}</ol>`); continue; }
+      if (!l.trim()) { i++; continue; }
+      const buf = []; while (i < lines.length && lines[i].trim() && !/^(```|## |### |> |\||- |\d+\. )/.test(lines[i])) buf.push(lines[i++]);
+      out.push(`<p>${inline(buf.join(' '))}</p>`);
+    }
+    return out.join('\n');
+  }
+

@@ -1,7 +1,16 @@
 (function () {
   'use strict';
-  const S = Store, G = Games, esc = G.esc;
+  const S = Store;
+  const G = new Proxy({}, { get: (_, k) => window.Games[k] });          // always the open processor's games
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const $app = document.getElementById('app');
+  const P = () => PACKS.cur;                                            // id of the open processor, or null on course pages
+  const UI = () => PACKS.ui;
+  const slugOf = (id) => PACKS.list[id].PACK_UI.slug;
+  const packBySlug = (slug) => PACKS.order.find((id) => PACKS.list[id].PACK_UI.slug === slug);
+  const here = () => '#/' + slugOf(P()) + '/';
+  // go to a route of the open processor (or an absolute route when it already names one)
+  const go = (h) => { location.hash = /^#\/(68k|z80|progress)/.test(h) || !P() ? h : h.replace(/^#\//, here()); };
   const worldById = (id) => QUEST.WORLDS.find((w) => w.id === id);
 
   /* ---------- helpers ---------- */
@@ -24,16 +33,14 @@
     document.getElementById('hud').innerHTML =
       `<span>Lv <b>${lv}</b> ${esc(S.title(lv))}</span><span class="xpbar" title="${xp} XP"><i style="width:${pct}%"></i></span><span>🔥 <b>${S.streakDays()}</b>d</span>`;
   }
-  const colorize = (src) => esc(src).split('\n').map((l) => l
-    .replace(/(\*.*|;.*)$/, '<span class="cm">$1</span>')
-    .replace(/(#?[$%]?\b[0-9A-F]+\b)(?![^<]*>)/g, (m) => (/^#?[$%]/.test(m) ? `<span class="num">${m}</span>` : m))).join('\n');
+  const colorize = (src) => esc(src).split('\n').map((l) => UI().colorize(l)).join('\n');
 
-  function setNav(name) { document.querySelectorAll('.nav a').forEach((a) => a.classList.toggle('on', a.dataset.nav === name)); }
+  function setNav(name) { document.querySelectorAll('.nav a[data-nav]').forEach((a) => a.classList.toggle('on', a.dataset.nav === name)); }
   const mastery = (deck) => { const cs = QUEST.CARDS.filter((c) => c.deck === deck); return { n: cs.length, m: cs.filter(S.isMastered).length }; };
   const dueCards = (deck) => QUEST.CARDS.filter((c) => (!deck || c.deck === deck) && S.cardState(c).due <= Date.now());
 
   /* ---------- views ---------- */
-  function viewHome() {
+  function viewMap() {
     setNav('home');
     const due = dueCards().length;
     const tiles = QUEST.WORLDS.map((w) => {
@@ -43,9 +50,9 @@
     }).join('');
     $app.innerHTML = `
       <div class="hero">
-        <div class="panel"><h1>Learn 68000 assembly by playing.</h1>
-          <p class="lede">Flashcards with spaced repetition, a built-in 68K simulator that makes endless practice problems, and quick arcade drills, all drawn from your Lesson 3&ndash;8 slides.</p>
-          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a><a class="btn" href="#/guides">Guides</a><a class="btn" href="#/homework">Homework 2</a><a class="btn" href="#/sandbox">Open sandbox</a></div></div>
+        <div class="panel"><h1>${UI().hero.title}</h1>
+          <p class="lede">${UI().hero.lede}</p>
+          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a>${UI().hero.buttons.map((b) => `<a class="btn ${b[2]}" href="${b[0]}">${b[1]}</a>`).join('')}</div></div>
         <div class="panel"><h3>Your run</h3><div class="statgrid" style="grid-template-columns:1fr 1fr">
           <div class="panel"><b>${S.state.stats.right}</b>correct</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div></div>
       </div>
@@ -53,9 +60,26 @@
       <div class="grid">${tiles}</div>`;
   }
 
+  function viewCourse() {
+    setNav('');
+    const cards = PACKS.order.map((id) => {
+      const pk = PACKS.list[id], ui = pk.PACK_UI, Q = pk.QUEST;
+      const n = Q.CARDS.length, m = Q.CARDS.filter(S.isMastered).length, due = Q.CARDS.filter((c) => S.cardState(c).due <= Date.now()).length;
+      return `<a class="tile big" href="#/${ui.slug}/"><span class="ico">${ui.chip}</span><span class="nm">${esc(ui.fullName)}</span><span class="sub">${esc(ui.tagline)}</span>
+        <div class="bar"><i style="width:${Math.round((m / n) * 100)}%"></i></div><span class="meta"><span>${m}/${n} cards mastered</span><span>${due} due</span></span></a>`;
+    }).join('');
+    $app.innerHTML = `<div class="hero"><div class="panel"><h1>BEE 425 Quest</h1>
+        <p class="lede">Study tools for Microprocessor System Design: flashcards with spaced repetition, arcade drills built on real simulators, written guides and an in-browser assembler and simulator for each processor in the course. Pick one to start; your XP, streak and badges carry across both.</p>
+        <div class="row"><a class="btn" href="#/progress">Progress &amp; backup</a></div></div>
+        <div class="panel"><h3>Your run</h3><div class="statgrid" style="grid-template-columns:1fr 1fr">
+          <div class="panel"><b>${S.state.stats.right}</b>correct</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div></div></div>
+      <div class="sec"><h2>Choose a processor</h2><small>the lecture compares them side by side</small></div>
+      <div class="grid">${cards}</div>`;
+  }
+
   function viewWorld(id) {
     setNav('home');
-    const w = worldById(id); if (!w) return (location.hash = '#/');
+    const w = worldById(id); if (!w) return go('#/');
     const m = mastery(id), due = dueCards(id).length, nq = QUEST.QUIZ.filter((q) => q.world === id).length;
     $app.innerHTML = `<p><a href="#/">← Map</a></p><div class="panel"><h1>${w.icon} ${esc(w.name)}</h1><p class="lede">${esc(w.blurb)} · from ${w.lesson}</p>
       <div class="bar" style="margin:10px 0"><i style="width:${Math.round((m.m / m.n) * 100)}%"></i></div>
@@ -74,17 +98,7 @@
 
   function viewArcade() {
     setNav('arcade');
-    const games = [
-      ['tracer', '🧮', 'Register Tracer', 'Run code in your head. Results come from a real 68K simulator.', 'L4-5'],
-      ['flags', '🚩', 'Flag Flipper', 'Set the X N Z V C flags after ADD, SUB, CMP...', 'L3, L5'],
-      ['branch', '🔀', 'Branch Oracle', 'After a CMP, which Bcc instructions fire?', 'L5'],
-      ['modes', '🎯', 'Mode Match', 'Name the addressing mode of an operand.', 'L5'],
-      ['bugs', '🐛', 'Bug Hunt', 'Spot the illegal or mistaken line.', 'L4-5'],
-      ['sorter', '🧩', 'Program Sorter', 'Put real lecture programs back in order.', 'L4-5'],
-      ['numbers', '🥷', 'Number Ninja', 'Hex, binary, decimal and two\'s complement.', 'L3'],
-      ['hardware', '🧱', 'Hardware Lab', 'Address lines, page decoding, base resistors.', 'L6-8'],
-      ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across every world.', 'all'],
-    ];
+    const games = UI().arcade;
     $app.innerHTML = `<h1>Arcade</h1><p class="lede">Eight questions per run. Right answers earn XP; consecutive hits add a bonus.</p><div class="grid">${games.map((g) =>
       `<a class="tile" href="#/game/${g[0]}"><span class="ico">${g[1]}</span><span class="nm">${g[2]}</span><span class="sub">${g[3]}</span><span class="meta"><span>${g[4]}</span></span></a>`).join('')}</div>`;
   }
@@ -92,7 +106,7 @@
   function viewProgress() {
     setNav('progress');
     const s = S.state, lv = S.level(s.xp), tot = s.stats.right + s.stats.wrong;
-    const worlds = QUEST.WORLDS.map((w) => { const m = mastery(w.id); return `<tr><td>${w.icon} ${esc(w.name)}</td><td style="width:50%"><div class="bar"><i style="width:${Math.round((m.m / m.n) * 100)}%"></i></div></td><td class="mono">${m.m}/${m.n}</td></tr>`; }).join('');
+    const worlds = PACKS.order.map((id) => { const pk = PACKS.list[id], Q = pk.QUEST; return `<tr><td colspan="3"><b>${esc(pk.PACK_UI.fullName)}</b></td></tr>` + Q.WORLDS.map((w) => { const cs = Q.CARDS.filter((c) => c.deck === w.id), m = cs.filter(S.isMastered).length; return `<tr><td>${w.icon} ${esc(w.name)}</td><td style="width:50%"><div class="bar"><i style="width:${Math.round((m / cs.length) * 100)}%"></i></div></td><td class="mono">${m}/${cs.length}</td></tr>`; }).join(''); }).join('');
     const badges = S.BADGES.map((b) => `<div class="badge ${s.badges[b.id] ? '' : 'off'}"><span class="ico">${b.icon}</span><div><b>${b.name}</b><small>${b.desc}</small></div></div>`).join('');
     $app.innerHTML = `<h1>Progress</h1><div class="statgrid">
       <div class="panel"><b>${lv}</b>level · ${esc(S.title(lv))}</div><div class="panel"><b>${s.xp}</b>XP</div>
@@ -100,12 +114,12 @@
       <div class="sec"><h2>Mastery</h2></div><div class="panel"><table style="width:100%;border-collapse:collapse">${worlds}</table></div>
       <div class="sec"><h2>Badges</h2></div><div class="badges">${badges}</div>
       <div class="sec"><h2>Back up your work</h2></div>
-      <div class="panel"><p class="lede" style="margin-top:0">Everything is stored in this browser only. Export a backup before clearing site data or switching computers; it includes your saved sandbox projects and your study progress.</p>
-        <div class="row"><button class="btn go" id="bk">Export backup (.json)</button><button class="btn" id="bkzip">Export projects as .X68 files (.zip)</button><label class="btn ghost" for="bkrest">Restore from backup…</label><input type="file" id="bkrest" accept=".json,application/json" hidden></div><p class="stat" id="bkmsg"></p></div>
+      <div class="panel"><p class="lede" style="margin-top:0">Everything is stored in this browser only. Export a backup before clearing site data or switching computers; it includes your saved sandbox projects for both processors and your study progress. Backups from the older 68K Quest and Z80 Quest sites can be restored here too.</p>
+        <div class="row"><button class="btn go" id="bk">Export backup (.json)</button><button class="btn" id="bkzip">Export all projects (.zip)</button><label class="btn ghost" for="bkrest">Restore from backup…</label><input type="file" id="bkrest" accept=".json,application/json" hidden></div><p class="stat" id="bkmsg"></p></div>
       <div class="sec"><h2>Reset</h2></div><button class="btn bad" id="reset">Erase all progress</button>`;
-    document.getElementById('bk').onclick = () => { Projects.download(`68k-quest-backup-${Projects.stamp()}.json`, Projects.backup({ editor: null, progress: S.state }), 'application/json'); document.getElementById('bkmsg').textContent = 'Backup downloaded.'; };
-    document.getElementById('bkzip').onclick = () => { const z = Projects.zipAll(''); document.getElementById('bkmsg').textContent = z ? (Projects.download(`68k-quest-projects-${Projects.stamp()}.zip`, z, 'application/zip'), 'ZIP downloaded.') : 'You have no saved projects yet. Save one in the Sandbox first.'; };
-    document.getElementById('bkrest').onchange = (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const res = Projects.restore(String(r.result)); let msg = `Restored ${res.added} new and ${res.replaced} updated project(s).`; if (res.progress && confirm('Replace your current study progress with the progress in this backup?')) { Object.assign(S.state, res.progress); S.save(); renderHud(); msg += ' Progress restored.'; } document.getElementById('bkmsg').textContent = msg; if (res.progress) viewProgress(); } catch (err) { document.getElementById('bkmsg').textContent = err.message; } }; r.readAsText(f); e.target.value = ''; };
+    document.getElementById('bk').onclick = () => { ProjectsAll.download(`bee425-quest-backup-${ProjectsAll.stamp()}.json`, ProjectsAll.backup(null, { progress: S.state }), 'application/json'); document.getElementById('bkmsg').textContent = 'Backup downloaded.'; };
+    document.getElementById('bkzip').onclick = () => { const z = ProjectsAll.zipEverything(); document.getElementById('bkmsg').textContent = z ? (ProjectsAll.download(`bee425-quest-projects-${ProjectsAll.stamp()}.zip`, z, 'application/zip'), 'ZIP downloaded (one folder per processor).') : 'You have no saved projects yet. Save one in a Sandbox first.'; };
+    document.getElementById('bkrest').onchange = (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const res = ProjectsAll.restore(String(r.result)); let msg = `Restored ${res.added} new and ${res.replaced} updated project(s).`; if (res.progress && confirm('Replace your current study progress with the progress in this backup?')) { Object.assign(S.state, res.progress); S.save(); renderHud(); msg += ' Progress restored.'; } document.getElementById('bkmsg').textContent = msg; if (res.progress) viewProgress(); } catch (err) { document.getElementById('bkmsg').textContent = err.message; } }; r.readAsText(f); e.target.value = ''; };
     document.getElementById('reset').onclick = () => { if (confirm('Erase all XP, cards and badges in this browser?')) { S.reset(); renderHud(); viewProgress(); } };
   }
 
@@ -115,7 +129,7 @@
     let pool, label;
     if (which === 'weak') { pool = QUEST.CARDS.filter((c) => { const s = S.cardState(c); return s.miss > 0 && s.box < 4; }); label = 'Weak spots'; }
     else if (which === 'all') { pool = dueCards(); label = 'Daily review'; }
-    else { const w = worldById(which); if (!w) return (location.hash = '#/cards'); pool = dueCards(which); label = w.name; }
+    else { const w = worldById(which); if (!w) return go('#/cards'); pool = dueCards(which); label = w.name; }
     const practice = location.hash.includes('practice');
     if (!pool.length || practice) {
       const base = which === 'all' || which === 'weak' ? QUEST.CARDS : QUEST.CARDS.filter((c) => c.deck === which);
@@ -167,7 +181,7 @@
   function viewGame(id, arg) {
     setNav('arcade');
     if (id === 'sorter') return viewSorter();
-    const def = GAMES[id]; if (!def) return (location.hash = '#/arcade');
+    const def = GAMES[id]; if (!def) return go('#/arcade');
     if (def.levels && !arg) {
       $app.innerHTML = `<p><a href="#/arcade">← Arcade</a></p><div class="panel"><h1>${def.icon} ${def.title}</h1><p class="lede">Choose a difficulty.</p><div class="row">
         <a class="btn go" href="#/game/${id}/easy">Easy</a><a class="btn" href="#/game/${id}/medium">Medium</a><a class="btn" href="#/game/${id}/hard">Hard</a></div></div>`; return;
@@ -323,19 +337,17 @@
   }
   function viewRead() {
     setNav('read');
-    const ex = window.EXAMPLES_68K;
-    $app.innerHTML = `<h1>Read Code</h1><p class="lede">What does each line actually do? Type any 68K line for a plain-English breakdown, or open a lecture program and read it line by line.</p>
+    const ex = UI().examples();
+    $app.innerHTML = `<h1>Read Code</h1><p class="lede">${UI().readIntro}</p>
       <div class="panel"><h3>Anatomy of a line</h3>
-        <pre class="code"><span class="kw">LABEL</span>    <span class="kw">OPCODE</span>.<span class="kw">SIZE</span> <span class="kw">OPERAND1</span>,<span class="kw">OPERAND2</span>  <span class="cm">* COMMENT</span>
-loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the pointer</span></pre>
-        <p class="lede" style="margin:0">Label: starts in column 1 (optional). Opcode: what to do. Size: <code>.B</code> byte, <code>.W</code> word, <code>.L</code> long. Operands: comma-separated, no spaces; for two-operand instructions the <b>source comes first and the destination last</b>. Comment: after <code>*</code> or <code>;</code>.</p></div>
+        ${UI().readAnatomy}</div>
       <div class="panel" style="margin-top:12px"><h3>Explain a line</h3>
-        <input id="rdline" class="addr" style="width:100%;font-size:1rem" value="        MOVE.B (A0)+,D1" aria-label="Assembly line to explain" spellcheck="false" autocomplete="off">
+        <input id="rdline" class="addr" style="width:100%;font-size:1rem" value="${esc(UI().readDefault)}" aria-label="Assembly line to explain" spellcheck="false" autocomplete="off">
         <div id="rdout" style="margin-top:10px"></div></div>
       <div class="sec"><h2>Annotated programs</h2><small>click a line to open its explanation</small></div>
       <div class="row" style="margin-bottom:10px"><select id="rdsel" class="btn" aria-label="Choose a program">${ex.map((e, i) => `<option value="${i}">${esc(e.name)}</option>`).join('')}</select></div>
       <div id="rdprog"></div>
-      <div class="row" style="margin-top:14px"><a class="btn" href="#/guide/instructions">📖 Instruction reference</a><a class="btn" href="#/guide/modes">📖 Addressing modes</a><a class="btn" href="#/guide/branches">📖 Branches</a><a class="btn" href="#/sandbox">Try it in the sandbox</a></div>`;
+      <div class="row" style="margin-top:14px">${UI().readButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}<a class="btn" href="#/sandbox">Try it in the sandbox</a></div>`;
     const out = document.getElementById('rdout'), inp = document.getElementById('rdline');
     const run = () => { out.innerHTML = explainHtml(Explain.explain(inp.value)); };
     inp.oninput = run; run();
@@ -355,13 +367,13 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
     setNav('guides');
     const tiles = QUEST_GUIDES.GUIDES.map((g) => `<a class="tile" href="#/guide/${g.id}"><span class="ico">${g.icon}</span><span class="nm">${esc(g.title)}</span><span class="sub">${esc(g.summary)}</span><span class="meta"><span>${g.lesson}</span></span></a>`).join('');
     $app.innerHTML = `<h1>Guides</h1><p class="lede">Readable explanations of how everything works, in the order you'll need it. Each ends with a link to practice the topic.</p>
-      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">📖 Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a><a class="btn" href="#/homework">📝 Homework 2 walkthrough</a><a class="btn" href="#/tests">✔ Tests &amp; audit report</a></div><div class="grid">${tiles}</div>
+      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">📖 Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a>${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}<a class="btn" href="#/tests">✔ Tests &amp; audit report</a></div><div class="grid">${tiles}</div>
       <div class="sec"><h2>References &amp; further reading</h2><small>opens in a new tab</small></div>
       <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
   }
   function viewGuide(id) {
     setNav('guides');
-    const list = QUEST_GUIDES.GUIDES, k = list.findIndex((g) => g.id === id); if (k < 0) return (location.hash = '#/guides');
+    const list = QUEST_GUIDES.GUIDES, k = list.findIndex((g) => g.id === id); if (k < 0) return go('#/guides');
     const g = list[k], prev = list[k - 1], next = list[k + 1];
     const world = QUEST.WORLDS.find((w) => w.id === g.practice[0]);
     $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><article class="guide"><h1>${g.icon} ${esc(g.title)}</h1><p class="stat">Source: ${g.lesson}</p>${QUEST_GUIDES.render(g.md)}</article>
@@ -386,58 +398,79 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
   /* ---------- Tests & audit report ---------- */
   function viewTests() {
     setNav('guides');
-    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>Tests &amp; content audit</h1>
-      <p class="lede">Every flashcard, quiz question, glossary term and guide section was checked against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation, and a real EASy68K assembler/simulator built locally and used as an oracle. Items found wrong were corrected on this site (see <a href="#/guide/errata">Slide errata</a>).</p>
-      <div class="panel"><h3>Emulator verification</h3><ul>
-        <li>The assembler reproduces the lecture's published list file byte for byte, and all bundled example programs assemble to the same machine code and finish in the same state as the real EASy68K.</li>
-        <li>A differential fuzzer (<code>tests/oracle/fuzz.js</code>) generates random instructions, assembles and runs each in both the real EASy68K and this site's assembler and CPU, and compares machine code, registers, flags and memory. Known, intentional differences: MULS/DIVU flag handling, BCD N/V flags, CHK exception frames (see Slide errata).</li>
-        <li>This page does not yet re-run those vectors inside your browser; that is on the roadmap.</li></ul></div>
+    const id = P();
+    $app.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>Tests &amp; content audit <span class="pill">${esc(UI().fullName)}</span></h1>
+      ${UI().testsIntro}
       <div id="auditbox"><p class="stat">Loading audit results…</p></div>`;
     const draw = () => {
-      const rows = window.AUDIT_DATA || []; const box = document.getElementById('auditbox'); if (!box) return;
+      const A = window.AUDIT && window.AUDIT[id], rows = A ? A.rows : []; const box = document.getElementById('auditbox'); if (!box) return;
+      if (!rows.length) { box.innerHTML = '<div class="panel" style="margin-top:12px"><h3>Content audit</h3><p class="stat">No audit results available.</p></div>'; return; }
       const kinds = ['card', 'quiz', 'guide', 'glossary'], verdicts = ['CONFIRMED', 'CORRECTED', 'UNVERIFIED'];
       const tbl = kinds.map((k) => `<tr><td>${k}</td>${verdicts.map((v) => `<td class="mono">${rows.filter((r) => r.kind === k && r.verdict === v).length}</td>`).join('')}<td class="mono">${rows.filter((r) => r.kind === k).length}</td></tr>`).join('');
-      box.innerHTML = `<div class="panel" style="margin-top:12px"><h3>Audit summary</h3><div class="tablewrap"><table class="gt"><thead><tr><th>Content</th><th>Confirmed</th><th>Corrected</th><th>Unverified</th><th>Total</th></tr></thead><tbody>${tbl}</tbody></table></div>
-        <p class="stat">Audited by small-model reviewers using the sources above; every executable claim was run on the real EASy68K. Some checks of Motorola/Zilog manual details rely on the reviewer's recollection and are marked in the evidence.</p></div>
+      box.innerHTML = `<div class="panel" style="margin-top:12px"><h3>Content audit summary</h3><div class="tablewrap"><table class="gt"><thead><tr><th>Content</th><th>Confirmed</th><th>Corrected</th><th>Unverified</th><th>Total</th></tr></thead><tbody>${tbl}</tbody></table></div>
+        <p class="stat">${esc(A.note || '')}</p></div>
         <div class="row" style="margin:12px 0"><select id="avk" class="btn" aria-label="Filter by content"><option value="">All content</option>${kinds.map((k) => `<option>${k}</option>`).join('')}</select>
         <select id="avv" class="btn" aria-label="Filter by verdict"><option value="">All verdicts</option>${verdicts.map((v) => `<option>${v}</option>`).join('')}</select><input id="avq" class="addr" style="flex:1;min-width:160px" placeholder="Search…" aria-label="Search audit results"></div>
         <div id="avlist"></div>`;
       const list = () => {
         const k = document.getElementById('avk').value, v = document.getElementById('avv').value, q = document.getElementById('avq').value.toLowerCase();
-        const hit = rows.filter((r) => (!k || r.kind === k) && (!v || r.verdict === v) && (!q || (r.title + r.evidence).toLowerCase().includes(q)));
-        document.getElementById('avlist').innerHTML = `<p class="stat">${hit.length} of ${rows.length} items</p>` + hit.slice(0, 250).map((r) => `<details class="rl"><summary class="ln"><span class="pill v-${r.verdict}">${r.verdict}</span><span class="tx" style="white-space:normal">${esc(r.title.slice(0, 140))}</span></summary><div class="rx"><p>${esc(r.evidence)}</p><p class="dim">Sources: ${esc(r.sources.join(', ') || '-')}${r.fixed ? ' · corrected on this site' : ''}</p></div></details>`).join('') + (hit.length > 250 ? '<p class="stat">Showing the first 250. Narrow the filter to see more.</p>' : '');
+        const hit = rows.filter((r) => (!k || r.kind === k) && (!v || r.verdict === v) && (!q || ((r.title || '') + (r.evidence || '')).toLowerCase().includes(q)));
+        document.getElementById('avlist').innerHTML = `<p class="stat">${hit.length} of ${rows.length} items</p>` + hit.slice(0, 250).map((r) => `<details class="rl"><summary class="ln"><span class="pill v-${r.verdict}">${r.verdict}</span><span class="tx" style="white-space:normal">${esc((r.title || '').slice(0, 140))}</span></summary><div class="rx"><p><b>${esc(r.kind)}</b></p><p>${esc(r.evidence || '')}</p></div></details>`).join('');
       };
-      ['avk', 'avv', 'avq'].forEach((id) => (document.getElementById(id).oninput = list)); list();
+      ['avk', 'avv', 'avq'].forEach((x) => (document.getElementById(x).oninput = list)); list();
     };
-    if (window.AUDIT_DATA) draw(); else { const sc = document.createElement('script'); sc.src = 'tests/data/audit.js?v=20261016b'; sc.onload = draw; sc.onerror = () => { const b = document.getElementById('auditbox'); if (b) b.textContent = 'Could not load the audit data.'; }; document.head.appendChild(sc); }
+    if (window.AUDIT && window.AUDIT[id]) draw(); else { const sc = document.createElement('script'); sc.src = UI().auditFile + '?v=' + (window.BUILD || ''); sc.onload = draw; sc.onerror = draw; document.head.appendChild(sc); }
   }
 
-  /* ---------- router ---------- */
+  /* ---------- shell: header, links, router ---------- */
+  const BASE_NAV = [['home', 'Map', '#/'], ['cards', 'Cards', '#/cards'], ['arcade', 'Arcade', '#/arcade'], ['guides', 'Guides', '#/guides'], ['read', 'Read Code', '#/read'], ['sandbox', 'Sandbox', '#/sandbox']];
+  function renderHeader() {
+    const nav = document.querySelector('.nav'), sw = document.getElementById('cpusw');
+    sw.innerHTML = PACKS.order.map((id) => { const u = PACKS.list[id].PACK_UI; return `<a href="#/${u.slug}/" class="${id === P() ? 'on' : ''}" aria-label="${esc(u.fullName)}">${u.chip}</a>`; }).join('');
+    const items = P() ? [...BASE_NAV.map(([k, l, h]) => [k, l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['progress', 'Progress', '#/progress']] : [['progress', 'Progress', '#/progress']];
+    nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('') + '<a class="codebtn" href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener" aria-label="View the source code on GitHub">&lt;/&gt; Code</a>';
+  }
+  // links written as "#/guide/x" inside a processor's pages point at that processor's page: rewrite them once rendered
+  function fixLinks(root) {
+    if (!P()) return;
+    root.querySelectorAll('a[href^="#/"]').forEach((a) => { const h = a.getAttribute('href'); if (!/^#\/(68k|z80|progress)(\/|$)/.test(h) && h !== '#/') a.setAttribute('href', h.replace(/^#\//, here())); else if (h === '#/') a.setAttribute('href', here()); });
+  }
+  new MutationObserver(() => fixLinks($app)).observe($app, { childList: true, subtree: true });
+  const LEGACY = new Set(['world', 'cards', 'study', 'arcade', 'game', 'read', 'guides', 'guide', 'glossary', 'tests', 'homework', 'sandbox']);
+
   function route() {
     cleanup = null; if (leaveHook) { try { leaveHook(); } catch (e) { /* ignore */ } leaveHook = null; }
-    const raw = location.hash.replace(/^#\/?/, ''), [pathq] = raw.split('?'), parts = pathq.split('/').filter(Boolean);
+    const raw = location.hash.replace(/^#\/?/, ''), [pathq] = raw.split('?'), all = pathq.split('/').filter(Boolean);
+    // links from the single-processor 68K Quest site (#/cards, #/sandbox?c=...) keep working: they mean the 68000
+    if (all.length && LEGACY.has(all[0])) { location.replace('#/68k/' + raw); return; }
+    const pid = all.length ? packBySlug(all[0]) : null;
+    const parts = pid ? all.slice(1) : all;
+    PACKS.cur = null; if (pid) PACKS.activate(pid);
+    renderHeader();
     window.scrollTo(0, 0);
     try {
-      switch (parts[0]) {
-        case undefined: viewHome(); break;
+      if (!pid) { if (parts[0] === 'progress') viewProgress(); else viewCourse(); }
+      else switch (parts[0]) {
+        case undefined: viewMap(); break;
         case 'world': viewWorld(parts[1]); break;
         case 'cards': viewCards(); break;
         case 'study': viewStudy(parts[1] || 'all'); break;
         case 'arcade': viewArcade(); break;
         case 'game': viewGame(parts[1], parts[2]); break;
-        case 'progress': viewProgress(); break;
         case 'read': viewRead(); break;
         case 'guides': viewGuides(); break;
         case 'guide': viewGuide(parts[1]); break;
         case 'glossary': viewGlossary(); break;
         case 'tests': viewTests(); break;
-        case 'homework': setNav('homework'); if (parts[2]) HomeworkUI.viewProblem($app, +parts[2], { Store: S, award }); else HomeworkUI.viewList($app, { Store: S, award }); break;
-        case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, afterRestore: renderHud, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewHome(); break;
-        default: viewHome();
+        case 'homework': if (window.HomeworkUI) { setNav('homework'); if (parts[2]) HomeworkUI.viewProblem($app, +parts[2], { Store: S, award }); else HomeworkUI.viewList($app, { Store: S, award }); } else viewMap(); break;
+        case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, afterRestore: renderHud, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewMap(); break;
+        default: viewMap();
       }
     } catch (err) {
       $app.innerHTML = `<div class="panel"><h2>Something broke</h2><pre class="code">${esc(err.stack || err)}</pre><a class="btn" href="#/">Home</a></div>`;
     }
+    fixLinks($app);
+    document.title = pid ? `${UI().chip} Quest · BEE 425` : 'BEE 425 Quest';
     renderHud();
   }
   document.addEventListener('keydown', (e) => {

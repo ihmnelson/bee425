@@ -266,10 +266,10 @@
     $('dl-s68').onclick = () => result && download('program.S68', Asm68K.toSrec(result, 'PROG'));
     $('dl-l68').onclick = () => result && download('program.L68', result.text);
     $('share').onclick = () => {
-      const url = location.href.split('#')[0] + '#/sandbox?c=' + b64.enc(src.value);
+      const url = location.href.split('#')[0] + '#/' + PACKS.ui.slug + '/sandbox?c=' + b64.enc(src.value);
       const done = () => status('Share link copied to the clipboard.' + (url.length > 2000 ? ' (It is long; some apps may truncate it. Use Save .X68 for big programs.)' : ''), 'ok');
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, () => { location.hash = '#/sandbox?c=' + b64.enc(src.value); status('Link placed in the address bar.', 'ok'); });
-      else { location.hash = '#/sandbox?c=' + b64.enc(src.value); status('Link placed in the address bar.', 'ok'); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, () => { location.hash = '#/' + PACKS.ui.slug + '/sandbox?c=' + b64.enc(src.value); status('Link placed in the address bar.', 'ok'); });
+      else { location.hash = '#/' + PACKS.ui.slug + '/sandbox?c=' + b64.enc(src.value); status('Link placed in the address bar.', 'ok'); }
     };
     root.querySelector('.tabs').addEventListener('keydown', () => {});
 

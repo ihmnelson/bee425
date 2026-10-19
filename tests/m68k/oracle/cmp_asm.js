@@ -1,6 +1,6 @@
 // usage: node cmp_asm.js file.X68  -> compares my assembler's machine code with EASy68K's listing (file.L68)
 const fs = require('fs'), cp = require('child_process');
-const P = require('path').join(__dirname, '..', '..', 'js') + require('path').sep;
+const P = require('path').join(__dirname, '..', '..', '..', 'js', 'm68k') + require('path').sep;
 const { assemble } = require(P + 'asm.js');
 const file = process.argv[2];
 const src = fs.readFileSync(file, 'utf8');

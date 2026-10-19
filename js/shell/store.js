@@ -1,25 +1,41 @@
-/* Persistent progress (localStorage, with in-memory fallback). */
+/* Persistent progress (localStorage, with in-memory fallback). One progress record covers every processor pack.
+   Older single-processor versions of the site stored progress under their own keys; those are merged in once. */
 (function () {
   'use strict';
-  const KEY = 'q68k.v1';
+  const KEY = 'qbee425.v1', OLD = ['q68k.v1', 'qz80.v1'];
   const BOX_DAYS = [0, 0, 1, 2, 4, 8]; // index = box, value = days until due again
   const DAY = 86400000;
 
   const fresh = () => ({ xp: 0, cards: {}, stats: { right: 0, wrong: 0, games: {} }, bestRun: 0, days: [], badges: {}, daily: {} });
+  const load = (k) => { try { const raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } };
+  function merge(a, b) {            // combine two progress records (used for the one-time migration)
+    const out = Object.assign(fresh(), a);
+    out.xp = (a.xp || 0) + (b.xp || 0);
+    out.cards = Object.assign({}, b.cards, a.cards);
+    out.stats = { right: (a.stats.right || 0) + (b.stats.right || 0), wrong: (a.stats.wrong || 0) + (b.stats.wrong || 0), games: Object.assign({}, a.stats.games) };
+    for (const [k, v] of Object.entries(b.stats.games || {})) out.stats.games[k] = (out.stats.games[k] || 0) + v;
+    out.bestRun = Math.max(a.bestRun || 0, b.bestRun || 0);
+    out.days = Array.from(new Set([...(a.days || []), ...(b.days || [])])).sort().slice(-120);
+    out.badges = Object.assign({}, b.badges, a.badges);
+    out.daily = Object.assign({}, b.daily); for (const [k, v] of Object.entries(a.daily || {})) out.daily[k] = (out.daily[k] || 0) + v;
+    return out;
+  }
   let state = fresh();
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) state = Object.assign(fresh(), JSON.parse(raw));
-  } catch (e) { /* private window or blocked storage: run in memory */ }
+  const cur = load(KEY);
+  if (cur) state = Object.assign(fresh(), cur);
+  else {
+    const olds = OLD.map(load).filter(Boolean).map((o) => Object.assign(fresh(), o));
+    if (olds.length) state = olds.reduce((acc, o) => merge(acc, o), fresh());
+    try { if (olds.length) localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
 
   const today = () => new Date().toISOString().slice(0, 10);
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
-
   function hash(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 
   const level = (xp) => Math.floor(Math.sqrt(xp / 40)) + 1;
   const levelStart = (lv) => 40 * (lv - 1) * (lv - 1);
-  const TITLES = ['Bit', 'Nibble', 'Byte', 'Word', 'Long Word', 'Address Register', 'Stack Pointer', 'Supervisor', 'Op-code Wizard', 'Assembler Sage'];
+  const TITLES = ['Bit', 'Nibble', 'Byte', 'Word', 'Register', 'Pointer', 'Stack Pointer', 'Interrupt Handler', 'Op-code Wizard', 'Assembler Sage'];
   const title = (lv) => TITLES[Math.min(lv - 1, TITLES.length - 1)];
 
   function streakDays() {
@@ -42,6 +58,7 @@
     { id: 'days3', icon: '📅', name: 'Three-Day Streak', desc: 'Study on 3 days in a row', test: () => streakDays() >= 3 },
     { id: 'lv5', icon: '⭐', name: 'Level 5', desc: 'Reach level 5', test: (s) => level(s.xp) >= 5 },
     { id: 'master', icon: '🏆', name: 'Deck Master', desc: 'Master every card in one world', test: (s, api) => api.worldsMastered().length > 0 },
+    { id: 'both', icon: '🔀', name: 'Two Architectures', desc: 'Get a card right on both the 68000 and the Z80', test: (s) => !!(s.packs && s.packs.m68k && s.packs.z80) },
   ];
 
   const api = {
@@ -51,8 +68,10 @@
     touchDay() { const t = today(); if (!state.days.includes(t)) { state.days.push(t); state.days = state.days.slice(-120); } },
     addXp(n) { state.xp += n; state.daily[today()] = (state.daily[today()] || 0) + n; api.touchDay(); },
     record(game, ok) {
-      if (ok) { state.stats.right++; state.stats.games[game] = (state.stats.games[game] || 0) + 1; }
-      else state.stats.wrong++;
+      if (ok) {
+        state.stats.right++; state.stats.games[game] = (state.stats.games[game] || 0) + 1;
+        if (window.PACKS && PACKS.cur) { state.packs = state.packs || {}; state.packs[PACKS.cur] = (state.packs[PACKS.cur] || 0) + 1; }
+      } else state.stats.wrong++;
       api.touchDay();
     },
     run(ok) { // returns the current streak so the UI can award bonus XP
@@ -70,8 +89,14 @@
       state.cards[id] = s;
     },
     isMastered: (c) => api.cardState(c).box >= 4,
+    // world ids (prefixed with the pack id) in which every card is mastered
     worldsMastered() {
-      return QUEST.WORLDS.filter((w) => { const cs = QUEST.CARDS.filter((c) => c.deck === w.id); return cs.length && cs.every(api.isMastered); }).map((w) => w.id);
+      const out = [];
+      for (const id of PACKS.order) {
+        const Q = PACKS.list[id].QUEST;
+        Q.WORLDS.forEach((w) => { const cs = Q.CARDS.filter((c) => c.deck === w.id); if (cs.length && cs.every(api.isMastered)) out.push(id + ':' + w.id); });
+      }
+      return out;
     },
     newBadges() {
       const out = [];

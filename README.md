@@ -1,78 +1,84 @@
-# 68K Quest
+# BEE 425 Quest
 
-A fully static website for learning **Motorola 68000 assembly**, built as a study aid for a university microprocessor-systems course (BEE 425, lessons 3-8). It runs entirely in the browser: no build step, no server, no dependencies. Open `index.html`, or host the folder on any static host such as GitHub Pages.
+A fully static study site for **BEE 425 Microprocessor System Design** (University of Washington Bothell, lessons 3-8). It covers both processors in the course, the **Motorola 68000** and the **Zilog Z80**, with flashcards, arcade games, written guides and an in-browser assembler and simulator for each. It runs entirely in the browser: no build step, no server, no dependencies. Open `index.html`, or host the folder on any static host such as GitHub Pages.
 
-## What it does
+Pick a processor on the home page (or with the switcher in the header). XP, level, streak, badges and spaced-repetition state are shared across both; saved sandbox projects are kept per processor; one backup file covers everything.
+
+| URL | Page |
+|---|---|
+| `#/` | BEE 425 home: choose a processor |
+| `#/68k/...` and `#/z80/...` | that processor's map, cards, arcade, guides, Read Code, sandbox (the 68000 also has Homework 2) |
+| `#/progress` | shared progress, badges, backup and restore |
+
+Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) still work and open the 68000 pages.
+
+## What each processor has
 
 | Area | What you get |
 |---|---|
-| **World map** | Nine topic "worlds": the CPU, bits and encoding, writing assembly, instructions, addressing modes, branches and the stack, memory and buses, transistors and I/O, and a Z80 contrast. |
-| **Flashcards** | 147 cards with Leitner-box spaced repetition. Cards link to the matching guide. |
-| **Arcade** | Nine eight-question games: Register Tracer, Flag Flipper, Branch Oracle, Mode Match, Bug Hunt, Program Sorter, Number Ninja, Hardware Lab and Quiz Blitz. Tracer/Flag/Branch questions are generated and graded by running real code on the emulator. |
-| **Guides** | 13 written guides (CPU, number systems, programmer's model, machine code, syntax and directives, instruction reference, addressing modes, branches, stack, memory and buses, transistors, Z80, and **slide errata and EASy68K quirks**), an 84-term searchable glossary, and a list of references. |
-| **Read Code** | Type any 68K line for a plain-English breakdown, or open a lecture program and read it line by line. |
-| **Sandbox** | An EASy68K-compatible editor, assembler and simulator that runs real 68000 machine code. Listing with machine code, step / step over / **step back** / run / pause, breakpoints, registers with changed values highlighted, flags, SR, memory, stack and symbol views, **TRAP #15 console I/O** (text and number input/output, halt), .X68/.S68/.L68 download, file open, shareable links, **named projects** saved in the browser, **Export all (.zip)** of every project as .X68 files, and a **JSON backup / restore** of projects plus study progress (also on the Progress page). |
-| **Homework** | Homework 2 (problems 1-4): hints, a collapsed walkthrough, a try-it box that checks your program on several test inputs, and verified solutions with an instruction-by-instruction trace. Plus a guide to the EASy68K workflow (files, list file, S-records). |
-| **Tests** | The content audit results (every card, quiz item, glossary term and guide section) and a description of how the emulator was verified. |
-| **Progress** | XP, levels, a daily streak, badges and per-world mastery. |
-
-## Running it
-
-Open `index.html` in a browser. All paths are relative and routing uses the URL hash (`#/cards`, `#/sandbox`, ...), so it works from `file://` and from a project URL like `user.github.io/repo/`.
-
-Progress, the sandbox source and breakpoints are kept in the browser's `localStorage`. They stay on your device and are not synced anywhere.
+| **World map** | Topic "worlds" with a mastery bar each (68000: nine; Z80: ten, including the Oshonsoft IDE and a 68K contrast). |
+| **Flashcards** | 147 (68000) and 159 (Z80) cards with Leitner-box spaced repetition. |
+| **Arcade** | Nine eight-question games: Register Tracer, Flag Flipper, Branch Oracle, Mode Match, Bug Hunt, Program Sorter, Number Ninja, Hardware Lab, Quiz Blitz. Tracer/Flag/Branch answers come from running real code on that processor's simulator. |
+| **Guides** | 13 (68000) and 14 (Z80) written guides, a searchable glossary (84 and 92 terms), and references. |
+| **Read Code** | Type any line for a plain-English breakdown, or open an example program and read it line by line. The Z80 version also shows the machine code and T-states. |
+| **Sandbox** | **68000:** an EASy68K-compatible editor, assembler and simulator (TRAP #15 console I/O, step back, breakpoints, .X68/.S68/.L68). **Z80:** an Oshonsoft-style editor, assembler and simulator with exact T-states, six run rates, starting address, a terminal on port 02H and an input device on port 01H with "prompt before IN", INT/NMI buttons, `.asm`/`.lst`/Intel-HEX downloads. Both: named projects, shareable links, ZIP export, JSON backup/restore. |
+| **Homework** | 68000 only: Homework 2 (problems 1-4) with hints, walkthrough, a try-it box and verified solutions. |
+| **Tests** | What was verified and how, plus a content-audit table for that processor. |
 
 ## Layout
 
 ```
-index.html            page shell
-style.css             styling
-js/cpu.js             68000 CPU core: executes real machine code from a 16 MB byte array
-js/asm.js             two-pass assembler (EASy68K source conventions), listing, S-records
-js/io.js              TRAP #15 text/number I/O services and console
-js/examples.js        example programs for the sandbox
-js/snippet.js         runs a few lines on the CPU with a preset state (used by the games)
-js/data.js            flashcards, quiz bank, bug-hunt items, sortable programs
-js/guides.js          guides, glossary, references, cross-link maps
-js/explain.js         line-by-line explainer behind Read Code
-js/games.js           question generators for the arcade games
-js/store.js           XP, levels, badges, spaced-repetition state (localStorage)
-js/homework.js        homework problems, solutions, checker and tracer
-js/homework-ui.js     homework pages
-js/projects.js        named projects, JSON backup/restore, ZIP export
-js/sandbox-ui.js      sandbox page
-js/app.js             router, flashcards, game engine, progress and tests pages
-tests/data/audit.js   content audit results (generated)
-tests/oracle/         developer tools: differential testing against a real EASy68K
+index.html              page shell
+style.css               styling
+js/shell/packs.js       registry that lets several processors share the same page
+js/shell/store.js       XP, levels, badges, spaced repetition (one record for the whole site)
+js/shell/projects.js    per-processor projects, combined JSON backup, ZIP export
+js/shell/app.js         router, header, flashcards, game engine, progress and tests pages
+js/m68k/                68000: cpu.js, asm.js, io.js (TRAP #15), examples, snippet, data, games, explain, guides,
+                        homework*, sandbox-ui.js, ui.js (strings and options for the shell)
+js/z80/                 Z80: cpu.js, asm.js, dis.js, io.js (ports), examples, snippet, data, games, explain, guides,
+                        sandbox-ui.js, ui.js
+tests/                  see "How it was tested"
 ```
+
+Each processor is a *pack*: its scripts define the same global names (`QUEST`, `Games`, `QUEST_GUIDES`, `Explain`, `Sandbox`, ...); after a pack's scripts have run, `PACKS.capture(id)` files those names away and `PACKS.activate(id)` puts one pack's set back when its pages are open. Adding a processor means adding a folder of this shape and two `<script>` lines.
 
 ## How it was tested
 
-- **Content audit.** All 147 flashcards, 44 quiz questions, 84 glossary terms and 73 guide sections were reviewed against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation and, for anything executable, a real EASy68K assembler/simulator. 21 items were wrong or misleading and were corrected; the slide errors found are listed in the *Slide errata* guide. Reviews were done by small-model agents; checks of manual details they could not run are marked in the evidence and are weaker than the oracle-backed ones.
-- **Assembler.** Reproduces the lecture's published list file byte for byte, and matches the real assembler line by line on two broad instruction/addressing-mode probe files.
-- **CPU and assembler together.** `tests/oracle/fuzz.js` runs random instructions in both the real EASy68K and this site and compares machine code, D0-D7, A0-A7, flags and memory. On the latest 3,000-case run there was 1 disagreement (`ASL` by a register count larger than the operand size; the site follows the hardware, see the errata guide). A run of 6,000 cases earlier in development was later found not to have compared flags because of a bug in the test script; the flag comparison was repaired and re-run as above.
-- **Examples.** The bundled example programs finish with the same registers, memory and output as the real EASy68K.
-- **UI.** The pages, games and sandbox were exercised end to end in a simulated browser (jsdom).
+`sh tests/run-all.sh` runs every check that needs no download (see the script for the optional ones).
 
-Known, intentional differences from EASy68K (the site follows Motorola's manual): `MULS` flag V, `DIVU`/`DIVS` overflow flag C, `ASL` V for very large counts, undefined `ABCD`/`SBCD`/`NBCD` flags, and `CHK` exception frames.
+**68000** (details in `tests/m68k/oracle/README.md`)
+- **Content audit.** All 147 flashcards, 44 quiz questions, 84 glossary terms and 73 guide sections were reviewed against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation and, for anything executable, a real EASy68K assembler/simulator. 21 items were wrong or misleading and were corrected. Reviews were done by small-model agents; checks of manual details they could not run are weaker than the oracle-backed ones.
+- **Assembler** reproduces the lecture's published list file byte for byte and matches the real assembler line by line on two broad probe files.
+- **CPU and assembler together:** `tests/m68k/oracle/fuzz.js` runs random instructions in both the real EASy68K and this site and compares machine code, registers, flags and memory (latest 3,000-case run: 1 disagreement, `ASL` by a register count larger than the operand size; the site follows the hardware). Known, intentional differences from EASy68K: `MULS` flag V, `DIVU`/`DIVS` overflow flag C, `ASL` V for very large counts, undefined `ABCD`/`SBCD`/`NBCD` flags, `CHK` exception frames.
 
-The homework solutions were also run on the real EASy68K. The workflow guide, the seven flashcards and three glossary terms added with the homework were written after the content audit and have not been audited.
+**Z80** (details in `tests/z80/oracle/README.md`)
+- **CPU core:** the [SingleStepTests/z80](https://github.com/SingleStepTests/z80) vectors (MIT): 1,604,000 single-instruction cases covering every documented and undocumented opcode, comparing registers, flags (including the undocumented bits), the internal WZ register, memory, port accesses and exact T-state counts. **0 failures.**
+- **Assembler:** every opcode sequence disassembled by `z80dasm` (an independent tool) and re-assembled: 1,250 instruction forms, 0 mismatches. It also reproduces the test example printed in the Oshonsoft help (`tests/z80/oshonsoft-expr.js`).
+- **Disassembler** round trip, **example programs**, **Bug Hunt / Program Sorter / game generators** are all executed on the CPU core.
+- **Content audit** (`tests/z80/audit`): 399 items checked mechanically against the lecture text, the Zilog Z80 CPU User Manual, the Oshonsoft help pages and the simulator: 311 confirmed, 3 corrected, 85 unverified. The confirmations are quoted phrases or executed checks, not a human reading of every nuance.
+
+**Site**
+- `tests/ui-smoke.js` (jsdom) visits every route of both processors, starts every game, drives both sandboxes, and checks link rewriting, legacy URLs, per-processor project storage, combined backup/restore (including backups from the older sites) and the one-time migration of progress saved by the older sites.
 
 ## Limitations
 
-- Not a replacement for the real EASy68K for graded work where exact cycle counts, graphics `TRAP #15` tasks, file I/O, structured assembly (`IF`/`FOR`/`WHILE`), or `INCLUDE` are required. Those are not implemented.
-- The Tests page shows the audit; it does not yet re-run the oracle vectors inside the browser.
+- **Z80 sandbox vs the real Oshonsoft IDE:** the IDE (Windows trial software) was not run; behaviour follows its published help pages and the slides. Unknown: label case sensitivity, exactly which bracket forms it accepts, error wording. Not implemented: BASIC compiler, disassembler window, interactive assembler editor, `INCLUDE`, serial terminals with status registers, video screen, ZX Spectrum interface, external modules, TASM. Unofficial instructions are always simulated.
+- **68000 sandbox:** not a replacement for EASy68K where graded work needs exact cycle counts, graphics `TRAP #15` tasks, file I/O, structured assembly or `INCLUDE`.
+- Instruction-level simulators: no bus-level timing, wait states or DMA (Z80), no exception timing (68000).
+- Some Z80 flashcards, quiz items and glossary terms are marked unverified on its Tests page.
+- The Tests pages show the audits; they do not re-run the test vectors in the browser.
 - The layout was checked in a simulated browser, not on real devices.
 
 ## Roadmap
 
-- **Saving work, next steps:** projects and progress can now be exported and restored by hand. Still to do: optional sync across devices and automatic periodic backups.
-- Run the oracle test vectors live in the browser and show them case by case on the Tests page.
-- Structured assembly, `INCLUDE`, a disassembler view, cycle counts, graphics and file `TRAP #15` tasks.
-- More fuzz coverage (multi-instruction sequences, exceptions).
+- Merge the duplicated hardware and transistor material (memory, buses, I/O pins, base resistors) so it lives once.
+- Run the oracle test vectors live in the browser.
+- 68000: structured assembly, `INCLUDE`, a disassembler view, cycle counts. Z80: homework-style walkthroughs when the lab handouts are available.
+- Optional sync of progress across devices.
 
 ## Credits and disclaimer
 
-Course content is adapted from the BEE 425 lecture slides by Arnold S. Berger, University of Washington Bothell. This is an independent student study project: it is not affiliated with or endorsed by the instructor, the university, or the authors of EASy68K.
+Course content is adapted from the BEE 425 lecture slides by Arnold S. Berger, University of Washington Bothell. This is an independent student study project: it is not affiliated with or endorsed by the instructor, the university, the authors of EASy68K, Zilog or Oshonsoft.
 
-The EASy68K name and behaviour belong to Chuck Kelly and Tim Larson; this project contains none of their code and uses their tool only as a black-box reference. The idea of a browser-based teaching IDE was also inspired by [ASM Editor](https://asm-editor.specy.app) (AGPL-3.0); no code from it is used.
+The EASy68K name and behaviour belong to Chuck Kelly and Tim Larson, and the Oshonsoft name and behaviour to Oshonsoft; this project contains none of their code and uses EASy68K, `z80dasm` and the SingleStepTests vectors (MIT) only as black-box references. The 68000 core and assembler were written independently from Motorola's M68000 Programmer's Reference Manual, and the Z80 core, assembler and disassembler from Zilog's Z80 CPU User Manual (UM0080). The idea of a browser-based teaching IDE was also inspired by [ASM Editor](https://asm-editor.specy.app) (AGPL-3.0); no code from it is used.

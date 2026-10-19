@@ -26,7 +26,7 @@
 
   function viewProblem(root, n, ctx) {
     const hw = H().HW2, p = hw.problems[n - 1], S = ctx.Store;
-    if (!p) { location.hash = '#/homework'; return; }
+    if (!p) { location.hash = '#/68k/homework'; return; }
     const prev = hw.problems[n - 2], next = hw.problems[n];
     const sol = p.solutions.filter((s) => s.code);
     root.innerHTML = `<p><a href="#/homework">← ${esc(hw.title)}</a></p><h1>Problem ${p.n}: ${esc(p.title)}</h1>
@@ -51,7 +51,7 @@
     if (tr && p.n === 1) {
       tr.innerHTML = `<p>Run the handout program (open it in the sandbox, single-step with <b>Step</b>, and open the Memory tab at $4000). Then enter the <b>word</b> value at $4000 just before the program would loop back.</p>
         <div class="row"><button class="btn" id="open1">Open the program in the sandbox</button><input id="ans1" class="addr" style="width:120px" placeholder="$XXXX" aria-label="Word value at $4000 in hex" autocomplete="off"><button class="btn go" id="chk1">Check my answer</button></div><div id="res1" style="margin-top:10px"></div>`;
-      tr.querySelector('#open1').onclick = () => { location.hash = '#/sandbox?c=' + enc(p.src); };
+      tr.querySelector('#open1').onclick = () => { location.hash = '#/' + PACKS.ui.slug + '/sandbox?c=' + enc(p.src); };
       tr.querySelector('#chk1').onclick = () => {
         const want = H().CHECKS[1](p.src).value, got = parseInt(tr.querySelector('#ans1').value.trim().replace(/^\$|^0x/i, ''), 16), box = tr.querySelector('#res1');
         if (Number.isNaN(got)) { box.innerHTML = '<div class="fb no"><h3>Enter a hex value</h3>Like $1234 (a word is four hex digits).</div>'; return; }
@@ -65,7 +65,7 @@
       const ta = tr.querySelector('#code');
       ta.addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); ta.setRangeText('        ', ta.selectionStart, ta.selectionEnd, 'end'); } });
       tr.querySelector('#reset').onclick = () => { ta.value = H().SKELETON[p.n]; tr.querySelector('#chkres').innerHTML = ''; };
-      tr.querySelector('#opensb').onclick = () => { location.hash = '#/sandbox?c=' + enc(ta.value); };
+      tr.querySelector('#opensb').onclick = () => { location.hash = '#/' + PACKS.ui.slug + '/sandbox?c=' + enc(ta.value); };
       tr.querySelector('#runchk').onclick = () => {
         const res = H().CHECKS[p.n](ta.value), box = tr.querySelector('#chkres');
         if (res.error) { box.innerHTML = `<div class="fb no"><h3>Could not run it</h3><pre class="code" style="white-space:pre-wrap">${esc(res.error)}</pre></div>`; return; }
@@ -81,7 +81,7 @@
       const solHtml = (sol.length ? sol : [{ title: 'Program', code: p.src }]).map((s, i) => `<div class="panel" style="margin-bottom:10px"><h3>${esc(s.title)}</h3><pre class="code">${esc(s.code || p.src)}</pre><div class="row"><button class="btn" data-open="${i}">Open in sandbox</button><button class="btn" data-trace="${i}">Trace it step by step</button></div><div data-tr="${i}"></div></div>`).join('');
       sb.innerHTML = `<p class="stat">${esc(p.verified)}</p>${solHtml}`;
       const list = sol.length ? sol : [{ code: p.src }];
-      sb.querySelectorAll('[data-open]').forEach((b) => (b.onclick = () => { location.hash = '#/sandbox?c=' + enc(list[+b.dataset.open].code || p.src); }));
+      sb.querySelectorAll('[data-open]').forEach((b) => (b.onclick = () => { location.hash = '#/' + PACKS.ui.slug + '/sandbox?c=' + enc(list[+b.dataset.open].code || p.src); }));
       sb.querySelectorAll('[data-trace]').forEach((b) => (b.onclick = () => { const i = +b.dataset.trace; const t = H().trace(list[i].code || p.src, p.trace && p.trace.preload); sb.querySelector(`[data-tr="${i}"]`).innerHTML = traceHtml(t); }));
     }
   }

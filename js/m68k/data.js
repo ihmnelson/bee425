@@ -1,6 +1,8 @@
 /* Course content, drawn from BEE 425 Lessons 3-8 (Fall 2026, Berger).
    Every card/question carries a source lesson tag. */
 window.QUEST = {};
+(function () {
+'use strict';
 
 /* ---------- Worlds (map) ---------- */
 QUEST.WORLDS = [
@@ -331,3 +333,4 @@ QUEST.MODES = [
   { key: 'pcd',  name: 'PC relative with displacement', mode: 'Mode 7.2', tpl: ['MOVE.W ($20,PC),D{q}', 'LEA ($100,PC),A{r}'] },
   { key: 'imm',  name: 'Immediate',                     mode: 'Mode 7.4', tpl: ['MOVE.B #$55,D{q}', 'MOVE.W #$ABFF,D{q}'] },
 ];
+})();
