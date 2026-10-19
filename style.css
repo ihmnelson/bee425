@@ -180,7 +180,6 @@ table.gt { border-collapse: collapse; font-size: .9rem; min-width: 100%; }
 table.gt th, table.gt td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; vertical-align: top; }
 table.gt th { background: var(--panel2); } table.gt td code { white-space: nowrap; }
 .gloss dt { font-weight: 700; margin-top: 12px; } .gloss dd { margin: 2px 0 0 0; color: var(--dim); }
-.codebtn { margin-left: auto; border: 1px solid var(--line); } .codebtn:hover { border-color: var(--green); color: var(--green) !important; }
 
 /* sandbox v2 */
 .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }

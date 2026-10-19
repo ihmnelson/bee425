@@ -428,7 +428,7 @@
     const nav = document.querySelector('.nav'), sw = document.getElementById('cpusw');
     sw.innerHTML = PACKS.order.map((id) => { const u = PACKS.list[id].PACK_UI; return `<a href="#/${u.slug}/" class="${id === P() ? 'on' : ''}" aria-label="${esc(u.fullName)}">${u.chip}</a>`; }).join('');
     const items = P() ? [...BASE_NAV.map(([k, l, h]) => [k, l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['progress', 'Progress', '#/progress']] : [['progress', 'Progress', '#/progress']];
-    nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('') + '<a class="codebtn" href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener" aria-label="View the source code on GitHub">&lt;/&gt; Code</a>';
+    nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('');
   }
   // links written as "#/guide/x" inside a processor's pages point at that processor's page: rewrite them once rendered
   function fixLinks(root) {
