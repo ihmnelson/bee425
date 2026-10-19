@@ -42,9 +42,9 @@
       <div class="toolbar optbar">
         <label class="stat"><input type="checkbox" id="o-halt"> HALT stops simulation</label>
         <label class="stat"><input type="checkbox" id="o-prompt"> Prompt for a value before IN</label>
-        <label class="stat" for="o-start">Starting address</label><input id="o-start" class="addr" style="width:4.5em" value="0000" maxlength="4" aria-label="Starting address (hex)" title="Where the simulation begins executing. The IDE's default is 0000H.">
-        <button class="btn ghost" id="o-origin" title="Set the starting address to the first ORG of the assembled program" disabled>Use program origin</button>
-        <label class="stat" for="o-rate">Rate</label><select id="o-rate" class="btn" aria-label="Simulation rate"><option value="1500">Slow</option><option value="250">Normal</option><option value="50">Fast</option><option value="0" selected>Extremely Fast</option><option value="-1">Ultimate</option></select>
+        <span class="optgrp"><label class="stat" for="o-start">Starting address</label><input id="o-start" class="addr" style="width:4.5em" value="0000" maxlength="4" aria-label="Starting address (hex)" title="Where the simulation begins executing. The IDE's default is 0000H.">
+        <button class="btn ghost" id="o-origin" title="Set the starting address to the first ORG of the assembled program" disabled>Use program origin</button></span>
+        <span class="optgrp"><label class="stat" for="o-rate">Rate</label><select id="o-rate" class="btn" aria-label="Simulation rate"><option value="1500">Slow</option><option value="250">Normal</option><option value="50">Fast</option><option value="0" selected>Extremely Fast</option><option value="-1">Ultimate</option></select></span>
       </div>
       <div class="toolbar projbar">
         <label class="stat" for="proj">Project</label>
@@ -65,8 +65,8 @@
           <div class="panel con-panel"><div class="row" style="justify-content:space-between"><b>Output terminal <span class="dim">(port 02H)</span></b><button class="btn ghost" id="clr">Clear</button></div>
             <pre id="out" class="out" tabindex="0" aria-label="Program output"></pre>
             <form id="inform" class="inrow"><label class="stat" for="inport">Port</label><input id="inport" class="addr" style="width:3.2em" value="01" aria-label="Input port (hex)" maxlength="2">
-              <input id="inp" class="addr" style="flex:1" placeholder="Value for IN: hex 41, 0x41, 65, or 'A'…" autocomplete="off" aria-label="Value to send to the input port"><button class="btn">Send byte</button></form>
-            <form id="textform" class="inrow"><input id="txt" class="addr" style="flex:1" placeholder="…or type text: each character is sent to port 01H" autocomplete="off" aria-label="Text to send to port 01H"><label class="stat"><input type="checkbox" id="crlf" checked> add CR</label><button class="btn">Send text</button></form></div>
+              <input id="inp" class="addr" style="flex:1" placeholder="Value: 41, 0x41, 65 or 'A'" autocomplete="off" aria-label="Value to send to the input port"><button class="btn">Send byte</button></form>
+            <form id="textform" class="inrow"><input id="txt" class="addr" style="flex:1" placeholder="Or text, sent to port 01H" autocomplete="off" aria-label="Text to send to port 01H"><label class="stat"><input type="checkbox" id="crlf" checked> add CR</label><button class="btn">Send text</button></form></div>
         </div>
         <div class="col-side">
           <div class="panel"><div id="flags" class="flagrow"></div><div class="tablewrap"><table class="regs" id="regs"></table></div><p class="stat" id="counters"></p></div>

@@ -29,6 +29,25 @@ loop:    ADD     A,[HL]          <span class="cm">; add the byte at (HL) to A</s
   readDefault: '        LD A,[HL]',
   readButtons: [['#/guide/instructions', 'Instruction reference'], ['#/guide/modes', 'Addressing modes'], ['#/guide/branches', 'Jumps']],
   colorize: (l) => l.replace(/(;.*)$/, '<span class="cm">$1</span>').replace(/(\b[0-9][0-9A-F]*H\b|\b[01]+B\b|\b\d+\b|\$[0-9A-F]+|%[01]+)(?![^<]*>)/g, '<span class="num">$1</span>'),
+  demo: {
+    src: `        LD B,5
+        XOR A
+LOOP:   ADD A,B
+        DJNZ LOOP
+        HALT
+`,
+    make() {
+      const r = AsmZ80.assemble(this.src), cpu = new CPUZ80.CPU(), at = {};
+      cpu.mem.set(r.mem); cpu.pc = r.origin; r.listing.forEach((l) => { if (l.inst) at[l.addr] = l.line; });
+      return {
+        step() { if (!cpu.halted) cpu.step(); }, done: () => cpu.halted,
+        line: () => at[cpu.halted ? cpu.pc - 1 : cpu.pc],
+        regs: () => [['A', cpu.a, 2], ['B', cpu.b, 2], ['PC', cpu.pc, 4]],
+        flags: () => `Z ${cpu.f >> 6 & 1}  C ${cpu.f & 1}`,
+        count: () => `${cpu.cycles} T-states`,
+      };
+    },
+  },
   auditFile: 'tests/z80/data/audit.js',
   testsIntro: `<p class="lede">What was checked, how, and what is still unverified. The simulator is an independent implementation written from Zilog's manual; it was tested against hardware-derived data and real tools, not against the Oshonsoft IDE (which was not available).</p>
       <div class="panel"><h3>Simulator and assembler verification</h3><ul>

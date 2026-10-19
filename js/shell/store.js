@@ -35,8 +35,7 @@
 
   const level = (xp) => Math.floor(Math.sqrt(xp / 40)) + 1;
   const levelStart = (lv) => 40 * (lv - 1) * (lv - 1);
-  const TITLES = ['Bit', 'Nibble', 'Byte', 'Word', 'Register', 'Pointer', 'Stack Pointer', 'Interrupt Handler', 'Op-code Wizard', 'Assembler Sage'];
-  const title = (lv) => TITLES[Math.min(lv - 1, TITLES.length - 1)];
+  const title = () => '';          // levels are plain numbers
 
   function streakDays() {
     const set = new Set(state.days);
@@ -47,18 +46,18 @@
   }
 
   const BADGES = [
-    { id: 'first', icon: '🥇', name: 'First Blood', desc: 'Answer your first question right', test: (s) => s.stats.right >= 1 },
-    { id: 'run10', icon: '🔥', name: 'Hot Streak', desc: '10 correct in a row', test: (s) => s.bestRun >= 10 },
-    { id: 'cards50', icon: '🃏', name: 'Card Shark', desc: 'Review 50 flashcards', test: (s) => (s.stats.games.cards || 0) >= 50 },
-    { id: 'tracer20', icon: '🧮', name: 'Human CPU', desc: '20 Register Tracer answers right', test: (s) => (s.stats.games.tracer || 0) >= 20 },
-    { id: 'flags20', icon: '🚩', name: 'Flag Waver', desc: '20 Flag Flipper answers right', test: (s) => (s.stats.games.flags || 0) >= 20 },
-    { id: 'branch15', icon: '🔀', name: 'Branch Manager', desc: '15 Branch Oracle answers right', test: (s) => (s.stats.games.branch || 0) >= 15 },
-    { id: 'bugs10', icon: '🐛', name: 'Bug Squasher', desc: '10 Bug Hunt answers right', test: (s) => (s.stats.games.bugs || 0) >= 10 },
-    { id: 'sort3', icon: '🧩', name: 'Program Builder', desc: 'Assemble 3 programs', test: (s) => (s.stats.games.sorter || 0) >= 3 },
-    { id: 'days3', icon: '📅', name: 'Three-Day Streak', desc: 'Study on 3 days in a row', test: () => streakDays() >= 3 },
-    { id: 'lv5', icon: '⭐', name: 'Level 5', desc: 'Reach level 5', test: (s) => level(s.xp) >= 5 },
-    { id: 'master', icon: '🏆', name: 'Deck Master', desc: 'Master every card in one world', test: (s, api) => api.worldsMastered().length > 0 },
-    { id: 'both', icon: '🔀', name: 'Two Architectures', desc: 'Get a card right on both the 68000 and the Z80', test: (s) => !!(s.packs && s.packs.m68k && s.packs.z80) },
+    { id: 'first', name: 'First correct answer', desc: 'Answer your first question right', test: (s) => s.stats.right >= 1 },
+    { id: 'run10', name: 'Ten correct answers in a row', desc: '10 correct in a row', test: (s) => s.bestRun >= 10 },
+    { id: 'cards50', name: 'Fifty flashcards reviewed', desc: 'Review 50 flashcards', test: (s) => (s.stats.games.cards || 0) >= 50 },
+    { id: 'tracer20', name: 'Twenty Register Tracer answers correct', desc: '20 Register Tracer answers right', test: (s) => (s.stats.games.tracer || 0) >= 20 },
+    { id: 'flags20', name: 'Twenty Flag Flipper answers correct', desc: '20 Flag Flipper answers right', test: (s) => (s.stats.games.flags || 0) >= 20 },
+    { id: 'branch15', name: 'Fifteen Branch Oracle answers correct', desc: '15 Branch Oracle answers right', test: (s) => (s.stats.games.branch || 0) >= 15 },
+    { id: 'bugs10', name: 'Ten Bug Hunt answers correct', desc: '10 Bug Hunt answers right', test: (s) => (s.stats.games.bugs || 0) >= 10 },
+    { id: 'sort3', name: 'Three programs put in order', desc: 'Assemble 3 programs', test: (s) => (s.stats.games.sorter || 0) >= 3 },
+    { id: 'days3', name: 'Studied three days in a row', desc: 'Study on 3 days in a row', test: () => streakDays() >= 3 },
+    { id: 'lv5', name: 'Level 5 reached', desc: 'Reach level 5', test: (s) => level(s.xp) >= 5 },
+    { id: 'master', name: 'Every card in one topic mastered', desc: 'Master every card in one world', test: (s, api) => api.worldsMastered().length > 0 },
+    { id: 'both', name: 'A correct answer on both processors', desc: 'Get a card right on both the 68000 and the Z80', test: (s) => !!(s.packs && s.packs.m68k && s.packs.z80) },
   ];
 
   const api = {

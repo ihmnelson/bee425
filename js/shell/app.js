@@ -18,20 +18,20 @@
     const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.textContent = msg;
     document.getElementById('toasts').appendChild(t); setTimeout(() => t.remove(), 2600);
   }
-  function award(n, why) {
+  // XP is counted quietly; only a new level or a milestone is announced
+  function award(n) {
     const before = S.level(S.state.xp);
     S.addXp(n);
     const after = S.level(S.state.xp);
-    toast(`+${n} XP${why ? ' · ' + why : ''}`);
-    if (after > before) toast(`Level ${after}: ${S.title(after)}!`, 'badge-t');
-    S.newBadges().forEach((b) => toast(`Badge earned: ${b.name}`, 'badge-t'));
+    if (after > before) toast(`Level ${after} reached`, 'badge-t');
+    S.newBadges().forEach((b) => toast(`Milestone: ${b.name}`, 'badge-t'));
     S.save(); renderHud();
+    return n;
   }
   function renderHud() {
-    const xp = S.state.xp, lv = S.level(xp), lo = S.levelStart(lv), hi = S.levelStart(lv + 1);
-    const pct = Math.round(((xp - lo) / (hi - lo)) * 100);
-    document.getElementById('hud').innerHTML =
-      `<span>Level <b>${lv}</b> ${esc(S.title(lv))}</span><span class="xpbar" title="${xp} XP"><i style="width:${pct}%"></i></span><span>Streak <b>${S.streakDays()}</b> d</span>`;
+    const due = (P() ? [PACKS.list[P()]] : PACKS.order.map((id) => PACKS.list[id])).reduce((n, pk) => n + pk.QUEST.CARDS.filter((c) => S.cardState(c).due <= Date.now()).length, 0);
+    const days = S.streakDays();
+    document.getElementById('hud').innerHTML = `<span><b>${due}</b> cards due</span><span>${days ? `<b>${days}</b> day streak` : 'No streak yet'}</span>`;
   }
   const colorize = (src) => esc(src).split('\n').map((l) => UI().colorize(l)).join('\n');
 
@@ -48,42 +48,36 @@
   const mastery = (deck) => { const cs = QUEST.CARDS.filter((c) => c.deck === deck); return { n: cs.length, m: cs.filter(S.isMastered).length, cs }; };
   const dueCards = (deck) => QUEST.CARDS.filter((c) => (!deck || c.deck === deck) && S.cardState(c).due <= Date.now());
 
+  // a list row: icon, name and description, optional trace, and a short note on the right
+  const item = (href, icon, name, sub, mid, end) => `<a class="item" href="${href}"><span class="ico">${icon ? ico(icon) : ''}</span><span class="main"><span class="nm">${esc(name)}</span><span class="sub">${esc(sub || '')}</span></span><span class="mid">${mid || ''}</span><span class="end">${end || ''}</span></a>`;
+
   /* ---------- views ---------- */
   function viewMap() {
     setNav('home');
     const due = dueCards().length;
-    const tiles = QUEST.WORLDS.map((w) => {
-      const m = mastery(w.id);
-      return `<a class="tile" href="#/world/${w.id}"><span class="ico">${ico(w.icon)}</span><span class="nm">${esc(w.name)}</span><span class="sub">${esc(w.blurb)}</span>
-        ${traceOf(m.cs)}<span class="meta"><span>${m.m} of ${m.n} mastered</span><span>${w.lesson}</span></span></a>`;
-    }).join('');
+    const rows = QUEST.WORLDS.map((w) => { const m = mastery(w.id); return item('#/world/' + w.id, w.icon, w.name, w.blurb, traceOf(m.cs), `${m.m} of ${m.n} mastered<br>${esc(w.lesson)}`); }).join('');
     $app.innerHTML = `
-      <div class="hero">
-        <div class="panel"><h1>${UI().hero.title}</h1>
-          <p class="lede">${UI().hero.lede}</p>
-          <div class="row"><a class="btn go" href="#/study/all">Daily review (${due} due)</a><a class="btn" href="#/game/tracer">Trace some code</a>${UI().hero.buttons.map((b) => `<a class="btn ${b[2]}" href="${b[0]}">${b[1]}</a>`).join('')}</div></div>
-        <div class="panel"><h3>Your run</h3><div class="statgrid" style="grid-template-columns:1fr 1fr">
-          <div class="panel"><b>${S.state.stats.right}</b>correct</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div></div>
-      </div>
-      <div class="sec"><h2>World map</h2><small>one world per topic; master its cards to fill the bar</small></div>
-      <div class="grid">${tiles}</div>`;
+      <h1>${UI().hero.title}</h1>
+      <p class="lede">${UI().hero.lede}</p>
+      <div class="row"><a class="btn go" href="#/study/all">Review due cards (${due})</a><a class="btn" href="#/game/tracer">Trace some code</a>${UI().hero.buttons.map((b) => `<a class="btn ${b[2]}" href="${b[0]}">${b[1]}</a>`).join('')}</div>
+      <div class="sec"><h2>Topics</h2><small>each bit in the trace is one card: high means mastered</small></div>
+      <div class="items">${rows}</div>`;
   }
 
   function viewCourse() {
     setNav('');
-    const cards = PACKS.order.map((id) => {
+    const machines = PACKS.order.map((id) => {
       const pk = PACKS.list[id], ui = pk.PACK_UI, Q = pk.QUEST;
       const n = Q.CARDS.length, m = Q.CARDS.filter(S.isMastered).length, due = Q.CARDS.filter((c) => S.cardState(c).due <= Date.now()).length;
-      return `<a class="tile big" href="#/${ui.slug}/"><span class="ico">${ui.chip}</span><span class="nm">${esc(ui.fullName)}</span><span class="sub">${esc(ui.tagline)}</span>
-        ${traceOf(Q.CARDS)}<span class="meta"><span>${m} of ${n} cards mastered</span><span>${due} due</span></span></a>`;
+      return `<section class="machine" data-pack="${id}" style="--accent:var(--${id === 'm68k' ? 'blue' : 'amber'})"><h2>${esc(ui.fullName)}</h2><p class="sub">${esc(ui.tagline)}</p>
+        <div class="mbody"></div>
+        <div class="mfoot">${traceOf(Q.CARDS)}<span class="stat">${m} of ${n} cards mastered, ${due} due</span><a class="btn go" href="#/${ui.slug}/">Open ${esc(ui.name)}</a></div></section>`;
     }).join('');
-    $app.innerHTML = `<div class="hero"><div class="panel"><h1>BEE 425 Quest</h1>
-        <p class="lede">Study tools for Microprocessor System Design: flashcards with spaced repetition, arcade drills built on real simulators, written guides and an in-browser assembler and simulator for each processor in the course. Pick one to start; your XP, streak and badges carry across both.</p>
-        <div class="row"><a class="btn" href="#/progress">Progress &amp; backup</a></div></div>
-        <div class="panel"><h3>Your run</h3><div class="statgrid" style="grid-template-columns:1fr 1fr">
-          <div class="panel"><b>${S.state.stats.right}</b>correct</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div></div></div>
-      <div class="sec"><h2>Choose a processor</h2><small>the lecture compares them side by side</small></div>
-      <div class="grid">${cards}</div>`;
+    $app.innerHTML = `<h1>BEE 425 Quest</h1>
+      <p class="lede">Study tools for Microprocessor System Design: flashcards with spaced repetition, drills built on real simulators, written guides, and an assembler and simulator in the browser for each processor in the course. The two machines below are running now. Progress carries across both.</p>
+      <div class="machines">${machines}</div>
+      <p class="stat" style="margin-top:var(--s4)"><a href="#/progress">Progress and backup</a></p>`;
+    $app.querySelectorAll('.machine').forEach((el) => Demo.mount(el.querySelector('.mbody'), PACKS.list[el.dataset.pack]));
   }
 
   function viewWorld(id) {
@@ -99,29 +93,27 @@
   function viewCards() {
     setNav('cards');
     const weak = QUEST.CARDS.filter((c) => { const s = S.cardState(c); return s.miss > 0 && s.box < 4; }).length;
-    const tiles = QUEST.WORLDS.map((w) => { const m = mastery(w.id), d = dueCards(w.id).length;
-      return `<a class="tile" href="#/study/${w.id}"><span class="ico">${ico(w.icon)}</span><span class="nm">${esc(w.name)}</span>${traceOf(m.cs)}<span class="meta"><span>${m.n} cards</span><span>${d} due</span></span></a>`; }).join('');
-    $app.innerHTML = `<h1>Flashcards</h1><p class="lede">Cards you miss come back sooner; cards you know move up through five boxes (due again after 1, 2, 4, 8 days). Box 4+ counts as mastered.</p>
-      <div class="row" style="margin-bottom:14px"><a class="btn go" href="#/study/all">All due (${dueCards().length})</a><a class="btn" href="#/study/weak">Weak spots (${weak})</a></div><div class="grid">${tiles}</div>`;
+    const rows = QUEST.WORLDS.map((w) => { const m = mastery(w.id), d = dueCards(w.id).length; return item('#/study/' + w.id, w.icon, w.name, '', traceOf(m.cs), `${m.n} cards<br>${d} due`); }).join('');
+    $app.innerHTML = `<h1>Flashcards</h1><p class="lede">A card you miss comes back sooner. A card you know moves up one of five boxes and returns after 1, 2, 4 or 8 days; box 4 and above counts as mastered.</p>
+      <div class="row"><a class="btn go" href="#/study/all">Review all due cards (${dueCards().length})</a><a class="btn" href="#/study/weak">Weak spots (${weak})</a></div><div class="sec"><h2>Decks</h2></div><div class="items">${rows}</div>`;
   }
 
   function viewArcade() {
     setNav('arcade');
     const games = UI().arcade;
-    $app.innerHTML = `<h1>Arcade</h1><p class="lede">Eight questions per run. Right answers earn XP; consecutive hits add a bonus.</p><div class="grid">${games.map((g) =>
-      `<a class="tile" href="#/game/${g[0]}"><span class="ico">${ico(g[1])}</span><span class="nm">${g[2]}</span><span class="sub">${g[3]}</span><span class="meta"><span>${g[4]}</span></span></a>`).join('')}</div>`;
+    $app.innerHTML = `<h1>Arcade</h1><p class="lede">Eight questions per run. Correct answers earn XP, and a streak of correct answers earns a little more.</p><div class="items">${games.map((g) => item('#/game/' + g[0], g[1], g[2], g[3], '', g[4] === 'all' ? 'all lessons' : g[4])).join('')}</div>`;
   }
 
   function viewProgress() {
     setNav('progress');
     const s = S.state, lv = S.level(s.xp), tot = s.stats.right + s.stats.wrong;
     const worlds = PACKS.order.map((id) => { const pk = PACKS.list[id], Q = pk.QUEST; return `<tr><td colspan="3" style="padding-top:var(--s3)"><b>${esc(pk.PACK_UI.fullName)}</b></td></tr>` + Q.WORLDS.map((w) => { const cs = Q.CARDS.filter((c) => c.deck === w.id), m = cs.filter(S.isMastered).length; return `<tr><td style="white-space:nowrap">${ico(w.icon)} ${esc(w.name)}</td><td style="width:50%;padding:0 var(--s3)">${traceOf(cs)}</td><td class="mono">${m} of ${cs.length}</td></tr>`; }).join(''); }).join('');
-    const badges = S.BADGES.map((b) => `<div class="badge ${s.badges[b.id] ? '' : 'off'}"><span class="ico">${ico(b.icon)}</span><div><b>${b.name}</b><small>${b.desc}</small></div></div>`).join('');
+    const badges = S.BADGES.map((b) => `<li class="${s.badges[b.id] ? 'done' : ''}"><span>${esc(b.name)}</span><span class="dim">${s.badges[b.id] ? 'reached ' + esc(String(s.badges[b.id]).slice(0, 10)) : 'not yet'}</span></li>`).join('');
     $app.innerHTML = `<h1>Progress</h1><div class="statgrid">
-      <div class="panel"><b>${lv}</b>level · ${esc(S.title(lv))}</div><div class="panel"><b>${s.xp}</b>XP</div>
+      <div class="panel"><b>${lv}</b>level</div><div class="panel"><b>${s.xp}</b>XP</div>
       <div class="panel"><b>${tot ? Math.round((s.stats.right / tot) * 100) : 0}%</b>accuracy (${tot})</div><div class="panel"><b>${s.bestRun}</b>best run</div><div class="panel"><b>${S.streakDays()}</b>day streak</div></div>
       <div class="sec"><h2>Mastery</h2></div><div class="panel"><table style="width:100%;border-collapse:collapse">${worlds}</table></div>
-      <div class="sec"><h2>Badges</h2></div><div class="badges">${badges}</div>
+      <div class="sec"><h2>Milestones</h2></div><ul class="miles">${badges}</ul>
       <div class="sec"><h2>Back up your work</h2></div>
       <div class="panel"><p class="lede" style="margin-top:0">Everything is stored in this browser only. Export a backup before clearing site data or switching computers; it includes your saved sandbox projects for both processors and your study progress. Backups from the older 68K Quest and Z80 Quest sites can be restored here too.</p>
         <div class="row"><button class="btn go" id="bk">Export backup (.json)</button><button class="btn" id="bkzip">Export all projects (.zip)</button><label class="btn ghost" for="bkrest">Restore from backup…</label><input type="file" id="bkrest" accept=".json,application/json" hidden></div><p class="stat" id="bkmsg"></p></div>
@@ -196,7 +188,7 @@
         <a class="btn go" href="#/game/${id}/easy">Easy</a><a class="btn" href="#/game/${id}/medium">Medium</a><a class="btn" href="#/game/${id}/hard">Hard</a></div></div>`; return;
     }
     const level = def.levels ? arg : null, world = id === 'blitz' ? arg : null;
-    let i = 0, right = 0, streak = 0, locked = false, timerId = null;
+    let i = 0, right = 0, streak = 0, locked = false, timerId = null, roundXp = 0; const missed = [];
     const total = world ? Math.min(ROUNDS, QUEST.QUIZ.filter((q) => q.world === world).length) : ROUNDS;
     let q;
 
@@ -269,8 +261,8 @@
       locked = true; clearInterval(timerId);
       S.record(id === 'blitz' ? 'blitz' : id, ok);
       const run = S.run(ok);
-      if (ok) { right++; streak++; award(10 + Math.min(run - 1, 10), run > 2 ? `${run} in a row` : ''); } else { streak = 0; S.save(); }
-      document.getElementById('fb').innerHTML = `<div class="fb ${ok ? 'ok' : 'no'}"><h3>${ok ? 'Correct!' : 'Not quite'}</h3><div>${lead ? lead + '<br>' : ''}${detail || ''}</div>
+      if (ok) { right++; streak++; roundXp += award(10 + Math.min(run - 1, 10)); } else { streak = 0; missed.push(q.prompt); S.save(); }
+      document.getElementById('fb').innerHTML = `<div class="fb ${ok ? 'ok' : 'no'}"><h3>${ok ? 'Correct' : 'Incorrect'}</h3><div>${lead ? lead + '<br>' : ''}${detail || ''}</div>
         <div class="row" style="margin-top:10px"><button class="btn go" id="next">${i + 1 >= total ? 'Finish' : 'Next'} (Enter)</button></div></div>`;
       document.getElementById('next').onclick = advance; document.getElementById('next').focus();
       cleanup = (e) => { if (e.key === 'Enter') { e.preventDefault(); advance(); } };
@@ -278,9 +270,9 @@
     function advance() { i++; next(); }
     function finish() {
       const bonus = right === total ? 40 : right / total >= 0.75 ? 20 : 5;
-      award(bonus, right === total ? 'perfect round!' : 'round complete');
+      roundXp += award(bonus);
       if (right === total && !S.state.badges.perfect) { S.state.badges.perfect = 'x'; }
-      $app.innerHTML = `<div class="panel"><h1>${ico(def.icon)} ${right} of ${total} correct</h1><p class="lede">${right === total ? 'Flawless.' : right / total >= 0.75 ? 'Strong run.' : 'Keep drilling; every miss teaches something.'}</p>
+      $app.innerHTML = `<div class="panel"><h1>${ico(def.icon)} ${right} of ${total} correct</h1><p class="lede">${roundXp} XP earned this round.${missed.length ? ' Questions you missed:' : ''}</p>${missed.length ? `<ol class="missed">${missed.map((m) => `<li>${esc(m)}</li>`).join('')}</ol>` : ''}
         <div class="row"><a class="btn go" href="#/game/${id}${arg ? '/' + arg : ''}" id="again">Play again</a><a class="btn" href="#/arcade">Arcade</a></div></div>`;
       cleanup = null;
     }
@@ -374,9 +366,9 @@
   /* ---------- Guides & glossary ---------- */
   function viewGuides() {
     setNav('guides');
-    const tiles = QUEST_GUIDES.GUIDES.map((g) => `<a class="tile" href="#/guide/${g.id}"><span class="ico">${ico(g.icon)}</span><span class="nm">${esc(g.title)}</span><span class="sub">${esc(g.summary)}</span><span class="meta"><span>${g.lesson}</span></span></a>`).join('');
+    const tiles = QUEST_GUIDES.GUIDES.map((g) => item('#/guide/' + g.id, g.icon, g.title, g.summary, '', esc(g.lesson))).join('');
     $app.innerHTML = `<h1>Guides</h1><p class="lede">Readable explanations of how everything works, in the order you'll need it. Each ends with a link to practice the topic.</p>
-      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">${ico('book')} Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a>${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}<a class="btn" href="#/tests">${ico('checkmark')} Tests &amp; audit report</a></div><div class="grid">${tiles}</div>
+      <div class="row" style="margin-bottom:14px"><a class="btn" href="#/glossary">${ico('book')} Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Read Code</a>${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}<a class="btn" href="#/tests">${ico('checkmark')} Tests &amp; audit report</a></div><div class="items" style="margin-top:var(--s4)">${tiles}</div>
       <div class="sec"><h2>References &amp; further reading</h2><small>opens in a new tab</small></div>
       <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
   }
@@ -448,6 +440,7 @@
   const LEGACY = new Set(['world', 'cards', 'study', 'arcade', 'game', 'read', 'guides', 'guide', 'glossary', 'tests', 'homework', 'sandbox']);
 
   function route() {
+    if (window.Demo) Demo.stopAll();
     cleanup = null; if (leaveHook) { try { leaveHook(); } catch (e) { /* ignore */ } leaveHook = null; }
     const raw = location.hash.replace(/^#\/?/, ''), [pathq] = raw.split('?'), all = pathq.split('/').filter(Boolean);
     // links from the single-processor 68K Quest site (#/cards, #/sandbox?c=...) keep working: they mean the 68000

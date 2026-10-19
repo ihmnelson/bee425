@@ -37,7 +37,8 @@ async function open(storage) {
   const click = (id) => d.getElementById(id).click();
 
   // course pages
-  let app = await go('#/'); if (!/Choose a processor/.test(app.textContent) || app.querySelectorAll('.tile.big').length !== 2) fail('course home');
+  let app = await go('#/'); if (app.querySelectorAll('.machine').length !== 2) fail('course home should show two machines');
+  { const z = app.querySelector('.machine[data-pack="z80"]'); const before = z.querySelector('.mregs').textContent; z.querySelector('.mstep').click(); z.querySelector('.mstep').click(); if (z.querySelector('.mregs').textContent === before) fail('home machine did not advance when stepped'); if (!z.querySelector('.ml.on')) fail('home machine shows no current line'); const m = app.querySelector('.machine[data-pack="m68k"]'); m.querySelector('.mstep').click(); if (m.querySelector('.mcount').textContent === '0 instructions') fail('68k home machine did not advance'); }
   await go('#/progress'); if (!d.getElementById('bk') || !/68000/.test(d.getElementById('app').textContent) || !/Zilog Z80/.test(d.getElementById('app').textContent)) fail('progress page should list both processors');
   // legacy URL from the old 68K site
   w.location.hash = '#/cards'; await sleep(60); if (w.location.hash !== '#/68k/cards') fail('legacy #/cards did not redirect: ' + w.location.hash);

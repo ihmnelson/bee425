@@ -29,6 +29,28 @@ loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the poin
   readDefault: '        MOVE.B (A0)+,D1',
   readButtons: [['#/guide/instructions', 'Instruction reference'], ['#/guide/modes', 'Addressing modes'], ['#/guide/branches', 'Branches']],
   colorize: (l) => l.replace(/(\*.*|;.*)$/, '<span class="cm">$1</span>').replace(/(#?[$%]?\b[0-9A-F]+\b)(?![^<]*>)/g, (m) => (/^#?[$%]/.test(m) ? `<span class="num">${m}</span>` : m)),
+  demo: {
+    src: `        MOVE.B #5,D1
+        CLR.B  D0
+loop    ADD.B  D1,D0
+        SUBQ.B #1,D1
+        BNE    loop
+        SIMHALT
+`,
+    make() {
+      const r = Asm68K.assemble(this.src), cpu = new CPU68K.CPU(), at = {};
+      r.image.forEach((seg) => cpu.mem.set(seg.bytes, seg.addr)); cpu.A[7] = 0x01000000; cpu.pc = r.start;
+      r.listing.forEach((l) => { if (l.words) at[l.addr] = l.n; });
+      let lastPc = r.start;
+      return {
+        step() { if (!cpu.halted) { lastPc = cpu.pc; cpu.step(); } }, done: () => !!cpu.halted,
+        line: () => (cpu.halted ? at[lastPc] : at[cpu.pc]),
+        regs: () => [['D0', cpu.D[0] & 0xFF, 2], ['D1', cpu.D[1] & 0xFF, 2], ['PC', cpu.pc, 6]],
+        flags: () => `N ${cpu.n}  Z ${cpu.z}  C ${cpu.c}`,
+        count: () => `${cpu.steps} instructions`,
+      };
+    },
+  },
   auditFile: 'tests/m68k/data/audit.js',
   testsIntro: `<p class="lede">Every flashcard, quiz question, glossary term and guide section was checked against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation, and a real EASy68K assembler/simulator built locally and used as an oracle. Items found wrong were corrected on this site (see <a href="#/guide/errata">Slide errata</a>).</p>
       <div class="panel"><h3>Emulator verification</h3><ul>

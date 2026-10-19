@@ -163,10 +163,6 @@ table.regs td { padding: 2px var(--s4) 2px 0; } table.regs td:first-child { colo
 .line .cm { margin-left: var(--s3); } .line .n { color: var(--ink-2); margin-right: var(--s2); }
 
 /* badges, stats, chips */
-.badges { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-.badge { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r2); padding: var(--s3); display: flex; gap: var(--s3); align-items: center; }
-.badge.off { opacity: .45; }
-.badge .ico { font-size: 1.4rem; color: var(--accent); display: flex; } .badge small { display: block; color: var(--ink-2); font-size: var(--t-s); }
 .statgrid { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 .statgrid .panel { text-align: left; color: var(--ink-2); font-size: var(--t-s); }
 .statgrid b { display: block; font: 600 var(--t-3)/1.1 var(--sans); color: var(--ink); }
@@ -256,3 +252,34 @@ pre, pre.code, .tablewrap, .listing, .out, #mem, .mem { max-width: 100%; overflo
 table.gt, table.regs { max-width: 100%; }
 img, svg, video { max-width: 100%; }
 @media (max-width: 1099px) { .top { flex-wrap: wrap; } .nav { width: 100%; margin-left: 0; overflow-x: auto; } }
+
+/* list rows: topics, decks, games and guides are lists, not a wall of cards */
+.items { border-top: 1px solid var(--rule); }
+.item { display: grid; grid-template-columns: 2rem minmax(0, 1fr) minmax(7rem, 15rem) minmax(5.5rem, auto); gap: var(--s4); align-items: center; padding: var(--s3) var(--s2); border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
+.item:hover { background: var(--tint); }
+.item .ico { color: var(--accent); font-size: 1.4rem; display: flex; }
+.item .main { display: grid; gap: 2px; min-width: 0; } .item .nm { font-weight: 600; } .item .sub { color: var(--ink-2); font-size: var(--t-s); }
+.item .end { font-size: var(--t-s); color: var(--ink-2); text-align: right; line-height: 1.35; }
+@media (max-width: 760px) { .item { grid-template-columns: 2rem minmax(0, 1fr) auto; } .item .mid { grid-column: 2 / -1; } .item .mid:empty { display: none; } }
+.miles { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.miles li { display: flex; justify-content: space-between; gap: var(--s4); padding: var(--s2) var(--s2); border-bottom: 1px solid var(--rule); color: var(--ink-2); }
+.miles li.done { color: var(--ink); } .miles li.done span:last-child { color: var(--ok); }
+ol.missed { padding-left: 1.3em; } ol.missed li { margin: var(--s1) 0; max-width: 68ch; }
+
+/* the live machines on the home page */
+.machines { display: grid; gap: var(--s4); grid-template-columns: 1fr; margin-top: var(--s4); }
+@media (min-width: 900px) { .machines { grid-template-columns: 1fr 1fr; } }
+.machine { background: var(--sheet); border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: var(--r2); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.machine h2 { margin: 0; font-size: var(--t-2); } .machine .sub { margin: 0; color: var(--ink-2); font-size: var(--t-s); }
+.mbody { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--s4); align-items: start; }
+@media (max-width: 560px) { .mbody { grid-template-columns: 1fr; } }
+.mcode { margin: 0; padding: var(--s2) 0; display: block; }
+.mcode .ml { display: block; padding: 0 var(--s3) 0 var(--s4); position: relative; white-space: pre; }
+.mcode .ml.on { background: var(--tint); }
+.mcode .ml.on::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+.mside .regs { margin: 0 0 var(--s2); } .mside .stat { margin: 0 0 var(--s1); }
+.mside .row { margin-top: var(--s2); }
+.mfoot { display: grid; grid-template-columns: 1fr auto; gap: var(--s2) var(--s4); align-items: center; margin-top: auto; padding-top: var(--s3); border-top: 1px solid var(--rule-2); }
+.mfoot .trace { grid-column: 1 / -1; }
+.optgrp { display: inline-flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.optbar { gap: var(--s2) var(--s4); }

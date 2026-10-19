@@ -6,7 +6,7 @@ Pick a processor on the home page (or with the switcher in the header). XP, leve
 
 | URL | Page |
 |---|---|
-| `#/` | BEE 425 home: choose a processor |
+| `#/` | BEE 425 home: two live machines, one per processor |
 | `#/68k/...` and `#/z80/...` | that processor's map, cards, arcade, guides, Read Code, sandbox (the 68000 also has Homework 2) |
 | `#/progress` | shared progress, badges, backup and restore |
 
@@ -34,6 +34,9 @@ js/shell/packs.js       registry that lets several processors share the same pag
 js/shell/store.js       XP, levels, badges, spaced repetition (one record for the whole site)
 js/shell/projects.js    per-processor projects, combined JSON backup, ZIP export
 js/shell/app.js         router, header, flashcards, game engine, progress and tests pages
+js/shell/icons.js       icon sprite (IBM Carbon icons, Apache-2.0) and the emoji-to-icon map
+js/shell/demo.js        the live machines on the home page (real simulator cores stepping a short program)
+fonts/                  IBM Plex Sans, Serif and Mono (SIL Open Font License), self-hosted
 js/m68k/                68000: cpu.js, asm.js, io.js (TRAP #15), examples, snippet, data, games, explain, guides,
                         homework*, sandbox-ui.js, ui.js (strings and options for the shell)
 js/z80/                 Z80: cpu.js, asm.js, dis.js, io.js (ports), examples, snippet, data, games, explain, guides,
@@ -77,8 +80,12 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 - 68000: structured assembly, `INCLUDE`, a disassembler view, cycle counts. Z80: homework-style walkthroughs when the lab handouts are available.
 - Optional sync of progress across devices.
 
+## Design
+
+A lab-bench / datasheet look: paper and ink, hairline structure, IBM Plex type, one accent colour per processor (probe blue for the 68000, probe amber for the Z80), light and dark themes that follow the system setting. Tokens (colour, a 1.2 type scale, a 4 px spacing unit, two radii) are at the top of `style.css`. Topic, deck, game and guide lists are rows, not cards. Mastery is drawn as a logic-analyser trace with one bit per flashcard (high means mastered), and the home page runs a short program on each processor's real simulator core. XP and streaks are shown as plain numbers; milestones are a list.
+
 ## Credits and disclaimer
 
 Course content is adapted from the BEE 425 lecture slides by Arnold S. Berger, University of Washington Bothell. This is an independent student study project: it is not affiliated with or endorsed by the instructor, the university, the authors of EASy68K, Zilog or Oshonsoft.
 
-The EASy68K name and behaviour belong to Chuck Kelly and Tim Larson, and the Oshonsoft name and behaviour to Oshonsoft; this project contains none of their code and uses EASy68K, `z80dasm` and the SingleStepTests vectors (MIT) only as black-box references. The 68000 core and assembler were written independently from Motorola's M68000 Programmer's Reference Manual, and the Z80 core, assembler and disassembler from Zilog's Z80 CPU User Manual (UM0080). The idea of a browser-based teaching IDE was also inspired by [ASM Editor](https://asm-editor.specy.app) (AGPL-3.0); no code from it is used.
+The EASy68K name and behaviour belong to Chuck Kelly and Tim Larson, and the Oshonsoft name and behaviour to Oshonsoft; this project contains none of their code and uses EASy68K, `z80dasm` and the SingleStepTests vectors (MIT) only as black-box references. The 68000 core and assembler were written independently from Motorola's M68000 Programmer's Reference Manual, and the Z80 core, assembler and disassembler from Zilog's Z80 CPU User Manual (UM0080). Typefaces are IBM Plex (SIL Open Font License 1.1) and icons are IBM Carbon icons (Apache-2.0), both included under their licences. The idea of a browser-based teaching IDE was also inspired by [ASM Editor](https://asm-editor.specy.app) (AGPL-3.0); no code from it is used.
