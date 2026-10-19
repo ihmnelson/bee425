@@ -24,6 +24,9 @@
   /* spacing (4 px unit) and shape */
   --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem; --s5: 1.5rem; --s6: 2rem; --s7: 3rem;
   --r1: 3px; --r2: 6px;
+  --gutter: clamp(1.25rem, 5vw, 3.5rem);                 /* space either side of the page */
+  --page: 1180px;                                       /* width of the content column */
+  --edge: calc(max(0px, (100% - var(--page) - 2 * var(--gutter)) / 2) + var(--gutter));   /* left/right inset that lines header and footer up with the content */
   --tint: color-mix(in srgb, var(--accent) 11%, var(--sheet));
   --tint-ok: color-mix(in srgb, var(--ok) 12%, var(--sheet));
   --tint-bad: color-mix(in srgb, var(--bad) 11%, var(--sheet));
@@ -50,7 +53,7 @@ code, .mono, pre { font-family: var(--mono); }
 .ic { width: 1.25em; height: 1.25em; fill: currentColor; flex: none; vertical-align: -.25em; }
 
 /* header: wordmark, processor switch, text navigation */
-.top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s5); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--rule); background: var(--sheet); position: sticky; top: 0; z-index: 5; }
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s5); padding: var(--s3) var(--edge); border-bottom: 1px solid var(--rule); background: var(--sheet); position: sticky; top: 0; z-index: 5; }
 .brand { white-space: nowrap; font: 600 var(--t-1)/1 var(--sans); color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
 .cpusw { display: flex; border: 1px solid var(--rule); border-radius: var(--r1); overflow: hidden; }
 .cpusw a { color: var(--ink-2); text-decoration: none; font: 500 var(--t-s)/1 var(--sans); padding: var(--s2) var(--s3); }
@@ -67,8 +70,8 @@ code, .mono, pre { font-family: var(--mono); }
 .nav a.on { color: var(--ink); border-bottom-color: var(--accent); }
 @media (min-width: 1280px) { .nav { width: auto; margin-left: var(--s4); } .hud { margin-left: auto; } .top { flex-wrap: nowrap; } }
 
-main { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: var(--s5) var(--s4) var(--s7); outline: none; min-width: 0; }
-.foot { text-align: center; color: var(--ink-2); font-size: var(--t-s); padding: var(--s4); border-top: 1px solid var(--rule); background: var(--sheet); }
+main { flex: 1; width: 100%; max-width: calc(var(--page) + 2 * var(--gutter)); margin: 0 auto; padding: var(--s5) var(--gutter) var(--s7); outline: none; min-width: 0; }
+.foot { text-align: center; color: var(--ink-2); font-size: var(--t-s); padding: var(--s4) var(--edge); border-top: 1px solid var(--rule); background: var(--sheet); }
 
 /* panels, tiles, grids */
 .panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r2); padding: var(--s4); }
@@ -246,7 +249,9 @@ details.wk > summary { cursor: pointer; list-style: none; display: inline-block;
 details.wk[open] > summary { margin-bottom: var(--s1); }
 
 /* keep wide content scrolling inside its own box instead of the page */
-main, .panel, .grid > *, .hero > *, .sbgrid > *, .col-main, .col-side, .guide { min-width: 0; max-width: 100%; }
+main { min-width: 0; }
+.panel, .grid > *, .hero > *, .sbgrid > *, .col-main, .col-side { min-width: 0; max-width: 100%; }
+.guide { min-width: 0; }
 pre, pre.code, .tablewrap, .listing, .out, #mem, .mem { max-width: 100%; overflow-x: auto; }
 .lede, .stat, dd, .tile .sub { overflow-wrap: anywhere; }
 table.gt, table.regs { max-width: 100%; }
