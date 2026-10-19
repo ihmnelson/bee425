@@ -37,7 +37,7 @@ const rows = items.map((x) => {
   const e = ev[x.id];
   if (!e) return { kind: x.kind, title: x.title, verdict: 'UNVERIFIED', evidence: 'No source check was run for this item. It was written from the Zilog manual and lecture slides but not independently verified.' };
   const ok = e.every((y) => y.v) && e.some((y) => !y.weak);
-  return { kind: x.kind, title: x.title, verdict: ok ? 'CONFIRMED' : 'UNVERIFIED', evidence: (ok ? '' : 'A check did not pass: ') + e.map((y) => (y.v ? '✔ ' : '✘ ') + y.e).join('\n') };
+  return { kind: x.kind, title: x.title, verdict: ok ? 'CONFIRMED' : 'UNVERIFIED', evidence: (ok ? '' : 'A check did not pass: ') + e.map((y) => (y.v ? '' : 'FAILED: ') + y.e).join('\n') };
 });
 // problems found by these checks (or while building) and fixed on the site
 rows.push(

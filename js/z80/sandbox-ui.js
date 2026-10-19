@@ -25,9 +25,9 @@
         <span class="sep"></span>
         <button class="btn" id="step" disabled title="Execute one instruction">Step</button>
         <button class="btn" id="over" disabled title="Step over a CALL, RST or repeating block instruction">Step over</button>
-        <button class="btn" id="back" disabled title="Undo the last manual step">◀ Back</button>
-        <button class="btn" id="run" disabled>▶ Run</button>
-        <button class="btn" id="pause" disabled>❚❚ Pause</button>
+        <button class="btn" id="back" disabled title="Undo the last manual step">Back</button>
+        <button class="btn" id="run" disabled>Run</button>
+        <button class="btn" id="pause" disabled>Pause</button>
         <button class="btn ghost" id="rst" disabled>Reset</button>
         <span class="sep"></span>
         <button class="btn" id="int" disabled title="Raise the maskable interrupt (INT) line">INT</button>
@@ -81,6 +81,7 @@
     let initial = saved(KEY) || EX[0].src;
     if (q && q.get('c')) { try { initial = b64.dec(q.get('c')); } catch (e) { /* ignore bad link */ } }
     src.value = initial;
+    { const ov = JSON.parse(saved(OPTKEY) || '{}'); if (ov.start === undefined) { const m0 = /\.ORG\s+([0-9A-F]+)H/i.exec(initial); o.start = m0 ? parseInt(m0[1], 16) : 0; } }   // first visit: start where the example program begins
     $('o-halt').checked = o.haltStops; $('o-prompt').checked = o.promptIn; $('o-start').value = h4(o.start);
     const saveOpts = () => keep(OPTKEY, JSON.stringify(o));
 
@@ -102,7 +103,7 @@
       $('step').disabled = !live; $('over').disabled = !live; $('run').disabled = !live; $('pause').disabled = !running;
       $('back').disabled = !(loaded && !running && history.length); $('rst').disabled = !loaded;
       $('int').disabled = !loaded; $('nmi').disabled = !loaded;
-      $('int').textContent = intPending ? 'INT ●' : 'INT';
+      $('int').textContent = intPending ? 'INT pending' : 'INT';
       $('dl-lst').disabled = !result; $('dl-hex').disabled = !(result && result.ok); $('o-origin').disabled = !(result && result.ok);
     }
 
@@ -232,7 +233,7 @@
     function drawListing() {
       const lst = $('listing'); const old = lst.scrollTop;
       const curAddr = cpu && !finished() ? cpu.pc : -1;
-      lst.innerHTML = '<div class="lhead"><button class="btn ghost" id="edit">✎ Edit source</button><span class="dim" style="margin-left:8px">click the left dot to set a breakpoint</span></div>' + result.listing.map((l) => {
+      lst.innerHTML = '<div class="lhead"><button class="btn ghost" id="edit">Edit source</button><span class="dim" style="margin-left:8px">click the left dot to set a breakpoint</span></div>' + result.listing.map((l) => {
         const cur = l.inst && l.addr === curAddr ? ' cur' : '';
         const code = l.bytes.length ? l.bytes.slice(0, 4).map(h2).join(' ') + (l.bytes.length > 4 ? ' …' : '') : '';
         return `<div class="ln${cur}" data-n="${l.line}"><button class="bp${bps.has(l.line) ? ' on' : ''}" ${l.inst ? '' : 'disabled'} data-n="${l.line}" aria-label="Toggle breakpoint on line ${l.line}"></button><span class="lno">${l.line}</span><span class="ad">${l.addr != null && l.bytes.length ? h4(l.addr) : ''}</span><span class="mc">${code}</span><span class="tx">${esc(l.text) || '&nbsp;'}</span></div>`;

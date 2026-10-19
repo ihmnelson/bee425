@@ -53,6 +53,7 @@ async function open(storage) {
       const bare = [...app.querySelectorAll('a[href^="#/"]')].filter((a) => { const h = a.getAttribute('href'); return h !== '#/' && !/^#\/(68k|z80|progress)(\/|$)/.test(h); });
       if (bare.length) fail(`${slug}/${r}: ${bare.length} link(s) not prefixed, e.g. ${bare[0].getAttribute('href')}`);
       if (w.PACKS.cur !== id) fail(`${slug}/${r}: wrong processor active`);
+      const em = app.textContent.match(/(?![\u2190-\u21FF\u25A0-\u25FF])\p{Extended_Pictographic}/u); if (em) fail(`${slug}/${r}: emoji in page text: ${em[0]}`);
     }
     for (const g of ['tracer', 'flags', 'branch', 'modes', 'bugs', 'numbers', 'hardware', 'blitz']) {
       for (const lv of (g === 'blitz' ? ['', pk.QUEST.WORLDS[0].id] : ['easy', 'medium', 'hard'])) {

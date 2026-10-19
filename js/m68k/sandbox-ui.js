@@ -23,9 +23,9 @@
         <span class="sep"></span>
         <button class="btn" id="step" disabled title="Execute one instruction">Step</button>
         <button class="btn" id="over" disabled title="Step over a BSR/JSR">Step over</button>
-        <button class="btn" id="back" disabled title="Undo the last manual step">◀ Back</button>
-        <button class="btn" id="run" disabled>▶ Run</button>
-        <button class="btn" id="pause" disabled>❚❚ Pause</button>
+        <button class="btn" id="back" disabled title="Undo the last manual step">Back</button>
+        <button class="btn" id="run" disabled>Run</button>
+        <button class="btn" id="pause" disabled>Pause</button>
         <button class="btn ghost" id="rst" disabled>Reset</button>
         <span class="sep"></span>
         <label class="btn ghost" for="openf">Open…</label><input type="file" id="openf" accept=".x68,.X68,.asm,.txt,text/plain" hidden>
@@ -183,7 +183,7 @@
     function drawListing() {
       const lst = $('listing'); const old = lst.scrollTop;
       const curAddr = cpu && !cpu.halted ? cpu.pc : -1, lastLine = history.length ? history[history.length - 1].line : -1;
-      lst.innerHTML = '<div class="lhead"><button class="btn ghost" id="edit">✎ Edit source</button><span class="dim" style="margin-left:8px">click the left dot to set a breakpoint</span></div>' + result.listing.map((l) => {
+      lst.innerHTML = '<div class="lhead"><button class="btn ghost" id="edit">Edit source</button><span class="dim" style="margin-left:8px">click the left dot to set a breakpoint</span></div>' + result.listing.map((l) => {
         const isInst = !!l.words, cur = isInst && l.addr === curAddr ? ' cur' : '';
         const code = l.words ? l.words.map((w) => hx(w, 4).slice(1)).join(' ') : l.bytes && l.bytes.length ? l.bytes.slice(0, 4).map((b) => hx(b, 2).slice(1)).join(' ') + (l.bytes.length > 4 ? ' …' : '') : '';
         return `<div class="ln${cur}" data-n="${l.n}"><button class="bp${bps.has(l.n) ? ' on' : ''}" ${isInst ? '' : 'disabled'} data-n="${l.n}" aria-label="Toggle breakpoint on line ${l.n}"></button><span class="lno">${l.n}</span><span class="ad">${l.addr != null && (isInst || l.bytes.length) ? hx(l.addr, 6).slice(1) : ''}</span><span class="mc">${code}</span><span class="tx">${esc(l.text) || '&nbsp;'}</span></div>`;

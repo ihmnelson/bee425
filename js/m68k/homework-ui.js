@@ -13,8 +13,8 @@
     const hw = H().HW2, S = ctx.Store;
     root.innerHTML = `<p><a href="#/guides">← Guides</a></p><h1>${esc(hw.title)}</h1><p class="stat">Due ${esc(hw.due)}</p>
       <p class="lede">${esc(hw.intro)}</p>
-      <div class="row" style="margin-bottom:12px"><a class="btn" href="#/guide/workflow">📖 Using EASy68K: files, list file, S-records</a><a class="btn" href="#/sandbox">Open the sandbox</a></div>
-      <div class="grid">${hw.problems.map((p) => `<a class="tile" href="#/homework/hw2/${p.n}"><span class="ico">${p.n === 5 ? '🎨' : ['1️⃣', '2️⃣', '3️⃣', '4️⃣'][p.n - 1]}</span><span class="nm">Problem ${p.n}: ${esc(p.title)}</span><span class="sub">${esc(p.ask)}</span><span class="meta"><span>${done(S, 'hw2', p.n) ? '✔ checked' : p.check ? 'not checked yet' : ''}</span></span></a>`).join('')}</div>
+      <div class="row" style="margin-bottom:12px"><a class="btn" href="#/guide/workflow">Using EASy68K: files, list file, S-records</a><a class="btn" href="#/sandbox">Open the sandbox</a></div>
+      <div class="grid">${hw.problems.map((p) => `<a class="tile" href="#/homework/hw2/${p.n}"><span class="ico">${p.n}</span><span class="nm">Problem ${p.n}: ${esc(p.title)}</span><span class="sub">${esc(p.ask)}</span><span class="meta"><span>${done(S, 'hw2', p.n) ? '✔ checked' : p.check ? 'not checked yet' : ''}</span></span></a>`).join('')}</div>
       <div class="panel" style="margin-top:16px"><h3>How to use these pages</h3><ol><li><b>Try first.</b> Read the problem and use the hints one at a time.</li><li><b>Check your own program</b> in the Try it box (or the sandbox). The checker runs it on several test inputs.</li><li><b>Then read the walkthrough</b> and the verified solution, and trace it instruction by instruction.</li></ol>
         <p class="stat">This homework is not for credit. The solutions here were each run on a real EASy68K simulator as well as this site's emulator.</p></div>`;
   }
@@ -70,7 +70,7 @@
         const res = H().CHECKS[p.n](ta.value), box = tr.querySelector('#chkres');
         if (res.error) { box.innerHTML = `<div class="fb no"><h3>Could not run it</h3><pre class="code" style="white-space:pre-wrap">${esc(res.error)}</pre></div>`; return; }
         const all = res.results.every((r) => r.ok);
-        box.innerHTML = `<div class="fb ${all ? 'ok' : 'no'}"><h3>${all ? 'All checks passed!' : 'Some checks failed'}</h3><div class="tablewrap"><table class="gt"><thead><tr><th></th><th>Test</th><th>Expected</th><th>Got</th></tr></thead><tbody>${res.results.map((r) => `<tr><td>${r.ok ? '✔' : '✘'}</td><td class="mono" style="white-space:normal">${esc(r.name)}</td><td class="mono" style="white-space:normal">${esc(r.want)}</td><td class="mono" style="white-space:normal">${esc(r.got)}</td></tr>`).join('')}</tbody></table></div></div>`;
+        box.innerHTML = `<div class="fb ${all ? 'ok' : 'no'}"><h3>${all ? 'All checks passed!' : 'Some checks failed'}</h3><div class="tablewrap"><table class="gt"><thead><tr><th></th><th>Test</th><th>Expected</th><th>Got</th></tr></thead><tbody>${res.results.map((r) => `<tr><td>${r.ok ? 'pass' : 'fail'}</td><td class="mono" style="white-space:normal">${esc(r.name)}</td><td class="mono" style="white-space:normal">${esc(r.want)}</td><td class="mono" style="white-space:normal">${esc(r.got)}</td></tr>`).join('')}</tbody></table></div></div>`;
         if (all && !done(S, 'hw2', p.n)) { mark(S, 'hw2', p.n); ctx.award(25, 'homework problem ' + p.n); }
       };
     }

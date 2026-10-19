@@ -1,6 +1,6 @@
 /* Pack description for the Z80: the strings and options the shared shell needs (see js/shell/app.js). */
 window.PACK_UI = {
-  id: 'z80', slug: 'z80', name: 'Z80', fullName: 'Zilog Z80', chip: 'Z80', icon: '🟠',
+  id: 'z80', slug: 'z80', name: 'Z80', fullName: 'Zilog Z80', chip: 'Z80', icon: '',
   projects: { key: 'qz80.projects.v1', ext: 'asm', label: 'Z80' },
   tagline: 'Registers A, HL, IX, PUSH/POP, LD and friends, Oshonsoft-style sandbox with exact T-states.',
   hero: {
@@ -20,14 +20,14 @@ window.PACK_UI = {
     ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across every world.', 'all'],
   ],
   navExtra: [],
-  guidesButtons: [['#/guide/oshonsoft', '🛠️ Oshonsoft IDE guide']],
+  guidesButtons: [['#/guide/oshonsoft', 'Oshonsoft IDE guide']],
   examples: () => window.EXAMPLES_Z80,
   readIntro: 'What does each line actually do? Type any Z80 line for a plain-English breakdown, or open a lecture program and read it line by line.',
   readAnatomy: `<pre class="code"><span class="kw">LABEL:</span>   <span class="kw">OPCODE</span>  <span class="kw">DEST</span>,<span class="kw">SOURCE</span>    <span class="cm">; COMMENT</span>
 loop:    ADD     A,[HL]          <span class="cm">; add the byte at (HL) to A</span></pre>
         <p class="lede" style="margin:0">Label: a name for the address, optional, ending in a colon. Opcode: what to do. Operands: comma-separated; for two-operand instructions the <b>destination comes first and the source last</b> (the opposite of the 68K). Brackets or parentheses mean "the memory at that address". Comment: after <code>;</code>.</p>`,
   readDefault: '        LD A,[HL]',
-  readButtons: [['#/guide/instructions', '📖 Instruction reference'], ['#/guide/modes', '📖 Addressing modes'], ['#/guide/branches', '📖 Jumps']],
+  readButtons: [['#/guide/instructions', 'Instruction reference'], ['#/guide/modes', 'Addressing modes'], ['#/guide/branches', 'Jumps']],
   colorize: (l) => l.replace(/(;.*)$/, '<span class="cm">$1</span>').replace(/(\b[0-9][0-9A-F]*H\b|\b[01]+B\b|\b\d+\b|\$[0-9A-F]+|%[01]+)(?![^<]*>)/g, '<span class="num">$1</span>'),
   auditFile: 'tests/z80/data/audit.js',
   testsIntro: `<p class="lede">What was checked, how, and what is still unverified. The simulator is an independent implementation written from Zilog's manual; it was tested against hardware-derived data and real tools, not against the Oshonsoft IDE (which was not available).</p>

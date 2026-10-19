@@ -1,6 +1,6 @@
 /* Pack description for the 68000: the strings and options the shared shell needs (see js/shell/app.js). */
 window.PACK_UI = {
-  id: 'm68k', slug: '68k', name: '68000', fullName: 'Motorola 68000', chip: '68K', icon: '🟢',
+  id: 'm68k', slug: '68k', name: '68000', fullName: 'Motorola 68000', chip: '68K', icon: '',
   projects: { key: 'q68k.projects.v1', ext: 'X68', label: '68K' },
   tagline: 'Registers D0-D7 and A0-A7, MOVE and friends, EASy68K-compatible sandbox, Homework 2.',
   hero: {
@@ -20,14 +20,14 @@ window.PACK_UI = {
     ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across every world.', 'all'],
   ],
   navExtra: [{ href: '#/homework', name: 'homework', label: 'Homework' }],
-  guidesButtons: [['#/homework', '📝 Homework 2 walkthrough']],
+  guidesButtons: [['#/homework', 'Homework 2 walkthrough']],
   examples: () => window.EXAMPLES_68K,
   readIntro: 'What does each line actually do? Type any 68K line for a plain-English breakdown, or open a lecture program and read it line by line.',
   readAnatomy: `<pre class="code"><span class="kw">LABEL</span>    <span class="kw">OPCODE</span>.<span class="kw">SIZE</span> <span class="kw">OPERAND1</span>,<span class="kw">OPERAND2</span>  <span class="cm">* COMMENT</span>
 loop     ADD.B   (A0)+,D1        <span class="cm">* add a byte, advance the pointer</span></pre>
         <p class="lede" style="margin:0">Label: starts in column 1 (optional). Opcode: what to do. Size: <code>.B</code> byte, <code>.W</code> word, <code>.L</code> long. Operands: comma-separated, no spaces; for two-operand instructions the <b>source comes first and the destination last</b>. Comment: after <code>*</code> or <code>;</code>.</p>`,
   readDefault: '        MOVE.B (A0)+,D1',
-  readButtons: [['#/guide/instructions', '📖 Instruction reference'], ['#/guide/modes', '📖 Addressing modes'], ['#/guide/branches', '📖 Branches']],
+  readButtons: [['#/guide/instructions', 'Instruction reference'], ['#/guide/modes', 'Addressing modes'], ['#/guide/branches', 'Branches']],
   colorize: (l) => l.replace(/(\*.*|;.*)$/, '<span class="cm">$1</span>').replace(/(#?[$%]?\b[0-9A-F]+\b)(?![^<]*>)/g, (m) => (/^#?[$%]/.test(m) ? `<span class="num">${m}</span>` : m)),
   auditFile: 'tests/m68k/data/audit.js',
   testsIntro: `<p class="lede">Every flashcard, quiz question, glossary term and guide section was checked against the lecture slides, Motorola's M68000 Programmer's Reference Manual, the EASy68K documentation, and a real EASy68K assembler/simulator built locally and used as an oracle. Items found wrong were corrected on this site (see <a href="#/guide/errata">Slide errata</a>).</p>
