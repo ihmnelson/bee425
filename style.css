@@ -24,7 +24,7 @@
   /* spacing (4 px unit) and shape */
   --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem; --s5: 1.5rem; --s6: 2rem; --s7: 3rem;
   --r1: 3px; --r2: 6px;
-  --gutter: clamp(1.25rem, 5vw, 3.5rem);                 /* space either side of the page */
+  --gutter: clamp(1.25rem, 7vw, 6rem);                 /* space either side of the page */
   --page: 1180px;                                       /* width of the content column */
   --edge: calc(max(0px, (100% - var(--page) - 2 * var(--gutter)) / 2) + var(--gutter));   /* left/right inset that lines header and footer up with the content */
   --tint: color-mix(in srgb, var(--accent) 11%, var(--sheet));
