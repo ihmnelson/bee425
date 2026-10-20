@@ -410,9 +410,12 @@
     let n = 0; const heads = [...g.md.matchAll(/^## (.+)$/gm)].map((m) => m[1].replace(/`/g, ''));
     const body = QUEST_GUIDES.render(g.md).replace(/<h2>/g, () => `<h2 id="sec-${n++}">`);
     const toc = heads.length >= 4 ? `<nav class="toc" aria-label="On this page"><b>On this page</b><ol>${heads.map((h, i) => `<li><a href="#sec-${i}" data-sec="${i}">${esc(h)}</a></li>`).join('')}</ol></nav>` : '';
-    $app.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p><article class="guide"><h1>${ico(g.icon)} ${esc(g.title)}</h1><p class="stat">Source: ${esc(lessonText(g.lesson))}</p>${toc}${body}</article>
-      <div class="panel" style="margin-top:16px"><h3>Practise this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">Practice drills</a><a class="btn" href="#/sandbox">Sandbox</a></div></div>
-      ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel" style="margin-top:12px"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${ico(t.icon)} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">${ico('book')} Glossary</a>${g.id !== 'errata' ? `<a class="btn" href="#/guide/errata">${ico('warning--alt')} Slide errata</a>` : ''}</div></div>` : ''}
+    const tocSide = toc.replace('class="toc"', 'class="toc side"'), tocInline = toc.replace('class="toc"', 'class="toc inline"');
+    $app.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p>
+      <div class="guidepage"><article class="guide"><h1>${ico(g.icon)} ${esc(g.title)}</h1><p class="stat">Source: ${esc(lessonText(g.lesson))}</p>${tocInline}${body}</article>
+      <aside class="guideside">${tocSide}
+      <div class="panel"><h3>Practise this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">Practice drills</a><a class="btn" href="#/sandbox">Sandbox</a></div></div>
+      ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${ico(t.icon)} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">${ico('book')} Glossary</a>${g.id !== 'errata' ? `<a class="btn" href="#/guide/errata">${ico('warning--alt')} Slide errata</a>` : ''}</div></div>` : ''}</aside></div>
       <div class="row" style="justify-content:space-between;margin-top:14px">${prev ? `<a class="btn" href="#/guide/${prev.id}">Previous: ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/guide/${next.id}">Next: ${esc(next.title)}</a>` : ''}</div>`;
   }
   document.addEventListener('click', (e) => {
