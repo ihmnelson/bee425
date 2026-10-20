@@ -10,7 +10,7 @@
   const packBySlug = (slug) => PACKS.order.find((id) => PACKS.list[id].PACK_UI.slug === slug);
   const here = () => '#/' + slugOf(P()) + '/';
   // go to a route of the open processor (or an absolute route when it already names one)
-  const go = (h) => { location.hash = /^#\/(68k|z80|progress)/.test(h) || !P() ? h : h.replace(/^#\//, here()); };
+  const go = (h) => { location.hash = /^#\/(68k|z80|sys|progress)/.test(h) || !P() ? h : h.replace(/^#\//, here()); };
   const worldById = (id) => QUEST.WORLDS.find((w) => w.id === id);
 
   /* ---------- helpers ---------- */
@@ -51,16 +51,16 @@
   // a list row: icon, name and description, optional trace, and a short note on the right
   const item = (href, icon, name, sub, mid, end) => `<a class="item" href="${href}"><span class="ico">${icon ? ico(icon) : ''}</span><span class="main"><span class="nm">${esc(name)}</span><span class="sub">${esc(sub || '')}</span></span><span class="mid">${mid || ''}</span><span class="end">${end || ''}</span></a>`;
 
-  const lessonText = (l) => (/^L\d/.test(l) ? (/-/.test(l) ? 'Lessons ' : 'Lesson ') + l.slice(1) : l);
+  const lessonText = (l) => (/^L\d+, slides? /.test(l) ? l.replace(/^L/, 'Lesson ') : /^L\d/.test(l) ? (/-/.test(l) ? 'Lessons ' : 'Lesson ') + l.slice(1) : l);
   const gameById = (id) => UI().arcade.find((g) => g[0] === id);
   const topicsFor = (gid) => Object.entries(UI().topicGames).filter(([, gs]) => gs.includes(gid)).map(([t]) => worldById(t)).filter(Boolean);
   // the four things you do with a processor's pages, in the order that works
-  const HOW = `<ol class="how">
+  const HOW = () => { const b = (UI().how && UI().how.build) || ['Build', 'Write a program, run it, step through it.']; return `<ol class="how">
     <li><a href="#/guides"><b>Learn</b><span>Read the guide for a topic.</span></a></li>
     <li><a href="#/cards"><b>Remember</b><span>Review flashcards. A card you miss comes back sooner.</span></a></li>
     <li><a href="#/arcade"><b>Practice</b><span>Drills with a new question every time.</span></a></li>
-    <li><a href="#/sandbox"><b>Build</b><span>Write a program, run it, step through it.</span></a></li>
-  </ol>`;
+    <li><a href="#/sandbox"><b>${b[0]}</b><span>${b[1]}</span></a></li>
+  </ol>`; };
 
   /* ---------- views ---------- */
   function viewMap() {
@@ -70,7 +70,7 @@
     $app.innerHTML = `
       <h1>${UI().hero.title}</h1>
       <p class="lede">${UI().hero.lede}</p>
-      <h2 class="h-s">How to study</h2>${HOW}
+      <h2 class="h-s">How to study</h2>${HOW()}
       <div class="row" style="margin-top:var(--s4)">${fresh ? `<a class="btn go" href="#/world/${first.id}">Start with topic 1: ${esc(first.name)}</a>` : `<a class="btn go" href="#/study/all">Review due cards (${due})</a>`}${UI().hero.buttons.map((b) => `<a class="btn ${b[2]}" href="${b[0]}">${b[1]}</a>`).join('')}</div>
       <div class="sec"><h2>Topics</h2><small>in lecture order; in each trace, one bit per flashcard, high when mastered</small></div>
       <div class="items">${rows}</div>`;
@@ -78,21 +78,23 @@
 
   function viewCourse() {
     setNav('');
-    const machines = PACKS.order.map((id) => {
+    const machine = (id) => {
       const pk = PACKS.list[id], ui = pk.PACK_UI, Q = pk.QUEST;
       const n = Q.CARDS.length, m = Q.CARDS.filter(S.isMastered).length, due = Q.CARDS.filter((c) => S.cardState(c).due <= Date.now()).length;
-      return `<section class="machine" data-pack="${id}" style="--accent:var(--${id === 'm68k' ? 'blue' : 'amber'})"><h2>${esc(ui.fullName)}</h2><p class="sub">${esc(ui.tagline)}</p>
+      return `<section class="machine" data-pack="${id}" style="--accent:var(--${ui.accent || (id === 'm68k' ? 'blue' : 'amber')})"><h2>${esc(ui.fullName)}</h2><p class="sub">${esc(ui.tagline)}</p>
         <div class="mbody"></div>
         <div class="mfoot">${traceOf(Q.CARDS)}<span class="stat">${m} of ${n} cards mastered, ${due} due</span><a class="btn go" href="#/${ui.slug}/">Open ${esc(ui.name)}</a></div></section>`;
-    }).join('');
+    };
+    const procs = PACKS.order.filter((id) => PACKS.list[id].PACK_UI.kind !== 'topic'), topics = PACKS.order.filter((id) => PACKS.list[id].PACK_UI.kind === 'topic');
     $app.innerHTML = `<h1>BEE 425 Quest</h1>
-      <p class="lede">Study tools for Microprocessor System Design. Each processor has the same set of pages: topics that follow the lectures, written guides, flashcards, practice drills, and an assembler and simulator that run in the browser.</p>
+      <p class="lede">Study tools for Microprocessor System Design. Each processor has the same set of pages: topics that follow the lectures, written guides, flashcards, practice drills, and an assembler and simulator that run in the browser. Topics that belong to both processors, such as data conversion, have their own section.</p>
       <h2 class="h-s">Which processor first?</h2>
-      <ul class="plain"><li>If your lab or homework uses <b>EASy68K</b>, open the 68000.</li><li>If it uses the <b>Oshonsoft Z80 Simulator IDE</b>, open the Z80.</li><li>Not sure? Start with the 68000, which the lectures introduce first. The Z80 pages cover the same ideas on an 8-bit machine, so they work well for comparison.</li></ul>
+      <ul class="plain"><li>If your lab or homework uses <b>EASy68K</b>, open the 68000.</li><li>If it uses the <b>Oshonsoft Z80 Simulator IDE</b>, open the Z80.</li><li>Not sure? Start with the 68000, which the lectures introduce first. The Z80 pages cover the same ideas on an 8-bit machine, so they work well for comparison.</li>${topics.length ? '<li>Studying A/D and D/A converters (Lesson 10)? That is not processor-specific: open <b>Data conversion</b> below.</li>' : ''}</ul>
       <h2 class="h-s">The two machines</h2>
       <p class="stat" style="margin:0 0 var(--s2)">Both are running real code now, on the same simulators the sandboxes use. Press Step to advance one instruction.</p>
-      <div class="machines">${machines}</div>
-      <p class="stat" style="margin-top:var(--s4)">Your progress is shared across both. <a href="#/progress">See progress and back it up</a>.</p>`;
+      <div class="machines">${procs.map(machine).join('')}</div>
+      ${topics.length ? `<h2 class="h-s">Shared topics</h2><p class="stat" style="margin:0 0 var(--s2)">The same for either processor. The machine shown is a successive-approximation converter finding a 4-bit code.</p><div class="machines">${topics.map(machine).join('')}</div>` : ''}
+      <p class="stat" style="margin-top:var(--s4)">Your progress is shared across all of them. <a href="#/progress">See progress and back it up</a>.</p>`;
     $app.querySelectorAll('.machine').forEach((el) => Demo.mount(el.querySelector('.mbody'), PACKS.list[el.dataset.pack]));
   }
 
@@ -109,7 +111,7 @@
     steps.push(step('Review the flashcards', `${m.n} cards, ${due} due. ${m.m} mastered so far.`, traceOf(m.cs), `<a class="btn ${guide ? '' : 'go'}" href="#/study/${id}">Study cards</a>`));
     if (games.length) steps.push(step('Practice', games.map((g) => `<b>${esc(g[2])}.</b> ${esc(g[3])}`).join('<br>'), '', games.map((g) => `<a class="btn" href="#/game/${g[0]}">${esc(g[2])}</a>`).join('')));
     if (nq) steps.push(step('Check yourself', `A quiz of up to ${nq} multiple-choice questions on this topic.`, '', `<a class="btn" href="#/game/blitz/${id}">Start the quiz</a>`));
-    if (UI().topicSandbox.includes(id)) steps.push(step('Try it yourself', 'Run a program in the sandbox, or paste any line into Explain code to see what it does.', '', '<a class="btn" href="#/sandbox">Open sandbox</a><a class="btn" href="#/read">Explain code</a>'));
+    if (UI().topicSandbox.includes(id)) steps.push(step('Try it yourself', UI().topicSandboxText || 'Run a program in the sandbox, or paste any line into Explain code to see what it does.', '', `<a class="btn" href="#/sandbox">${UI().sandboxLabel ? 'Open the ' + UI().sandboxLabel.toLowerCase() : 'Open sandbox'}</a>${UI().hasRead === false ? '' : '<a class="btn" href="#/read">Explain code</a>'}`));
     $app.innerHTML = `<p class="crumb"><a href="#/">Topics</a></p>
       <h1>${ico(w.icon)} ${idx + 1}. ${esc(w.name)}</h1><p class="lede">${esc(w.blurb)}. Covers ${esc(lessonText(w.lesson).toLowerCase())}.</p>
       <ol class="steps">${steps.join('')}</ol>
@@ -200,6 +202,7 @@
     bugs:     { title: 'Bug Hunt', icon: '🐛', make: () => G.bugQ() },
     numbers:  { title: 'Number Ninja', icon: '🥷', levels: true, make: (l) => G.numberQ(l) },
     hardware: { title: 'Hardware Lab', icon: '🧱', levels: true, make: (l) => G.hardwareQ(l) },
+    convert:  { title: 'Converter Drills', icon: '🧮', levels: true, make: (l) => G.convertQ(l) },
     blitz:    { title: 'Quiz Blitz', icon: '⚡', timer: 20, make: (l, world) => G.quizQ(world) },
   };
   const ROUNDS = 8;
@@ -397,7 +400,7 @@
     const groups = [...UI().guideGroups, ...(QUEST_GUIDES.GUIDES.some((g) => !used.has(g.id)) ? [['More', QUEST_GUIDES.GUIDES.filter((g) => !used.has(g.id)).map((g) => g.id)]] : [])];
     const sections = groups.map(([name, ids]) => `<div class="sec"><h2>${esc(name)}</h2></div><div class="items">${ids.map((id) => byId[id]).filter(Boolean).map((g) => item('#/guide/' + g.id, g.icon, g.title, g.summary, '', esc(lessonText(g.lesson)))).join('')}</div>`).join('');
     $app.innerHTML = `<h1>Guides</h1><p class="lede">Written explanations, grouped from the fundamentals to reference material. Read them top to bottom, or open the one a topic points you to. Each guide ends with links to practise what it covered.</p>
-      <div class="row"><a class="btn" href="#/glossary">${ico('book')} Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a><a class="btn" href="#/read">Explain code</a>${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}</div>
+      <div class="row"><a class="btn" href="#/glossary">${ico('book')} Glossary (${QUEST_GUIDES.GLOSSARY.length} terms)</a>${UI().hasRead === false ? '' : '<a class="btn" href="#/read">Explain code</a>'}${UI().guidesButtons.map((b) => `<a class="btn" href="${b[0]}">${b[1]}</a>`).join('')}</div>
       ${sections}
       <div class="sec"><h2>References and further reading</h2><small>open in a new tab</small></div>
       <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
@@ -414,8 +417,8 @@
     $app.innerHTML = `<p class="crumb"><a href="#/guides">Guides</a></p>
       <div class="guidepage"><article class="guide"><h1>${ico(g.icon)} ${esc(g.title)}</h1><p class="stat">Source: ${esc(lessonText(g.lesson))}</p>${tocInline}${body}</article>
       <aside class="guideside">${tocSide}
-      <div class="panel"><h3>Practise this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">Practice drills</a><a class="btn" href="#/sandbox">Sandbox</a></div></div>
-      ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${ico(t.icon)} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">${ico('book')} Glossary</a>${g.id !== 'errata' ? `<a class="btn" href="#/guide/errata">${ico('warning--alt')} Slide errata</a>` : ''}</div></div>` : ''}</aside></div>
+      <div class="panel"><h3>Practise this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">Practice drills</a><a class="btn" href="#/sandbox">${esc(UI().sandboxLabel || 'Sandbox')}</a></div></div>
+      ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${ico(t.icon)} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">${ico('book')} Glossary</a>${g.id !== 'errata' && list.some((y) => y.id === 'errata') ? `<a class="btn" href="#/guide/errata">${ico('warning--alt')} Slide errata</a>` : ''}</div></div>` : ''}</aside></div>
       <div class="row" style="justify-content:space-between;margin-top:14px">${prev ? `<a class="btn" href="#/guide/${prev.id}">Previous: ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/guide/${next.id}">Next: ${esc(next.title)}</a>` : ''}</div>`;
   }
   document.addEventListener('click', (e) => {
@@ -445,7 +448,7 @@
       <div id="auditbox"><p class="stat">Loading audit results…</p></div>`;
     const draw = () => {
       const A = window.AUDIT && window.AUDIT[id], rows = A ? A.rows : []; const box = document.getElementById('auditbox'); if (!box) return;
-      if (!rows.length) { box.innerHTML = '<div class="panel" style="margin-top:12px"><h3>Content audit</h3><p class="stat">No audit results available.</p></div>'; return; }
+      if (!rows.length) { box.innerHTML = UI().auditFile ? '<div class="panel" style="margin-top:12px"><h3>Content audit</h3><p class="stat">No audit results available.</p></div>' : ''; return; }
       const kinds = ['card', 'quiz', 'guide', 'glossary'], verdicts = ['CONFIRMED', 'CORRECTED', 'UNVERIFIED'];
       const tbl = kinds.map((k) => `<tr><td>${k}</td>${verdicts.map((v) => `<td class="mono">${rows.filter((r) => r.kind === k && r.verdict === v).length}</td>`).join('')}<td class="mono">${rows.filter((r) => r.kind === k).length}</td></tr>`).join('');
       box.innerHTML = `<div class="panel" style="margin-top:12px"><h3>Content audit summary</h3><div class="tablewrap"><table class="gt"><thead><tr><th>Content</th><th>Confirmed</th><th>Corrected</th><th>Unverified</th><th>Total</th></tr></thead><tbody>${tbl}</tbody></table></div>
@@ -461,7 +464,7 @@
       };
       ['avk', 'avv', 'avq'].forEach((x) => (document.getElementById(x).oninput = list)); list();
     };
-    if (window.AUDIT && window.AUDIT[id]) draw(); else { const sc = document.createElement('script'); sc.src = UI().auditFile + '?v=' + (window.BUILD || ''); sc.onload = draw; sc.onerror = draw; document.head.appendChild(sc); }
+    if (!UI().auditFile || (window.AUDIT && window.AUDIT[id])) draw(); else { const sc = document.createElement('script'); sc.src = UI().auditFile + '?v=' + (window.BUILD || ''); sc.onload = draw; sc.onerror = draw; document.head.appendChild(sc); }
   }
 
   /* ---------- shell: header, links, router ---------- */
@@ -469,14 +472,14 @@
   function renderHeader() {
     const nav = document.querySelector('.nav'), sw = document.getElementById('cpusw');
     sw.innerHTML = PACKS.order.map((id) => { const u = PACKS.list[id].PACK_UI; return `<a href="#/${u.slug}/" class="${id === P() ? 'on' : ''}" aria-label="${esc(u.fullName)}">${u.chip}</a>`; }).join('');
-    const items = P() ? [...BASE_NAV.map(([k, l, h]) => [k, l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['progress', 'Progress', '#/progress']] : [['progress', 'Progress', '#/progress']];
-    const ft = document.getElementById('foot'); if (ft) ft.innerHTML = `Built from BEE 425 F26 Lessons 3&ndash;8. Progress is saved in this browser only. ${P() ? `<a href="${here()}tests">How accurate is this site?</a> &middot; ` : ''}<a href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener">Source code on GitHub</a>`;
+    const items = P() ? [...BASE_NAV.filter(([k]) => !(k === 'read' && UI().hasRead === false)).map(([k, l, h]) => [k, k === 'sandbox' && UI().sandboxLabel ? UI().sandboxLabel : l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['progress', 'Progress', '#/progress']] : [['progress', 'Progress', '#/progress']];
+    const ft = document.getElementById('foot'); if (ft) ft.innerHTML = `Built from BEE 425 F26 Lessons 3&ndash;8, 10 and 11. Progress is saved in this browser only. ${P() ? `<a href="${here()}tests">How accurate is this site?</a> &middot; ` : ''}<a href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener">Source code on GitHub</a>`;
     nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('');
   }
   // links written as "#/guide/x" inside a processor's pages point at that processor's page: rewrite them once rendered
   function fixLinks(root) {
     if (!P()) return;
-    root.querySelectorAll('a[href^="#/"]').forEach((a) => { const h = a.getAttribute('href'); if (!/^#\/(68k|z80|progress)(\/|$)/.test(h) && h !== '#/') a.setAttribute('href', h.replace(/^#\//, here())); else if (h === '#/') a.setAttribute('href', here()); });
+    root.querySelectorAll('a[href^="#/"]').forEach((a) => { const h = a.getAttribute('href'); if (!/^#\/(68k|z80|sys|progress)(\/|$)/.test(h) && h !== '#/') a.setAttribute('href', h.replace(/^#\//, here())); else if (h === '#/') a.setAttribute('href', here()); });
   }
   new MutationObserver(() => fixLinks($app)).observe($app, { childList: true, subtree: true });
   const LEGACY = new Set(['world', 'cards', 'study', 'arcade', 'game', 'read', 'guides', 'guide', 'glossary', 'tests', 'homework', 'sandbox']);
@@ -502,7 +505,7 @@
         case 'study': viewStudy(parts[1] || 'all'); break;
         case 'arcade': viewArcade(); break;
         case 'game': viewGame(parts[1], parts[2]); break;
-        case 'read': viewRead(); break;
+        case 'read': if (UI().hasRead === false) viewMap(); else viewRead(); break;
         case 'guides': viewGuides(); break;
         case 'guide': viewGuide(parts[1]); break;
         case 'glossary': viewGlossary(); break;
@@ -515,7 +518,7 @@
       $app.innerHTML = `<div class="panel"><h2>Something broke</h2><pre class="code">${esc(err.stack || err)}</pre><a class="btn" href="#/">Home</a></div>`;
     }
     fixLinks($app);
-    document.title = pid ? `${UI().chip} Quest · BEE 425` : 'BEE 425 Quest';
+    document.title = pid ? (UI().kind === 'topic' ? `${UI().name} · BEE 425` : `${UI().chip} Quest · BEE 425`) : 'BEE 425 Quest';
     renderHud();
   }
   document.addEventListener('keydown', (e) => {

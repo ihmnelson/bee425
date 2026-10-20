@@ -1,6 +1,6 @@
 # BEE 425 Quest
 
-A fully static study site for **BEE 425 Microprocessor System Design** (University of Washington Bothell, lessons 3-8). It covers both processors in the course, the **Motorola 68000** and the **Zilog Z80**, with flashcards, arcade games, written guides and an in-browser assembler and simulator for each. It runs entirely in the browser: no build step, no server, no dependencies. Open `index.html`, or host the folder on any static host such as GitHub Pages.
+A fully static study site for **BEE 425 Microprocessor System Design** (University of Washington Bothell, lessons 3-8). It covers both processors in the course, the **Motorola 68000** and the **Zilog Z80**, with flashcards, arcade games, written guides and an in-browser assembler and simulator for each, plus a shared **Data conversion** section (Lesson 10: comparators, D/A, A/D methods, sample and hold, Nyquist) with a converter lab instead of a simulator. It runs entirely in the browser: no build step, no server, no dependencies. Open `index.html`, or host the folder on any static host such as GitHub Pages.
 
 Pick a processor on the home page (or with the switcher in the header). XP, level, streak, badges and spaced-repetition state are shared across both; saved sandbox projects are kept per processor; one backup file covers everything.
 
@@ -8,6 +8,7 @@ Pick a processor on the home page (or with the switcher in the header). XP, leve
 |---|---|
 | `#/` | BEE 425 home: two live machines, one per processor |
 | `#/68k/...` and `#/z80/...` | that processor's Topics, Guides, Flashcards, Practice, Explain code and Sandbox (the 68000 also has Homework 2) |
+| `#/sys/...` | Data conversion, shared by both processors: Topics, Guides, Flashcards, Practice and the Converter lab (no Explain code page) |
 | `#/progress` | shared progress, badges, backup and restore |
 
 Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) still work and open the 68000 pages.
@@ -25,6 +26,10 @@ Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) stil
 | **Homework** | 68000 only: Homework 2 (problems 1-4) with hints, walkthrough, a try-it box and verified solutions. |
 | **How accurate is this site?** | What was verified and how, plus a content-audit table for that processor. |
 
+## Data conversion section
+
+Lesson 10, slides 1 to 35, in three numbered topics: Comparators and D/A, A/D methods, Data acquisition. 27 flashcards and 18 quiz questions (each tagged with its slide number), three guides, a 24-term glossary, **Converter Drills** (13 kinds of numeric question, new numbers every time: step size, code, comparator count, V/F counts, flash rate, droop time, dual-slope, aliasing, successive-approximation trials, slew error) and the **Converter lab**: a quantizer (bits, span and input give the code, a staircase, the flash thermometer code and each successive-approximation trial) and a sampling panel (signal and sample frequency, with the samples and the wave they imply). The home page runs a 4-bit successive-approximation converter on 1.23 V. Where the slides disagree with each other or with the arithmetic (comparator count on slide 6 against slide 12; the 50 mV/s droop figure on slide 31) the guides and the section's "How accurate is this site?" page say so. Hysteresis, isolation, watchdog, power and partitioning (slides 36 to 61) are not covered yet.
+
 ## Layout
 
 ```
@@ -41,6 +46,7 @@ js/m68k/                68000: cpu.js, asm.js, io.js (TRAP #15), examples, snipp
                         homework*, sandbox-ui.js, ui.js (strings and options for the shell)
 js/z80/                 Z80: cpu.js, asm.js, dis.js, io.js (ports), examples, snippet, data, games, explain, guides,
                         sandbox-ui.js, ui.js
+js/sys/                 Data conversion: conv.js (the arithmetic), data, games, guides, lab.js (the Converter lab), ui.js
 tests/                  see "How it was tested"
 ```
 
@@ -62,6 +68,11 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 - **Disassembler** round trip, **example programs**, **Bug Hunt / Program Sorter / game generators** are all executed on the CPU core.
 - **Content audit** (`tests/z80/audit`): 433 items checked mechanically against the lecture text (Lessons 3-8, 10, 11), the Lab 2 handout, the Zilog Z80 CPU User Manual, the Oshonsoft help pages and the simulator: 338 confirmed, 3 corrected, 92 unverified. The confirmations are quoted phrases or executed checks, not a human reading of every nuance.
 
+**Data conversion** (`node tests/sys/check-content.js`)
+- Every worked figure on the cards and guides (0.04 V and 0.00015 V steps, the 1.5 V DAC maximum, 5 µs droop time, 500 MHz flash rate, V/F counts, the 10 kHz filter cutoff) is recomputed; successive approximation is compared with direct quantization in 128,032 cases (1 to 8 bits), 0 differences.
+- Each of the 13 drill kinds is solved a second time by a separate parser-based solver for 12,000 generated questions; every answer is accepted and absurd answers are rejected.
+- Not checked: the slides' content against other textbooks, and the three links copied from the slides.
+
 **Site**
 - `tests/ui-smoke.js` (jsdom) visits every route of both processors, starts every game, drives both sandboxes, and checks link rewriting, legacy URLs, per-processor project storage, combined backup/restore (including backups from the older sites) and the one-time migration of progress saved by the older sites.
 
@@ -76,6 +87,7 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 
 ## Roadmap
 
+- Data conversion: slides 36 to 61 of Lesson 10 (hysteresis, debouncing, optical isolation, watchdog, power, terminating traces, partitioning); Lesson 9 is not in the folder.
 - Merge the duplicated hardware and transistor material (memory, buses, I/O pins, base resistors) so it lives once.
 - Run the oracle test vectors live in the browser.
 - 68000: structured assembly, `INCLUDE`, a disassembler view, cycle counts. Z80: homework-style walkthroughs when the lab handouts are available.

@@ -16,6 +16,8 @@ if [ -n "$Z80_VECTORS" ]; then
   node --max-old-space-size=8192 tests/z80/oracle/bustrace-check.js "$Z80_VECTORS"
   node tests/z80/oracle/bustrace-decode.js "$Z80_VECTORS" 50
 else echo "(skipping z80 vectors and bus-trace checks: set Z80_VECTORS)"; fi
+echo "== Data conversion =="
+node tests/sys/check-content.js
 echo "== Site =="
 if [ -n "$NODE_PATH" ]; then node tests/ui-smoke.js; else echo "(skipping ui-smoke: set NODE_PATH to a folder with jsdom)"; fi
 echo "all checks passed"

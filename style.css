@@ -13,7 +13,7 @@
   /* status */
   --ok: #1e7a4a; --bad: #b42318;
   /* processors: oscilloscope probe colours, darkened to read on paper */
-  --blue: #2b4bc0; --amber: #a85f00;
+  --blue: #2b4bc0; --amber: #a85f00; --teal: #0a7a5c;
   --accent: var(--ink); --on-accent: #ffffff;
   --code-num: #8a4b00; --code-cm: #5d6b78;
   /* type */
@@ -35,11 +35,15 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --paper: #10171d; --sheet: #171f27; --inset: #0d1318; --ink: #e7edf2; --ink-2: #9aa8b5; --rule: #2b3743; --rule-2: #222c36;
-    --ok: #5bd08f; --bad: #ff8a80; --blue: #86a2ff; --amber: #f2a93b; --on-accent: #0e1419; --code-num: #e5b567; --code-cm: #8796a4;
+    --ok: #5bd08f; --bad: #ff8a80; --blue: #86a2ff; --amber: #f2a93b; --teal: #4fd1a5; --on-accent: #0e1419; --code-num: #e5b567; --code-cm: #8796a4;
   }
 }
 html[data-cpu="m68k"] { --accent: var(--blue); }
 html[data-cpu="z80"] { --accent: var(--amber); }
+html[data-cpu="sys"] { --accent: var(--teal); }
+.labgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--s4); margin-top: var(--s3); align-items: start; }
+.labsvg { display: block; width: 100%; height: auto; color: var(--ink); }
+.lab .fields { margin-bottom: var(--s2); }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }

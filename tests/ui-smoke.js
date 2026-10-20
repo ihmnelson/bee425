@@ -37,7 +37,7 @@ async function open(storage) {
   const click = (id) => d.getElementById(id).click();
 
   // course pages
-  let app = await go('#/'); if (app.querySelectorAll('.machine').length !== 2) fail('course home should show two machines');
+  let app = await go('#/'); if (app.querySelectorAll('.machine').length !== 3) fail('course home should show three machines (two processors and the shared data-conversion topic)');
   { const z = app.querySelector('.machine[data-pack="z80"]'); const before = z.querySelector('.mregs').textContent; z.querySelector('.mstep').click(); z.querySelector('.mstep').click(); if (z.querySelector('.mregs').textContent === before) fail('home machine did not advance when stepped'); if (!z.querySelector('.ml.on')) fail('home machine shows no current line'); const m = app.querySelector('.machine[data-pack="m68k"]'); m.querySelector('.mstep').click(); if (m.querySelector('.mcount').textContent === '0 instructions') fail('68k home machine did not advance'); }
   await go('#/progress'); if (!d.getElementById('bk') || !/68000/.test(d.getElementById('app').textContent) || !/Zilog Z80/.test(d.getElementById('app').textContent)) fail('progress page should list both processors');
   // legacy URL from the old 68K site
@@ -51,22 +51,24 @@ async function open(storage) {
     for (const r of rs) {
       app = await go(base + r);
       if (app.textContent.trim().length < 40) fail(`${slug}/${r} is empty`);
-      const bare = [...app.querySelectorAll('a[href^="#/"]')].filter((a) => { const h = a.getAttribute('href'); return h !== '#/' && !/^#\/(68k|z80|progress)(\/|$)/.test(h); });
+      const bare = [...app.querySelectorAll('a[href^="#/"]')].filter((a) => { const h = a.getAttribute('href'); return h !== '#/' && !/^#\/(68k|z80|sys|progress)(\/|$)/.test(h); });
       if (bare.length) fail(`${slug}/${r}: ${bare.length} link(s) not prefixed, e.g. ${bare[0].getAttribute('href')}`);
       if (w.PACKS.cur !== id) fail(`${slug}/${r}: wrong processor active`);
       const em = app.textContent.match(/(?![\u2190-\u21FF\u25A0-\u25FF])\p{Extended_Pictographic}/u); if (em) fail(`${slug}/${r}: emoji in page text: ${em[0]}`);
     }
-    for (const g of ['tracer', 'flags', 'branch', 'modes', 'bugs', 'numbers', 'hardware', 'blitz']) {
+    const isSys = id === 'sys';
+    for (const g of (isSys ? ['convert', 'blitz'] : ['tracer', 'flags', 'branch', 'modes', 'bugs', 'numbers', 'hardware', 'blitz'])) {
       for (const lv of (g === 'blitz' ? ['', pk.QUEST.WORLDS[0].id] : ['easy', 'medium', 'hard'])) {
         app = await go(`${base}game/${g}${lv ? '/' + lv : ''}`);
         if (!app.querySelector('.q')) fail(`game ${slug}/${g}/${lv} shows no question: ${app.textContent.slice(0, 100)}`);
       }
     }
-    await go(base + 'game/sorter'); if (!d.querySelector('.line')) fail(slug + ' sorter shows no lines');
+    if (!isSys) { await go(base + 'game/sorter'); if (!d.querySelector('.line')) fail(slug + ' sorter shows no lines'); }
     // tests page shows this processor's audit
-    await go(base + 'tests'); await sleep(80); if (!/Content audit summary/.test(d.getElementById('app').textContent)) fail(slug + ' tests page has no audit table');
+    await go(base + 'tests'); await sleep(80); if (!isSys && !/Content audit summary/.test(d.getElementById('app').textContent)) fail(slug + ' tests page has no audit table');
+    if (isSys && !/Where the slides disagree/.test(d.getElementById('app').textContent)) fail('sys tests page has no list of slide discrepancies');
     // Read Code
-    await go(base + 'read'); const inp = d.getElementById('rdline'); inp.dispatchEvent(new w.Event('input')); if (d.getElementById('rdout').textContent.length < 20) fail(slug + ' Read Code explains nothing');
+    if (!isSys) { await go(base + 'read'); const inp = d.getElementById('rdline'); inp.dispatchEvent(new w.Event('input')); if (d.getElementById('rdout').textContent.length < 20) fail(slug + ' Read Code explains nothing'); }
   }
   // 68K homework pages (only the 68000 has them)
   app = await go('#/68k/homework/hw2/1'); if (!/Problem 1/.test(app.textContent)) fail('68k homework problem page'); if (![...app.querySelectorAll('a')].every((a) => !/^#\/homework/.test(a.getAttribute('href') || ''))) fail('homework links not prefixed');
@@ -81,6 +83,20 @@ async function open(storage) {
   if (![...d.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#/z80/sandbox')) fail('nav links not prefixed for Z80');
   await go('#/68k/'); if (![...d.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#/68k/homework')) fail('68K nav has no Homework');
 
+  // Data conversion section: no processor pages, a converter lab, drills that grade, a demo that finishes on 1100B
+  app = await go('#/sys/'); if (!/Data conversion/.test(app.textContent) || !/Start with topic 1/.test(app.textContent)) fail('sys home');
+  { const names = [...d.querySelectorAll('.nav a')].map((a) => a.textContent); if (names.includes('Explain code') || !names.includes('Converter lab')) fail('sys nav: ' + names.join(',')); }
+  app = await go('#/sys/read'); if (!/Start with topic 1|Topics/.test(app.textContent)) fail('sys/read should fall back to the topics page');
+  app = await go('#/sys/sandbox'); if (!d.getElementById('lbits') || !/Quantizer/.test(app.textContent)) fail('sys converter lab missing');
+  d.getElementById('lbits').value = '4'; d.getElementById('lvfs').value = '1.5'; d.getElementById('lvin').value = '1.23'; d.getElementById('lvin').dispatchEvent(new w.Event('input'));
+  if (!/12 = 1100B/.test(d.getElementById('lout').textContent)) fail('lab: 1.23 V on 4 bits over 1.5 V should give 12 = 1100B: ' + d.getElementById('lout').textContent.slice(0, 200));
+  if (!/111111111111000/.test(d.getElementById('lout').textContent)) fail('lab: thermometer code');
+  d.getElementById('lf').value = '10'; d.getElementById('lfs').value = '10'; d.getElementById('lf').dispatchEvent(new w.Event('input'));
+  if (!/Aliased/.test(d.getElementById('lsamp').textContent) || !/constant voltage/.test(d.getElementById('lsamp').textContent)) fail('lab: 10 kHz at 10 kHz should alias to a constant voltage');
+  d.getElementById('lf').value = '3'; d.getElementById('lf').dispatchEvent(new w.Event('input')); if (!/No aliasing/.test(d.getElementById('lsamp').textContent)) fail('lab: 3 kHz at 10 kHz');
+  app = await go('#/sys/world/adc'); if (app.querySelectorAll('.step').length < 4 || /Explain code/.test(app.textContent)) fail('sys topic steps (guide, cards, practice, quiz, lab; no Explain code)');
+  app = await go('#/sys/game/convert/hard'); { const inputs = [...app.querySelectorAll('input[data-f]')]; inputs.forEach((x) => (x.value = '99999')); d.getElementById('check').click(); await sleep(20); if (!d.querySelector('.fb.no')) fail('sys drill should reject 99999'); }
+  { const z = (await go('#/')).querySelector('.machine[data-pack="sys"]'); for (let i = 0; i < 40; i++) z.querySelector('.mstep').click(); const t = z.textContent; if (!/result 1100B = 12/.test(t) && !/trial 1 of 4/.test(t)) fail('sys demo: ' + t.slice(0, 200)); }
   // Z80 sandbox: hello, step/back, IN prompt, interrupts, errors
   await go('#/z80/sandbox'); let sel = d.getElementById('ex');
   click('asm'); await sleep(60); if (d.getElementById('listing').hidden) fail('z80 sandbox: listing not shown');
