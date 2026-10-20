@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
-import json, re, sys
+import json, re, sys, os, subprocess
 from g1 import G
 import g3
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_tables = json.loads(subprocess.check_output(['node', os.path.join(_HERE, 'bus-tables.js')]).decode())
+for _g in G:
+    for _k, _v in _tables.items(): _g['md'] = _g['md'].replace('@@' + _k + '@@', _v)
 
 def T(term, d, lesson, cat): return dict(term=term, def_=d, lesson=lesson, cat=cat)
 GL = [
@@ -103,10 +107,10 @@ GL.sort(key=lambda t: t['term'].lower())
 SEE = {
  'cpu': ['numbers', 'model'], 'numbers': ['model', 'branches'], 'model': ['modes', 'instructions'], 'machine-code': ['modes', 'instructions'],
  'syntax': ['oshonsoft', 'instructions', 'branches'], 'instructions': ['modes', 'branches'], 'modes': ['instructions', 'stack'],
- 'branches': ['numbers', 'stack'], 'stack': ['branches', 'syntax'], 'memory': ['cpu', 'vs68k'], 'transistor': ['memory'],
+ 'branches': ['numbers', 'stack'], 'stack': ['branches', 'syntax'], 'memory': ['cpu', 'bus-trace', 'vs68k'], 'bus-trace': ['memory', 'oshonsoft', 'syntax'], 'transistor': ['memory'],
  'oshonsoft': ['syntax', 'machine-code', 'errata'], 'vs68k': ['model', 'instructions'], 'errata': ['instructions', 'syntax'],
 }
-DECK_GUIDE = dict(cpu='model', num='numbers', dirs='syntax', inst='instructions', modes='modes', flow='branches', hw='memory', io='transistor', sim='oshonsoft', m68='vs68k')
+DECK_GUIDE = dict(bus='bus-trace', cpu='model', num='numbers', dirs='syntax', inst='instructions', modes='modes', flow='branches', hw='memory', io='transistor', sim='oshonsoft', m68='vs68k')
 CAT_GUIDE = dict(Addressing='modes', Flags='numbers', CPU='model', Tools='syntax', Instructions='instructions', Control='branches', Hardware='memory', Memory='memory', Transistors='transistor', Numbers='numbers', Z80='model')
 REFS = [
  dict(title='Zilog Z80 CPU User Manual (UM0080)', url='https://www.zilog.com/docs/z80/um0080.pdf', note='The authoritative instruction set, flags, timing and interrupt reference.'),

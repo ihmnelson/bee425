@@ -15,7 +15,7 @@ G.GLOSSARY.forEach((t, i) => items.push({ id: 'glossary-' + i, kind: 'glossary',
 for (const g of G.GUIDES) { if (g.id === 'transistor') continue; g.md.split(/^## /m).forEach((p, k) => { if (!p.trim()) return; items.push({ id: `guide-${g.id}-${k}`, kind: 'guide', title: g.title + ' > ' + (k === 0 ? '(intro)' : p.split('\n')[0]) }); }); }
 const byId = Object.fromEntries(items.map((x) => [x.id, x]));
 
-const files = { um: ['um0080.txt'], slide: [3, 4, 5, 6, 7, 8].map((n) => `BEE425F26Lesson${n}.txt`), osh: ['oshonsoft_z80.html.txt', 'oshonsoft_z80helptopics.php.txt', 'oshonsoft_z80gettingstarted.php.txt'] };
+const files = { um: ['um0080.txt'], slide: [3, 4, 5, 6, 7, 8, 10, 11].map((n) => `BEE425F26Lesson${n}.txt`), osh: ['oshonsoft_z80.html.txt', 'oshonsoft_z80helptopics.php.txt', 'oshonsoft_z80gettingstarted.php.txt'], lab: ['lab2.txt'] };
 const text = {}; for (const [k, fl] of Object.entries(files)) text[k] = fl.flatMap((f) => fs.readFileSync(path.join(SRC, f), 'utf8').split('\n').map((l, i) => ({ f, i: i + 1, l })));
 const find = (src, re) => { for (const L of text[src]) if (re.test(L.l)) return `${L.f}:${L.i}: ${L.l.trim().slice(0, 110)}`; return null; };
 

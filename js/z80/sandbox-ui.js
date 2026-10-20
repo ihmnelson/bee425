@@ -13,6 +13,7 @@
     opts = opts || {};
     const EX = window.EXAMPLES_Z80;
     let result = null, cpu = null, mach = null, history = [], bps = new Set(JSON.parse(saved(BPKEY) || '[]')), tab = 'mem', memBase = 0x0100;
+    const tr = { first: [], last: [], mode: 'first', decode: false }; let lastTr = null;      // bus trace: first 60 and last 60 instructions
     let running = false, timer = null, before = null, written = new Set(), awarded = false, note = '', waiting = null, intPending = false, instAddrs = new Set();
     let o = Object.assign({ haltStops: true, promptIn: true, start: 0 }, JSON.parse(saved(OPTKEY) || '{}'));
 
@@ -75,7 +76,7 @@
         <div class="col-side">
           <div class="panel"><div id="flags" class="flagrow"></div><div class="tablewrap"><table class="regs" id="regs"></table></div><p class="stat" id="counters"></p></div>
           <div class="panel" style="margin-top:10px">
-            <div class="tabs" role="tablist"><button data-tab="mem" class="tab on">Memory</button><button data-tab="stack" class="tab">Stack</button><button data-tab="sym" class="tab">Symbols</button><button data-tab="ports" class="tab">Ports</button></div>
+            <div class="tabs" role="tablist"><button data-tab="mem" class="tab on">Memory</button><button data-tab="stack" class="tab">Stack</button><button data-tab="sym" class="tab">Symbols</button><button data-tab="ports" class="tab">Ports</button><button data-tab="bus" class="tab">Bus trace</button></div>
             <div id="pane"></div></div>
         </div>
       </div>`;
@@ -135,7 +136,7 @@
     function load() {
       cpu = new CPUZ80.CPU();
       cpu.mem.set(result.mem);
-      cpu.pc = o.start; cpu.sp = 0x0000;
+      cpu.pc = o.start; cpu.sp = 0x0000; cpu.traceOn = true; tr.first.length = 0; tr.last.length = 0;
       mach = new IOZ80.Machine(() => renderOut()); mach.promptIn = o.promptIn;
       cpu.io = mach;
       cpu.onWrite = (a) => { written.add(a); };
@@ -159,14 +160,22 @@
       return false;
     }
     // one CPU step; returns false if blocked waiting for input
+    // keep this instruction's bus accesses for the Bus trace tab
+    function record() {
+      lastTr = { ev: cpu.ev, t: cpu.t };
+      if (cpu.ev && cpu.ev.length && !cpu.idle) {
+        if (tr.first.length < 60) tr.first.push(lastTr);
+        tr.last.push(lastTr); if (tr.last.length > 60) tr.last.shift();
+      }
+    }
     function cpuStep() {
-      try { pollInterrupt(); cpu.step(); waiting = null; return true; }
+      try { pollInterrupt(); cpu.step(); waiting = null; record(); return true; }
       catch (e) { if (e instanceof IOZ80.NeedInput) { waiting = e.port; return false; } throw e; }
     }
     function doStep() {
       snapshotBefore(); cpu.journal = [];
-      const entry = { sn: before, io: mach.snapshot(), intPending };
-      const ok = cpuStep(); entry.journal = cpu.journal; cpu.journal = null;
+      lastTr = null; const entry = { sn: before, io: mach.snapshot(), intPending };
+      const ok = cpuStep(); entry.tr = lastTr; entry.journal = cpu.journal; cpu.journal = null;
       if (ok) { history.push(entry); if (history.length > 5000) history.shift(); }
       return ok;
     }
@@ -201,6 +210,7 @@
       const e = history.pop(); if (!e) return;
       const j = e.journal; for (let i = j.length - 2; i >= 0; i -= 2) cpu.mem[j[i]] = j[i + 1];
       cpu.restore(e.sn); mach.restore(e.io); intPending = e.intPending; waiting = null;
+      if (e.tr) { if (tr.last[tr.last.length - 1] === e.tr) tr.last.pop(); if (tr.first[tr.first.length - 1] === e.tr) tr.first.pop(); }
       before = history.length ? history[history.length - 1].sn : e.sn; written = new Set(); note = '';
       status(`Stepped back to PC = ${h4(cpu.pc)}H.`, ''); draw(); setButtons();
     }
@@ -287,7 +297,7 @@
         const rows = Object.entries(result.symbols).sort((a, b) => a[1] - b[1]);
         pane.innerHTML = `<div class="tablewrap"><table class="gt"><thead><tr><th>Symbol</th><th>Value</th></tr></thead><tbody>${rows.map(([k, v]) => `<tr><td class="mono"><button class="linkbtn" data-sym="${v}">${esc(k)}</button></td><td class="mono">${h4(v)}</td></tr>`).join('')}</tbody></table></div>`;
         pane.querySelectorAll('[data-sym]').forEach((b) => (b.onclick = () => { memBase = +b.dataset.sym & ~0xF; tab = 'mem'; syncTabs(); drawPane(); }));
-      } else {
+      } else if (tab === 'bus') { drawBus(pane); } else {
         if (!mach) { pane.innerHTML = '<p class="dim">Assemble a program to see port activity.</p>'; return; }
         const outs = Object.entries(mach.outVals).sort((a, b) => a[0] - b[0]);
         const ins = mach.inLog.slice(-8).reverse();
@@ -299,6 +309,33 @@
         const pvf = pane.querySelector('#pvform');
         if (pvf) pvf.onsubmit = (e) => { e.preventDefault(); const p = parseInt(pane.querySelector('#pvport').value, 16), v = IOZ80.parseByte(pane.querySelector('#pvval').value + (/^[0-9a-f]{1,2}$/i.test(pane.querySelector('#pvval').value.trim()) ? 'h' : '')); if (Number.isNaN(p) || p < 0 || p > 255 || v === null) { status('Port and value must be hex bytes.', 'bad'); return; } mach.portVal[p] = v; status(`Input device on port ${h2(p)}H now supplies ${h2(v)}H.`, 'ok'); drawPane(); };
       }
+    }
+    // The bus trace: one row per clock, like the state listing of a logic analyzer (Lab 2)
+    function drawBus(pane) {
+      if (!cpu) { pane.innerHTML = '<p class="dim">Assemble a program, then step or run it to see the bus cycles it produces.</p>'; return; }
+      if (!BusTrace.table) {
+        pane.innerHTML = '<p class="dim">Loading the bus timing table…</p>';
+        if (!document.getElementById('bustable')) { const sc = document.createElement('script'); sc.id = 'bustable'; sc.src = 'js/z80/bustable.js?v=' + (window.BUILD || ''); sc.onload = () => { if (tab === 'bus') drawPane(); }; document.head.appendChild(sc); }
+        return;
+      }
+      const list = tr.mode === 'first' ? tr.first : tr.last.slice(-40);
+      let clk = tr.mode === 'first' ? 0 : Math.max(0, cpu.cycles - list.reduce((n, e) => n + e.t, 0));
+      const body = [];
+      list.slice(0, 40).forEach((e) => {
+        const g = BusTrace.gapsFor(e.ev, e.t, BusTrace.table), rows = g ? BusTrace.traceRows(e.ev, g) : null;
+        if (!rows) { body.push(`<tr class="first"><td colspan="${tr.decode ? 10 : 9}" class="dim">${e.t} clocks (bus rows for this case are not drawn)</td></tr>`); clk += e.t; return; }
+        const text = tr.decode ? (() => { const b = BusTrace.decodeRows(rows).bytes; return DisZ80.dis((a) => b[(a - rows[0].a) & 0xFFFF] || 0, rows[0].a).text; })() : '';
+        rows.forEach((r, i) => {
+          const lo = (v) => (v === 0 ? '<b>0</b>' : '1'), fetch = r.m1 === 0 && r.mreq === 0 && r.rd === 0;
+          body.push(`<tr class="${i === 0 ? 'first' : ''}${fetch ? ' fetchrow' : ''}"><td>${clk++}</td><td>${h4(r.a)}</td><td>${r.d === null ? '--' : h2(r.d)}</td><td>${lo(r.m1)}</td><td>${lo(r.mreq)}</td><td>${lo(r.iorq)}</td><td>${lo(r.rd)}</td><td>${lo(r.wr)}</td><td>${lo(r.rfsh)}</td>${tr.decode ? `<td class="mono">${i === 0 ? esc(text) : ''}</td>` : ''}</tr>`);
+        });
+      });
+      pane.innerHTML = `<div class="row" style="margin:6px 0"><button class="btn ${tr.mode === 'first' ? 'go' : ''}" data-m="first">From the start</button><button class="btn ${tr.mode === 'last' ? 'go' : ''}" data-m="last">Most recent</button><label class="stat"><input type="checkbox" id="trdec" ${tr.decode ? 'checked' : ''}> Show decoded instructions</label></div>
+        <p class="stat" style="margin:0 0 var(--s2)">One row per clock, as a logic analyzer lists them in state mode. <code>~</code> signals are active low, so <b>0</b> means asserted. The rows where ~M1, ~MREQ and ~RD are all 0 are opcode fetches. Try reading the instructions from the data column before you turn on decoding.</p>
+        ${body.length ? `<div class="tablewrap"><table class="gt bus"><thead><tr><th>Clock</th><th>Addr</th><th>Data</th><th>~M1</th><th>~MREQ</th><th>~IORQ</th><th>~RD</th><th>~WR</th><th>~RFSH</th>${tr.decode ? '<th>Instruction</th>' : ''}</tr></thead><tbody>${body.join('')}</tbody></table></div>` : '<p class="dim">Nothing yet: press Step or Run.</p>'}
+        <p class="stat">${list.length >= 40 ? 'Showing 40 instructions. ' : ''}Each row is the state just before the falling clock edge, and read data is shown on the clock where ~RD is asserted and the next. Held-out and full checks against hardware-derived test vectors are described in <a href="#/guide/bus-trace">Reading a bus trace</a>.</p>`;
+      pane.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => { tr.mode = b.dataset.m; drawPane(); }));
+      pane.querySelector('#trdec').onchange = (e) => { tr.decode = e.target.checked; drawPane(); };
     }
     function drawMem() {
       const el = root.querySelector('#mem'); if (!el) return;

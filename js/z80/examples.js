@@ -230,6 +230,17 @@ IDLE:   JR IDLE             ; wait here for interrupts
 COUNT:  .DB 0
         .END
 `, expect: { interrupts: 3, out: '***', sym: { COUNT: 3 } } },
+    { name: 'Lab 2 sample program (for the Bus trace)', src: `; The five-instruction sample program described in the Lab 2 handout. It does nothing useful:
+; it exists to give you bus cycles to read. Open the Bus trace tab, press Step five times,
+; then find the opcode fetches (~M1, ~MREQ and ~RD all 0) and read the instructions back.
+        .ORG 0000H
+        ADD HL,BC           ; opcode 09H
+        LD A,55H            ; 3EH 55H
+        LD HL,9A7CH         ; 21H 7CH 9AH (little-endian)
+        LD (HL),A           ; writes 55H to address 9A7CH
+        JP 0000H            ; back to the start
+        .END
+`, expect: { steps: 5, regs: { A: 0x55, HL: 0x9A7C, PC: 0 }, bytes: { 0x9A7C: [0x55] } } },
   ];
   const api = { EXAMPLES: EX };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.EXAMPLES_Z80 = EX;

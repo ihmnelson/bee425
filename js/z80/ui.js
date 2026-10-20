@@ -8,9 +8,9 @@ window.PACK_UI = {
     lede: 'Topics follow lectures 3 to 8, and the sandbox mirrors the Oshonsoft Z80 Simulator IDE used in the lab.',
     buttons: [['#/guide/oshonsoft', 'Oshonsoft guide', '']],
   },
-  topicGames: { cpu: ['flags'], num: ['numbers'], dirs: ['bugs', 'sorter'], inst: ['tracer', 'flags'], modes: ['modes'], flow: ['branch', 'sorter'], hw: ['hardware'], io: ['hardware'], sim: [], m68: [] },
-  topicSandbox: ['dirs', 'inst', 'modes', 'flow', 'sim'],
-  guideGroups: [['Foundations', ['cpu', 'numbers', 'model']], ['Writing programs', ['machine-code', 'syntax', 'instructions', 'modes', 'branches', 'stack']], ['Hardware', ['memory', 'transistor']], ['Tools and reference', ['oshonsoft', 'vs68k', 'errata']]],
+  topicGames: { cpu: ['flags'], num: ['numbers'], dirs: ['bugs', 'sorter'], inst: ['tracer', 'flags'], modes: ['modes'], flow: ['branch', 'sorter'], hw: ['hardware'], bus: [], io: ['hardware'], sim: [], m68: [] },
+  topicSandbox: ['dirs', 'inst', 'modes', 'flow', 'bus', 'sim'],
+  guideGroups: [['Foundations', ['cpu', 'numbers', 'model']], ['Writing programs', ['machine-code', 'syntax', 'instructions', 'modes', 'branches', 'stack']], ['Hardware', ['memory', 'bus-trace', 'transistor']], ['Tools and reference', ['oshonsoft', 'vs68k', 'errata']]],
   arcade: [
     ['tracer', '🧮', 'Register Tracer', 'Run code in your head. Results come from a real Z80 simulator.', 'L4-5'],
     ['flags', '🚩', 'Flag Flipper', 'Set the S Z H P/V N C flags after ADD, SUB, CP...', 'L3, L5'],

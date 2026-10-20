@@ -99,6 +99,14 @@ async function open(storage) {
   // share link carries the processor
   click('share'); await sleep(50); if (!/^#\/z80\/sandbox\?c=/.test(w.location.hash) && !/sandbox/.test(d.getElementById('status').textContent)) fail('z80 share link: ' + w.location.hash);
 
+  // Z80 bus trace tab: the Lab 2 sample program, five steps, rows appear and decoding can be switched on
+  await go('#/z80/sandbox'); sel = d.getElementById('ex');
+  sel.value = String([...sel.options].findIndex((o) => /Lab 2 sample/.test(o.textContent)) - 1); sel.dispatchEvent(new w.Event('change')); click('asm'); await sleep(50);
+  for (let k = 0; k < 5; k++) click('step');
+  d.querySelector('[data-tab="bus"]').click(); for (let k = 0; k < 40 && !d.querySelector('table.bus'); k++) await sleep(50);
+  { const rowsN = d.querySelectorAll('table.bus tbody tr').length; if (rowsN !== 45) fail('bus trace should have 45 clock rows for the five-instruction sample, got ' + rowsN); if (d.querySelectorAll('table.bus tr.fetchrow').length !== 5) fail('bus trace should show five opcode fetches');
+    d.getElementById('trdec').checked = true; d.getElementById('trdec').dispatchEvent(new w.Event('change')); await sleep(50);
+    const txt = d.querySelector('table.bus').textContent; if (!/ADD HL,BC/.test(txt) || !/LD \(HL\),A/.test(txt) || !/JP 0000H/.test(txt)) fail('decoded bus trace should list the five instructions'); }
   // 68K sandbox: assemble and run the first example
   await go('#/68k/sandbox'); sel = d.getElementById('ex'); click('asm'); await sleep(80);
   if (d.getElementById('listing').hidden) fail('68k sandbox: listing not shown: ' + d.getElementById('status').textContent);

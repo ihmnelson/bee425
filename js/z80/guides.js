@@ -904,6 +904,88 @@ Useful options: *HALT Stops Simulation* (if off, HALT repeats like the real chip
 The IDE ships \`memfill.asm\`: it fills FF00H–FFFFH with FFH down to 00H using \`LD A,0FFH\`, \`LD BC,0FF00H\`, a loop that ends with \`JP NZ\`, and \`HALT\`. Try writing your own version in the sandbox and compare the Memory view.
 ` },
 
+    { id: "bus-trace", title: "Reading a bus trace", lesson: "L11, Lab 2", icon: "🧬", practice: ["bus", "Quiz Blitz"], summary: "What a logic analyzer shows while a Z80 runs, the three kinds of bus cycle, and how to read the instructions back out.", md: `Lab 2 asks you to watch a Z80 run on a logic analyzer and work out what program it is executing. This guide is the background: what the analyzer records, what the Z80 puts on its buses for each kind of cycle, a worked example from the lab's sample program, and a procedure for an unknown trace. The **Bus trace** tab in the Z80 sandbox produces the same kind of listing for any program you run.
+
+## What the analyzer shows
+
+A logic analyzer records many digital signals at once. It has two modes (Lesson 11):
+
+- **Timing mode** samples with the analyzer's own internal clock, so you see waveforms and can measure delays. The lab's LogicPort samples at 500 MHz, so its resolution is one 2 ns period. This is the mode a hardware designer uses.
+- **State mode** takes one snapshot of the buses per *processor* clock. You get a listing, one row per clock, which software tools can reduce from bus level to instruction level. This is the mode a software designer uses, and the one you use for decoding.
+
+A **trigger** decides when the analyzer stops overwriting its circular buffer. In the lab you trigger on ~RESET going high (qualified by ~MREQ) so the first rows are the first instruction fetched after reset.
+
+## The three kinds of Z80 bus cycle
+
+Signals marked ~ are active low: **0 means asserted**.
+
+| Cycle | Clocks | What you see |
+|---|---|---|
+| Opcode fetch (M1) | 4 | PC on the address bus; ~M1 low in T1-T2; ~MREQ and ~RD low; the CPU samples the opcode at the rising edge of T3. In T3-T4 a refresh address is on the bus (I on the high byte, the R counter on the low bits) with ~RFSH low. |
+| Memory read or write | 3 | The address; ~MREQ with ~RD (read) or ~WR (write); data on the bus. |
+| I/O read or write | 4 | The port number on the address bus; ~IORQ with ~RD or ~WR. One wait state is inserted automatically. |
+
+An instruction is one or more of these cycles, plus **internal clocks** when the CPU does work that needs no new bus access. \`ADD HL,BC\` is an opcode fetch (4 clocks) and 7 internal clocks, 11 in all; on the analyzer the address and strobes simply sit idle for those 7 rows. \`LD A,55H\` is an opcode fetch and a memory read (4 + 3 = 7). Prefixed instructions fetch each prefix byte as its own 4-clock opcode fetch.
+
+## The Lab 2 sample program, row by row
+
+The handout's sample program (ROM address 0000H, from RESET) is:
+
+\`\`\`asm
+        ADD HL,BC        ; 09H
+        LD A,55H         ; 3EH 55H
+        LD HL,9A7CH      ; 21H 7CH 9AH
+        LD (HL),A        ; 77H
+        JP 0000H         ; C3H 00H 00H
+\`\`\`
+
+In the sandbox, choose *Lab 2 sample program*, press Step five times and open the **Bus trace** tab. Here is \`LD A,55H\` (clocks 11 to 17 of the trace). Row 12 is the opcode fetch (~M1, ~MREQ, ~RD all 0). Row 16 is the operand read:
+
+| Clock | Addr | Data | ~M1 | ~MREQ | ~RD | ~WR | ~RFSH | What is happening |
+|---|---|---|---|---|---|---|---|---|
+| 11 | \`0001\` | \`--\` | 0 | 1 | 1 | 1 | 1 | M1 starts: the address bus carries the PC |
+| 12 | \`0001\` | \`3E\` | 0 | 0 | 0 | 1 | 1 | opcode on the bus; ~M1, ~MREQ and ~RD all asserted: the opcode fetch |
+| 13 | \`0001\` | \`3E\` | 1 | 1 | 1 | 1 | 0 | refresh address (I:R) on the bus; ~RFSH asserted |
+| 14 | \`0001\` | \`--\` | 1 | 0 | 1 | 1 | 0 | refresh ~MREQ pulse (UM0080 Figure 5) |
+| 15 | \`0002\` | \`--\` | 1 | 1 | 1 | 1 | 1 | address of the operand byte |
+| 16 | \`0002\` | \`55\` | 1 | 0 | 0 | 1 | 1 | ~MREQ and ~RD asserted: operand byte read |
+| 17 | \`0002\` | \`55\` | 1 | 1 | 1 | 1 | 1 | byte still on the bus as the CPU samples it |
+
+And \`LD (HL),A\`, whose last three rows are the write of 55H to address 9A7CH (~MREQ and ~WR both 0):
+
+| Clock | Addr | Data | ~M1 | ~MREQ | ~RD | ~WR | ~RFSH | What is happening |
+|---|---|---|---|---|---|---|---|---|
+| 28 | \`0006\` | \`--\` | 0 | 1 | 1 | 1 | 1 | M1 starts: the address bus carries the PC |
+| 29 | \`0006\` | \`77\` | 0 | 0 | 0 | 1 | 1 | opcode on the bus; ~M1, ~MREQ and ~RD all asserted: the opcode fetch |
+| 30 | \`0003\` | \`77\` | 1 | 1 | 1 | 1 | 0 | refresh address (I:R) on the bus; ~RFSH asserted |
+| 31 | \`0003\` | \`--\` | 1 | 0 | 1 | 1 | 0 | refresh ~MREQ pulse (UM0080 Figure 5) |
+| 32 | \`9A7C\` | \`--\` | 1 | 1 | 1 | 1 | 1 | address of the memory location |
+| 33 | \`9A7C\` | \`55\` | 1 | 0 | 1 | 0 | 1 | ~MREQ and ~WR asserted with the data on the bus |
+| 34 | \`9A7C\` | \`--\` | 1 | 1 | 1 | 1 | 1 | end of the write |
+
+Things to notice: the refresh address in rows 13 and 30 is not the PC; it is I:R, and it increases by one on every opcode fetch. \`LD HL,9A7CH\` shows its operand bytes in little-endian order, 7CH then 9AH. The listing has no row that says "this is \`LD (HL),A\`": you recognise it from the bytes (77H) and the write that follows.
+
+## How to read an unknown trace
+
+1. Find the rows where ~M1, ~MREQ and ~RD are all low. The data column on those rows is an **opcode**.
+2. Look up the opcode and how many operand bytes it takes. The next memory-read rows (~M1 high, ~MREQ and ~RD low) are the operands, in order.
+3. A row with ~WR low is a memory write; ~IORQ low is a port access.
+4. The next opcode fetch starts the next instruction. Long idle stretches after a fetch are internal clocks.
+5. If the program loops, one capture will fill with repeats. Move the trigger to an address just after the loop and set the pre-fill buffer to about 50%, so you see the loop being left and the code after it (the lab's hint).
+6. Write the decoded instructions down, then work out the algorithm.
+
+## What this simulator's trace is, and how it was checked
+
+Each row is the state just before the falling clock edge, which is what a state-mode capture on the falling edge of the Z80 board's clock sees. A real capture can differ in small ways: memory access time decides whether read data is already valid on the row where ~RD first goes low (the trace shows it there and on the next row), and the refresh ~MREQ pulse in the last clock of a fetch follows the Zilog manual's Figure 5 but is not part of the test data. Interrupt acknowledge cycles are not drawn.
+
+The addresses, data, strobes and clock counts were checked four ways:
+
+- **Against hardware-derived test data.** The SingleStepTests/z80 vectors list the bus state of every clock of every instruction. All 1,604,000 traces produced here match exactly (address, data and read/write/memory/I/O strobes).
+- **Held out.** The idle-clock table was rebuilt from half of each instruction's tests and used to predict the other half: 801,993 traces matched, none differed (7 rare instruction variants did not occur in the first half and were skipped).
+- **Against the manual.** Every trace obeys the Zilog manual's structure rules (4-clock fetch with the refresh address in clocks 3 and 4, 3-clock memory cycles, 4-clock I/O cycles, total equal to the instruction's T-states).
+- **By reading it back.** For 80,200 instructions, the instruction was recovered from the displayed signals alone, the way you do it in the lab, and compared with the program in memory and with the writes and port accesses in the test data: no differences.
+` },
+
     { id: "vs68k", title: "68000 vs Z80 side by side", lesson: "L3-5", icon: "🆚", practice: ["m68", "Quiz Blitz"], summary: "The same ideas in two machines: registers, notation, instructions, memory.", md: `| | 68000 | Z80 |
 |---|---|---|
 | Word size | 8/16/32-bit instructions, 32-bit registers | 8-bit, with 16-bit register pairs |
@@ -1079,8 +1161,8 @@ The 68K pointer auto-increments; the Z80 needs \`INC HL\`. The 68K counts with S
     G("Zero (Z)", "Flag set when the result is zero (all bits 0).", "L3", "Flags"),
   ];
 
-  const SEE = {"cpu": ["numbers", "model"], "numbers": ["model", "branches"], "model": ["modes", "instructions"], "machine-code": ["modes", "instructions"], "syntax": ["oshonsoft", "instructions", "branches"], "instructions": ["modes", "branches"], "modes": ["instructions", "stack"], "branches": ["numbers", "stack"], "stack": ["branches", "syntax"], "memory": ["cpu", "vs68k"], "transistor": ["memory"], "oshonsoft": ["syntax", "machine-code", "errata"], "vs68k": ["model", "instructions"], "errata": ["instructions", "syntax"]};
-  const DECK_GUIDE = {"cpu": "model", "num": "numbers", "dirs": "syntax", "inst": "instructions", "modes": "modes", "flow": "branches", "hw": "memory", "io": "transistor", "sim": "oshonsoft", "m68": "vs68k"};
+  const SEE = {"cpu": ["numbers", "model"], "numbers": ["model", "branches"], "model": ["modes", "instructions"], "machine-code": ["modes", "instructions"], "syntax": ["oshonsoft", "instructions", "branches"], "instructions": ["modes", "branches"], "modes": ["instructions", "stack"], "branches": ["numbers", "stack"], "stack": ["branches", "syntax"], "memory": ["cpu", "bus-trace", "vs68k"], "bus-trace": ["memory", "oshonsoft", "syntax"], "transistor": ["memory"], "oshonsoft": ["syntax", "machine-code", "errata"], "vs68k": ["model", "instructions"], "errata": ["instructions", "syntax"]};
+  const DECK_GUIDE = {"bus": "bus-trace", "cpu": "model", "num": "numbers", "dirs": "syntax", "inst": "instructions", "modes": "modes", "flow": "branches", "hw": "memory", "io": "transistor", "sim": "oshonsoft", "m68": "vs68k"};
   const CAT_GUIDE = {"Addressing": "modes", "Flags": "numbers", "CPU": "model", "Tools": "syntax", "Instructions": "instructions", "Control": "branches", "Hardware": "memory", "Memory": "memory", "Transistors": "transistor", "Numbers": "numbers", "Z80": "model"};
   const REFS = [
   {

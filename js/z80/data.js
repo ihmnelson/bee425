@@ -13,6 +13,7 @@ QUEST.WORLDS = [
   { id: 'modes', icon: '🎯', name: 'Addressing Modes',   lesson: 'L5', blurb: 'Register, immediate, indirect, indexed, extended' },
   { id: 'flow',  icon: '🔀', name: 'Jumps, Calls & Stack', lesson: 'L5', blurb: 'JP, JR, DJNZ, CALL, RET, RST, interrupts' },
   { id: 'hw',    icon: '🧱', name: 'Memory & Buses',     lesson: 'L6-7', blurb: 'Buses, tri-state, decoding, Z80 bus cycles' },
+  { id: 'bus',   icon: '🧬', name: 'Bus Cycles & the Logic Analyzer', lesson: 'L11, Lab 2', blurb: 'What the Z80 puts on the bus, and how to read it back' },
   { id: 'io',    icon: '💡', name: 'Transistors & I/O',  lesson: 'L8', blurb: 'IN/OUT ports, switching loads from a pin' },
   { id: 'sim',   icon: '🖥️', name: 'Oshonsoft IDE',      lesson: 'L4-5', blurb: 'The simulator you use in the lab' },
   { id: 'm68',   icon: '🆚', name: '68K Contrast',       lesson: 'L3-5', blurb: 'Same ideas, different machine' },
@@ -158,6 +159,28 @@ QUEST.CARDS = [
   C("hw", "How many clock cycles do the basic Z80 machine cycles take?", "An opcode fetch (M1) takes 4 T-states, a memory read or write 3, an I/O read or write 4. Instruction times are sums of these: NOP = 4, LD A,(nn) = 13, JP nn = 10, CALL = 17.", "UM0080"),
   C("hw", "What is the Z80's I/O address space?", "IN and OUT address 256 ports with an 8-bit port number on A0–A7 (the other half of the address bus carries a register value). Using ~IORQ keeps I/O separate from memory.", "UM0080"),
 
+  /* ===== Bus Cycles & the Logic Analyzer ===== */
+  C("bus", "What does a logic analyzer do?", "It records many digital signals at once (30 to 400 channels) and shows them over time. The lecture's way to think of it: a very low-resolution digital storage oscilloscope with many inputs. Its complex triggering lets you catch rare events.", "L11"),
+  C("bus", "What are the logic analyzer's two modes?", "Timing mode records with the analyzer's own internal clock, so you see waveforms and can measure delays. State mode records with the processor's clock, one snapshot of the buses per processor clock cycle, so you see what the system did.", "L11"),
+  C("bus", "Which mode suits the hardware designer and which the software designer?", "Timing mode is most useful to the hardware designer (edges, delays). State mode is most useful to the software designer, because the trace can be post-processed from bus level up to instruction level.", "L11"),
+  C("bus", "Why is the timing resolution of the lab's LogicPort limited to ±2 ns?", "In timing mode it samples with its 500 MHz internal clock, and one period of 500 MHz is 2 ns: an edge can only be placed to the nearest sample.", "L11, Lab 2"),
+  C("bus", "In state mode, what clock is used and what is recorded on each tick?", "The processor's own clock (on the Z80 board, the board's 4 MHz clock). On each tick the analyzer stores the address bus, data bus and control signals.", "L11, Lab 2"),
+  C("bus", "What is a trace specification (trigger)?", "The condition that decides when the analyzer captures: address, data and status qualifiers (ranges and don't-cares allowed), a counter, or a number of states after the event. Setting it often takes trial and error.", "L11"),
+  C("bus", "In the lab, how do you capture the first instruction after RESET?", "Trigger on ~RESET going from low to high (Edge A rising), qualify the address with ~MREQ (and optionally ~M1), start the acquisition while holding RESET, and release it when the analyzer says the pre-fill buffer is complete.", "Lab 2"),
+  C("bus", "What does a real-time trace buffer do with the trigger point?", "The buffer is circular: new states keep overwriting old ones until the trigger arrives. Placing the trigger mid-buffer keeps events before it ('negative time') as well as after.", "L11"),
+  C("bus", "How do you find the opcode fetches in a Z80 state listing?", "Look for rows where ~M1, ~MREQ and ~RD are all low (asserted). ~M1 says the cycle is an opcode fetch; since a fetch is also a memory read, ~MREQ and ~RD are asserted too.", "Lab 2, UM0080"),
+  C("bus", "How long is a Z80 opcode fetch (M1 cycle), and what happens in each part?", "Four clocks. The PC is on the address bus from the start; half a clock later ~MREQ and ~RD go active; the CPU samples the opcode at the rising edge of T3 and turns both off. T3 and T4 carry a refresh address with ~RFSH active while the CPU decodes the opcode.", "UM0080"),
+  C("bus", "What is on the address bus during T3 and T4 of an opcode fetch?", "A DRAM refresh address: the I register on A8-A15 and the R counter on the low bits. R counts up by one on every opcode fetch.", "UM0080"),
+  C("bus", "How long are ordinary memory read and write cycles?", "Three clocks, unless wait states are requested through ~WAIT. ~MREQ and ~RD (read) or ~MREQ and ~WR (write) are asserted, and ~WR goes inactive half a clock before the address and data change.", "UM0080"),
+  C("bus", "Why does an IN or OUT take four clocks instead of three?", "The Z80 automatically inserts one wait state in I/O cycles, because there is little time between ~IORQ going active and the point where ~WAIT is sampled.", "UM0080"),
+  C("bus", "LD A,55H takes 7 clocks. Which bus cycles make that up?", "An opcode fetch (4 clocks) for the opcode 3EH, then a memory read (3 clocks) for the operand byte 55H.", "UM0080, simulator"),
+  C("bus", "ADD HL,BC takes 11 clocks but touches the bus only once. Where do the other clocks go?", "After the 4-clock opcode fetch the CPU does 7 clocks of internal work (the 16-bit addition) with no new memory access. On the analyzer the address and strobes just sit idle for those rows.", "UM0080, simulator"),
+  C("bus", "How does a little-endian operand look in a trace?", "Low byte first. For LD HL,9A7CH the bytes read after the opcode 21H are 7CH, then 9AH, from consecutive addresses.", "Lab 2"),
+  C("bus", "Which instruction writes to memory in the Lab 2 sample program, and how do you see it?", "LD (HL),A with HL = 9A7CH and A = 55H. In the trace, a row with address 9A7C, data 55 and ~MREQ and ~WR both asserted.", "Lab 2, simulator"),
+  C("bus", "A loop fills the trace buffer with the same data. What does the lab advise?", "Trigger on an address just after the loop and set the pre-fill buffer to about 50%, so the buffer shows the loop being exited and the code after it.", "Lab 2"),
+  C("bus", "When does a logic analyzer lose its usefulness for following software?", "When what you see at the pins no longer shows what the processor is doing inside, for example with the instruction cache on. It is also awkward when the pins are tiny and need fragile adapters.", "L11"),
+  C("bus", "What does post-processing a state trace give you?", "It reduces the raw bus-level rows to instruction-level (and even C function-level) listings; the lecture shows a 68000 trace presented as assembly instructions.", "L11"),
+
   /* ===== Transistors & I/O ===== */
   C("io", "How does the Z80 read and write a port?", "IN A,(n) and OUT (n),A transfer a byte between A and port n (00H–0FFH). IN r,(C) and OUT (C),r use the port number in C.", "UM0080"),
   C("io", "What is memory-mapped I/O compared with port I/O?", "Memory-mapped I/O puts devices at memory addresses so ordinary LD instructions reach them. Port I/O uses the separate address space with IN/OUT. The Z80 supports both; the 68K has only memory-mapped I/O.", "L7, UM0080"),
@@ -270,6 +293,14 @@ QUEST.QUIZ = [
   Q("m68", "MOVE.B D0,D1 on the 68K corresponds to which Z80 instruction?", "LD B,A (copy A into B)", ["LD A,B", "MOVE B,A", "EX A,B"], "Operand order differs: the Z80 destination is first. The registers also differ."),
   Q("m68", "Which has a conditional subroutine call?", "The Z80 (CALL cc,nn)", ["The 68K (BSRcc)", "Both", "Neither"], "The 68K has no such instruction."),
   Q("m68", "Which stores 0ABCDH at address 1000H as AB CD?", "The 68000", ["The Z80", "Both", "Neither"], "Big-endian puts the high byte first; the Z80 stores CD AB."),
+  Q("bus", "Which logic analyzer mode records with the processor's own clock?", "State mode", ["Timing mode", "Both modes", "Neither: the analyzer always uses its own clock"], "State mode takes one snapshot per processor clock; timing mode uses the analyzer's internal clock."),
+  Q("bus", "In a Z80 state listing, which rows are opcode fetches?", "Rows where ~M1, ~MREQ and ~RD are all low", ["Rows where ~WR is low", "Rows where ~RFSH is low", "Rows where ~IORQ is low"], "~M1 marks the opcode fetch, which is also a memory read."),
+  Q("bus", "How many clocks does a Z80 opcode fetch take?", "4", ["3", "2", "5"], "T1 to T4; T3 and T4 carry the refresh address."),
+  Q("bus", "What is on the Z80 address bus during T3 and T4 of an opcode fetch?", "A memory refresh address (I and R)", ["The address of the next instruction", "The operand address", "Nothing: it is floating"], "~RFSH is asserted while it is there."),
+  Q("bus", "An IN or OUT instruction's I/O cycle is longer than a memory cycle because…", "the Z80 inserts one wait state automatically", ["I/O ports are 16 bits wide", "~WAIT is held low by the CPU", "the refresh counter must run"], "That gives I/O devices time to decode their address and request more wait states."),
+  Q("bus", "LD A,55H takes 7 clocks. Its bus cycles are…", "an opcode fetch and one memory read", ["two opcode fetches", "an opcode fetch and a memory write", "three memory reads"], "4 + 3 clocks."),
+  Q("bus", "The Lab 2 sample program writes 55H to address 9A7CH. Which row shows that?", "Address 9A7C, data 55, ~MREQ and ~WR low", ["Address 9A7C, data 55, ~MREQ and ~RD low", "Address 0006, data 77, ~M1 low", "Address 9A7C, data 55, ~RFSH low"], "~WR low marks the write; the address is the HL pointer."),
+  Q("bus", "Why is a LogicPort's timing measurement limited to ±2 ns in the lab?", "Its internal sample clock is 500 MHz", ["The Z80 clock is 4 MHz", "The cable is too long", "Memory access takes 2 ns"], "A 500 MHz clock has a 2 ns period."),
 ];
 
 /* ---------- Bug hunt: one line in each group is wrong ---------- */

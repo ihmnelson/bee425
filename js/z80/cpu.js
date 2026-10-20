@@ -24,6 +24,7 @@
       this.iff1 = 0; this.iff2 = 0; this.im = 0; this.ei = 0;
       this.halted = false; this.p = 0; this.q = 0; this.fw = 0; this.pfx = 0;
       this.t = 0;                                       // T-states of the last step
+      this.traceOn = false; this.ev = null;             // when traceOn, step() records its bus accesses in this.ev: ['F'|'R'|'W'|'I'|'O', address, data, refresh address for F]
       this.cycles = 0; this.steps = 0; this.stopped = null;
       this.io = opts.io || null;                        // { in(port16), out(port16, v) }
       this.onWrite = null; this.journal = null;
@@ -59,22 +60,28 @@
     }
 
     /* ---------- memory and ports ---------- */
-    rd(a) { return this.mem[a & 0xFFFF]; }
+    rd(a) { a &= 0xFFFF; const v = this.mem[a]; if (this.ev) this.ev.push(['R', a, v]); return v; }
     wr(a, v) {
       a &= 0xFFFF;
       if (this.journal) this.journal.push(a, this.mem[a]);
       this.mem[a] = v & 0xFF;
+      if (this.ev) this.ev.push(['W', a, v & 0xFF]);
       if (this.onWrite) this.onWrite(a, 1);
     }
     rd16(a) { return this.rd(a) | (this.rd(a + 1) << 8); }
     wr16(a, v) { this.wr(a, v & 0xFF); this.wr(a + 1, v >> 8); }
-    fetch() { const v = this.mem[this.pc]; this.pc = (this.pc + 1) & 0xFFFF; return v; }
+    fetch() { const a = this.pc, v = this.mem[a]; this.pc = (a + 1) & 0xFFFF; if (this.ev) this.ev.push(['R', a, v]); return v; }
     fetch16() { const lo = this.fetch(); return lo | (this.fetch() << 8); }
-    m1() { this.r = (this.r & 0x80) | ((this.r + 1) & 0x7F); return this.fetch(); }
+    m1() {                                              // opcode fetch (M1 cycle): the refresh address is I:R before R counts up
+      const a = this.pc, ir = (this.i << 8) | this.r, v = this.mem[a];
+      this.r = (this.r & 0x80) | ((this.r + 1) & 0x7F); this.pc = (a + 1) & 0xFFFF;
+      if (this.ev) this.ev.push(['F', a, v, ir]);
+      return v;
+    }
     push(v) { this.sp = (this.sp - 1) & 0xFFFF; this.wr(this.sp, v >> 8); this.sp = (this.sp - 1) & 0xFFFF; this.wr(this.sp, v & 0xFF); }
     pop() { const v = this.rd(this.sp) | (this.rd(this.sp + 1) << 8); this.sp = (this.sp + 2) & 0xFFFF; return v; }
-    portIn(p) { return this.io && this.io.in ? this.io.in(p & 0xFFFF) & 0xFF : 0xFF; }
-    portOut(p, v) { if (this.io && this.io.out) this.io.out(p & 0xFFFF, v & 0xFF); }
+    portIn(p) { const v = this.io && this.io.in ? this.io.in(p & 0xFFFF) & 0xFF : 0xFF; if (this.ev) this.ev.push(['I', p & 0xFFFF, v]); return v; }
+    portOut(p, v) { if (this.io && this.io.out) this.io.out(p & 0xFFFF, v & 0xFF); if (this.ev) this.ev.push(['O', p & 0xFFFF, v & 0xFF]); }
     sf(v) { this.f = v & 0xFF; this.fw = 1; }
 
     /* ---------- 8-bit register access (index 6 is never used here) ---------- */
@@ -161,11 +168,11 @@
     /* ---------- one instruction ---------- */
     // Returns the number of T-states used. Sets this.stopped on a HALT with interrupts off (informational).
     step() {
-      this.fw = 0; this.pfx = 0;
+      this.fw = 0; this.pfx = 0; this.ev = this.traceOn ? [] : null; this.idle = this.halted;      // idle: this step is only the NOPs a halted CPU executes
       const wasEi = this.ei; this.ei = 0;
       const prevQ = this.q, startPc = this.pc, r0 = this.r, wz0 = this.wz;
       let t = 0;
-      if (this.halted) { this.r = (this.r & 0x80) | ((this.r + 1) & 0x7F); t = 4; }
+      if (this.halted) { if (this.ev) this.ev.push(['F', this.pc, this.mem[this.pc], (this.i << 8) | this.r]); this.r = (this.r & 0x80) | ((this.r + 1) & 0x7F); t = 4; }
       else {
         try {
           let op = this.m1();
@@ -264,7 +271,7 @@
                 case 0: this.pc = this.fetch16(); this.wz = this.pc; return 10;
                 case 2: { const n = this.fetch(), a = this.a; this.portOut((a << 8) | n, a); this.wz = ((n + 1) & 0xFF) | (a << 8); return 11; }
                 case 3: { const n = this.fetch(), port = (this.a << 8) | n; this.wz = (port + 1) & 0xFFFF; this.a = this.portIn(port); return 11; }
-                case 4: { const lo = this.rd(this.sp), hi = this.rd(this.sp + 1), v = this.xl; this.wr(this.sp, v & 0xFF); this.wr(this.sp + 1, v >> 8); this.xl = (hi << 8) | lo; this.wz = (hi << 8) | lo; return 19; }
+                case 4: { const lo = this.rd(this.sp), hi = this.rd(this.sp + 1), v = this.xl; this.wr(this.sp + 1, v >> 8); this.wr(this.sp, v & 0xFF); this.xl = (hi << 8) | lo; this.wz = (hi << 8) | lo; return 19; }
                 case 5: { const v = this.de; this.de = this.hl; this.hl = v; return 4; }
                 case 6: this.iff1 = this.iff2 = 0; return 4;
                 default: this.iff1 = this.iff2 = 1; this.ei = 1; return 4;

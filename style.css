@@ -317,3 +317,9 @@ details.more { border: 1px solid var(--rule); border-radius: var(--r1); backgrou
 details.more > summary { cursor: pointer; font-weight: 500; font-size: var(--t-s); color: var(--ink-2); }
 details.more[open] > summary { margin-bottom: var(--s2); color: var(--ink); }
 .steps-inline { margin: 0 0 var(--s3); padding-left: 1.3em; max-width: 72ch; color: var(--ink-2); } .steps-inline li { margin: 2px 0; }
+
+/* the bus trace table */
+table.bus { font: .78rem var(--mono); } table.bus th, table.bus td { padding: 1px 6px; text-align: center; white-space: nowrap; }
+table.bus tr.first td { border-top: 2px solid var(--rule); }
+table.bus tr.fetchrow td { background: var(--tint); }
+table.bus td b { color: var(--accent); }
