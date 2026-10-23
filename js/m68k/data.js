@@ -334,3 +334,16 @@ QUEST.MODES = [
   { key: 'imm',  name: 'Immediate',                     mode: 'Mode 7.4', tpl: ['MOVE.B #$55,D{q}', 'MOVE.W #$ABFF,D{q}'] },
 ];
 })();
+
+/* ---- added: loop forms and the 68000/Z80 loop instructions (mirrored on the Z80 deck), and the Z80-style string copy ---- */
+QUEST.CARDS.push(
+  { deck: 'flow', q: 'FOR, WHILE and DO/WHILE in assembly: where does each put its test?', a: 'WHILE tests at the top, before the body, so the body may never run. FOR is a WHILE with a counter: initialise it, test at the top, change it at the end, branch back. DO/WHILE tests at the bottom, so the body always runs at least once. Each is built from a compare (or an instruction that changes a value) plus a branch.', src: 'L5' },
+  { deck: 'flow', q: 'DBRA D0,loop: what does it do, and how many passes if D0 = 4 on entry?', a: 'It subtracts 1 from the low word of D0 and branches unless the result is −1. With D0 = 4 the body runs 5 times (D0 = 4, 3, 2, 1, 0). To run N times, load N − 1. (DBcc is not on the slides; it is in the 68000 manual.)', src: 'L5' },
+  { deck: 'flow', q: 'What is the 68000 equivalent of the Z80\'s DJNZ, and what is the off-by-one difference?', a: 'DBRA Dn,label. DJNZ stops when B reaches 0, so you load N; DBRA stops when Dn reaches −1, so you load N − 1. DBRA can use any of D0-D7 and counts 16 bits; DJNZ always uses B and counts 8 bits.', src: 'L5' },
+);
+QUEST.QUIZ.push(
+  { world: 'flow', q: 'A loop with DBRA D0,loop must run 5 times. What do you load into D0?', correct: '4', wrong: ['5', '6', '0'], why: 'DBRA stops when the counter reaches −1, so N − 1 gives N passes.' },
+  { world: 'flow', q: 'Which loop form always runs its body at least once?', correct: 'DO/WHILE (test at the bottom)', wrong: ['WHILE (test at the top)', 'FOR with the test at the top', 'none of them'], why: 'Lesson 5 slide 43: the function call happens at least once because the test comes after the body.' },
+);
+QUEST.PROGRAMS.push({ id: 'copy', title: 'Copy a string', src: 'L5', goal: 'Copy the zero-terminated string at SRC to DEST, one byte at a time (the 68000 has no block-copy instruction like the Z80 LDIR).',
+  lines: ['        LEA SRC,A0', '        LEA DEST,A1', 'Loop    MOVE.B (A0)+,(A1)+', '        BNE Loop', '        SIMHALT', "SRC     DC.B 'HELLO',0", 'DEST    DS.B 6'], free: [[0, 1]], hints: { 2: 'copy a byte, advance both pointers', 3: 'stop after the zero has been copied' } });

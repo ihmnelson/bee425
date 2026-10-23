@@ -580,6 +580,55 @@ DONE:   HALT
 DATA:   .DB 12,13,5,0
 \`\`\`
 
+### The three loop forms (FOR, WHILE, DO/WHILE)
+
+Lesson 5 shows C++ loops next to 68000 code. The same three shapes on the Z80 (each one is run against its 68000 twin on the Compare page and gives the same answer):
+
+**FOR** (count 1 to 9, test at the top, the body runs 9 times):
+
+\`\`\`asm
+        LD B,1             ; counter
+        LD C,10            ; terminal value
+        LD D,0             ; running sum
+FOR:    LD A,B
+        CP C               ; the test
+        JR Z,NEXTCODE
+        LD A,D             ; body
+        ADD A,B
+        LD D,A
+        INC B              ; change the counter
+        JR FOR
+NEXTCODE:
+\`\`\`
+
+**WHILE** (test at the top; here "have I reached the end address?"). The Z80 has no 16-bit compare, so subtract and add back:
+
+\`\`\`asm
+        LD HL,TABLE
+        LD DE,TEND
+WHILE:  OR A               ; clear carry
+        SBC HL,DE          ; HL - DE
+        JR Z,DONE
+        ADD HL,DE          ; restore HL
+        ; ... body uses [HL] ...
+        INC HL
+        JR WHILE
+\`\`\`
+
+**DO/WHILE** (test at the bottom, so the body runs at least once):
+
+\`\`\`asm
+        LD HL,DATA
+TESTLOOP:
+        CALL SUBR          ; the body: at least once
+        LD A,[HL]
+        INC HL
+        CP 9               ; the test, after the body
+        JR NZ,TESTLOOP
+\`\`\`
+
+> **Off by one against the 68000.** \`DJNZ\` stops when B reaches 0, so load N for N passes. The 68000's \`DBRA\` stops at −1, so it needs N − 1. See the **Compare** page for the pair.
+
 ## If / else
 
 \`\`\`asm

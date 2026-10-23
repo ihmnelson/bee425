@@ -10,7 +10,7 @@
   const packBySlug = (slug) => PACKS.order.find((id) => PACKS.list[id].PACK_UI.slug === slug);
   const here = () => '#/' + slugOf(P()) + '/';
   // go to a route of the open processor (or an absolute route when it already names one)
-  const go = (h) => { location.hash = /^#\/(68k|z80|sys|progress)/.test(h) || !P() ? h : h.replace(/^#\//, here()); };
+  const go = (h) => { location.hash = /^#\/(68k|z80|sys|progress|compare)/.test(h) || !P() ? h : h.replace(/^#\//, here()); };
   const worldById = (id) => QUEST.WORLDS.find((w) => w.id === id);
 
   /* ---------- helpers ---------- */
@@ -112,6 +112,8 @@
     if (games.length) steps.push(step('Practice', games.map((g) => `<b>${esc(g[2])}.</b> ${esc(g[3])}`).join('<br>'), '', games.map((g) => `<a class="btn" href="#/game/${g[0]}">${esc(g[2])}</a>`).join('')));
     if (nq) steps.push(step('Check yourself', `A quiz of up to ${nq} multiple-choice questions on this topic.`, '', `<a class="btn" href="#/game/blitz/${id}">Start the quiz</a>`));
     if (UI().topicSandbox.includes(id)) steps.push(step('Try it yourself', UI().topicSandboxText || 'Run a program in the sandbox, or paste any line into Explain code to see what it does.', '', `<a class="btn" href="#/sandbox">${UI().sandboxLabel ? 'Open the ' + UI().sandboxLabel.toLowerCase() : 'Open sandbox'}</a>${UI().hasRead === false ? '' : '<a class="btn" href="#/read">Explain code</a>'}`));
+    const cp = UI().compareTopics && UI().compareTopics[id];
+    if (cp) steps.push(step('Compare with the ' + UI().twin.name, 'See the same job on both processors, run both versions, and read what differs and why.', '', `<a class="btn" href="#/compare/${cp}">Compare both</a>`));
     $app.innerHTML = `<p class="crumb"><a href="#/">Topics</a></p>
       <h1>${ico(w.icon)} ${idx + 1}. ${esc(w.name)}</h1><p class="lede">${esc(w.blurb)}. Covers ${esc(lessonText(w.lesson).toLowerCase())}.</p>
       <ol class="steps">${steps.join('')}</ol>
@@ -405,6 +407,12 @@
       <div class="sec"><h2>References and further reading</h2><small>open in a new tab</small></div>
       <div class="panel"><ul class="reflist">${QUEST_GUIDES.REFS.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title)}</a><br><span class="dim">${esc(r.note)}</span></li>`).join('')}</ul></div>`;
   }
+  // the same idea on the other processor: its guide, and the Compare page
+  function twinPanel(gid) {
+    const t = UI().twin; if (!t || !PACKS.list[t.pack]) return '';
+    const map = t.guides || {}, other = PACKS.list[t.pack], tid = gid in map ? map[gid] : gid, tg = tid && other.QUEST_GUIDES.GUIDES.find((x) => x.id === tid);
+    return `<div class="panel"><h3>On the ${esc(t.name)}</h3><div class="row">${tg ? `<a class="btn" href="#/${other.PACK_UI.slug}/guide/${tg.id}">${ico(tg.icon)} ${esc(tg.title)}</a>` : '<span class="stat">No matching guide on the ' + esc(t.name) + ' yet.</span>'}<a class="btn" href="#/compare">Compare both</a></div></div>`;
+  }
   function viewGuide(id) {
     setNav('guides');
     const list = QUEST_GUIDES.GUIDES, k = list.findIndex((g) => g.id === id); if (k < 0) return go('#/guides');
@@ -418,6 +426,7 @@
       <div class="guidepage"><article class="guide"><h1>${ico(g.icon)} ${esc(g.title)}</h1><p class="stat">Source: ${esc(lessonText(g.lesson))}</p>${tocInline}${body}</article>
       <aside class="guideside">${tocSide}
       <div class="panel"><h3>Practise this</h3><div class="row">${world ? `<a class="btn go" href="#/study/${world.id}">Flashcards: ${esc(world.name)}</a>` : ''}<a class="btn" href="#/arcade">Practice drills</a><a class="btn" href="#/sandbox">${esc(UI().sandboxLabel || 'Sandbox')}</a></div></div>
+      ${twinPanel(g.id)}
       ${(QUEST_GUIDES.SEE[g.id] || []).length ? `<div class="panel"><h3>See also</h3><div class="row">${QUEST_GUIDES.SEE[g.id].map((x) => { const t = list.find((y) => y.id === x); return t ? `<a class="btn" href="#/guide/${t.id}">${ico(t.icon)} ${esc(t.title)}</a>` : ''; }).join('')}<a class="btn" href="#/glossary">${ico('book')} Glossary</a>${g.id !== 'errata' && list.some((y) => y.id === 'errata') ? `<a class="btn" href="#/guide/errata">${ico('warning--alt')} Slide errata</a>` : ''}</div></div>` : ''}</aside></div>
       <div class="row" style="justify-content:space-between;margin-top:14px">${prev ? `<a class="btn" href="#/guide/${prev.id}">Previous: ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/guide/${next.id}">Next: ${esc(next.title)}</a>` : ''}</div>`;
   }
@@ -439,6 +448,56 @@
   }
 
 
+  /* ---------- Compare: the same jobs on both processors ---------- */
+  const SIDES = [['m68k', '68000', 'EASy68K'], ['z80', 'Z80', 'Oshonsoft']];
+  const b64enc = (t) => btoa(unescape(encodeURIComponent(t))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const ROSETTA = [
+    ['Operand order', '`MOVE source,destination`', '`LD destination,source`'],
+    ['Copy a value', '`MOVE.B D1,D0` (any register to any register)', '`LD A,B` (not every pair is allowed)'],
+    ['Add', '`ADD.L D0,D2` (any D register)', '`ADD A,B` (only into A); `ADD HL,DE` for 16 bits'],
+    ['Compare', '`CMP.B D0,D1` computes D1 − D0, sets flags', '`CP B` computes A − B, sets flags'],
+    ['Branch if equal', '`BEQ label`', '`JR Z,label` (or `JP Z,label`)'],
+    ['Unsigned greater/less', '`BHI` `BLS` `BCC` `BCS`', '`JR NC` `JR C` with `JR Z` / `JR NZ`'],
+    ['Signed greater/less', '`BGT` `BLT` `BGE` `BLE`', 'No single condition; test S and V (see Jumps guide)'],
+    ['Counted loop', '`DBRA D0,loop` (stops at −1: load N − 1)', '`DJNZ loop` (stops at 0: load N, B only)'],
+    ['Call / return', '`JSR sub` / `RTS`', '`CALL sub` / `RET`'],
+    ['Push / pop', '`MOVE.L D0,-(A7)` / `MOVE.L (A7)+,D0`', '`PUSH BC` / `POP BC` (16-bit pairs only)'],
+    ['Pointer and next item', '`MOVE.B (A0)+,D0` (post-increment)', '`LD A,[HL]` then `INC HL`'],
+    ['Indexed access', '`3(A0)`, `0(A0,D1)`', '`[IX+3]`, `[IY+3]` (8-bit signed displacement)'],
+    ['Byte order of a word', 'Big-endian: high byte at the lower address', 'Little-endian: low byte at the lower address'],
+    ['Sizes', '`.B` `.W` `.L` on most instructions', 'Size is fixed by the register (8-bit or 16-bit pair)'],
+    ['Flags', 'X N Z V C in the CCR', 'S Z H P/V N C in F'],
+    ['I/O devices', 'Memory-mapped only (ordinary addresses)', '`IN` / `OUT` ports as well as memory-mapped'],
+    ['End of the program', '`SIMHALT` (EASy68K) or `STOP #$2700`', '`HALT`'],
+  ];
+  const mdInline = (t) => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  const rosettaRows = () => ROSETTA.map(([a, b, c]) => `<tr><td>${esc(a)}</td><td>${mdInline(b)}</td><td>${mdInline(c)}</td></tr>`).join('');
+  function viewCompare(which) {
+    setNav('');
+    const CD = window.CompareData, pairs = CD.PAIRS, topics = [...new Set(pairs.map((p) => p.topic))];
+    const sec = (p) => `<details class="pair" id="pair-${p.id}" ${p.id === which ? 'open' : ''}><summary><b>${esc(p.title)}</b> <span class="dim">${esc(p.lesson)}</span></summary>
+      <p>${mdInline(p.idea)}</p>
+      <div class="twocol">${SIDES.map(([id, name, tool]) => `<div><h4>${name} <span class="dim">(${tool})</span></h4><pre class="code">${PACKS.list[id].PACK_UI.colorize ? esc(p[id].src).split('\n').map((l) => PACKS.list[id].PACK_UI.colorize(l)).join('\n') : esc(p[id].src)}</pre></div>`).join('')}</div>
+      <div class="row"><button class="btn go" data-run="${p.id}">Run both</button>${SIDES.map(([id, name]) => `<a class="btn" href="#/${PACKS.list[id].PACK_UI.slug}/sandbox?c=${b64enc(p[id].src)}">Open in the ${name} sandbox</a>`).join('')}${SIDES.map(([id, name]) => `<a class="btn ghost" href="#/${PACKS.list[id].PACK_UI.slug}/guide/${p[id].guide}">${name} guide</a>`).join('')}</div>
+      <div class="runout" id="out-${p.id}"></div>
+      <h4>What differs, and why</h4><ul>${p.differences.map((d) => `<li>${mdInline(d)}</li>`).join('')}</ul></details>`;
+    $app.innerHTML = `<h1>Compare the 68000 and the Z80</h1>
+      <p class="lede">The two processors solve the same problems with different tools. Each pair below does one job twice, once per processor, and both versions have been run to the same answer. Read the two programs side by side, press <b>Run both</b>, then read what differs and why. Every topic page links here, and every guide links to its twin on the other processor.</p>
+      <div class="sec"><h2>Quick map</h2><small>the same idea in each instruction set</small></div>
+      <div class="tablewrap"><table class="gt"><thead><tr><th>Idea</th><th>68000</th><th>Z80</th></tr></thead><tbody>${rosettaRows()}</tbody></table></div>
+      ${topics.map((t) => `<div class="sec"><h2>${esc(t)}</h2></div>${pairs.filter((p) => p.topic === t).map(sec).join('')}`).join('')}
+      <p class="stat" style="margin-top:var(--s4)">Code size counts the program and its data. The Z80 counts T-states (clock cycles); the 68000 simulator here does not model cycle counts, so only instructions executed are compared.</p>`;
+        $app.querySelectorAll('[data-run]').forEach((b) => (b.onclick = () => {
+      const p = pairs.find((x) => x.id === b.dataset.run), r = CD.runPair(p);
+      const cell = (k) => { const x = r[k]; if (!x.ok) return `<td colspan="1" class="bad">${esc(x.error)}</td>`; return `<td><b>${x.value}</b> <span class="dim">(${CD.hex(x.value, 2)}H in ${x.where})</span></td>`; };
+      const row = (label, f) => `<tr><td>${label}</td>${['m68k', 'z80'].map((k) => `<td>${r[k].ok ? f(r[k]) : ''}</td>`).join('')}</tr>`;
+      document.getElementById('out-' + p.id).innerHTML = `<div class="tablewrap"><table class="gt"><thead><tr><th></th><th>68000</th><th>Z80</th></tr></thead><tbody>
+        <tr><td>Answer</td>${cell('m68k')}${cell('z80')}</tr>${row('Program bytes', (x) => x.bytes)}${row('Instructions executed', (x) => x.steps)}${row('Cycles', (x) => x.extra || 'not modelled')}</tbody></table></div>
+        <p class="stat">${r.m68k.ok && r.z80.ok && r.m68k.value === r.z80.value ? 'Same answer on both.' : 'The answers differ here on purpose: see below.'}</p>`;
+      S.record('compare', true); award(2);
+    }));
+    if (which) { const el = document.getElementById('pair-' + which); if (el) el.scrollIntoView(); }
+  }
   /* ---------- Tests & audit report ---------- */
   function viewTests() {
     setNav('guides');
@@ -472,14 +531,15 @@
   function renderHeader() {
     const nav = document.querySelector('.nav'), sw = document.getElementById('cpusw');
     sw.innerHTML = PACKS.order.map((id) => { const u = PACKS.list[id].PACK_UI; return `<a href="#/${u.slug}/" class="${id === P() ? 'on' : ''}" aria-label="${esc(u.fullName)}">${u.chip}</a>`; }).join('');
-    const items = P() ? [...BASE_NAV.filter(([k]) => !(k === 'read' && UI().hasRead === false)).map(([k, l, h]) => [k, k === 'sandbox' && UI().sandboxLabel ? UI().sandboxLabel : l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['progress', 'Progress', '#/progress']] : [['progress', 'Progress', '#/progress']];
+    const CMP = ['compare', 'Compare', '#/compare'];
+    const items = P() ? [...BASE_NAV.filter(([k]) => !(k === 'read' && UI().hasRead === false)).map(([k, l, h]) => [k, k === 'sandbox' && UI().sandboxLabel ? UI().sandboxLabel : l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), CMP, ['progress', 'Progress', '#/progress']] : [CMP, ['progress', 'Progress', '#/progress']];
     const ft = document.getElementById('foot'); if (ft) ft.innerHTML = `Built from BEE 425 F26 Lessons 3&ndash;8, 10 and 11. Progress is saved in this browser only. ${P() ? `<a href="${here()}tests">How accurate is this site?</a> &middot; ` : ''}<a href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener">Source code on GitHub</a>`;
     nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('');
   }
   // links written as "#/guide/x" inside a processor's pages point at that processor's page: rewrite them once rendered
   function fixLinks(root) {
     if (!P()) return;
-    root.querySelectorAll('a[href^="#/"]').forEach((a) => { const h = a.getAttribute('href'); if (!/^#\/(68k|z80|sys|progress)(\/|$)/.test(h) && h !== '#/') a.setAttribute('href', h.replace(/^#\//, here())); else if (h === '#/') a.setAttribute('href', here()); });
+    root.querySelectorAll('a[href^="#/"]').forEach((a) => { const h = a.getAttribute('href'); if (!/^#\/(68k|z80|sys|progress|compare)(\/|$)/.test(h) && h !== '#/') a.setAttribute('href', h.replace(/^#\//, here())); else if (h === '#/') a.setAttribute('href', here()); });
   }
   new MutationObserver(() => fixLinks($app)).observe($app, { childList: true, subtree: true });
   const LEGACY = new Set(['world', 'cards', 'study', 'arcade', 'game', 'read', 'guides', 'guide', 'glossary', 'tests', 'homework', 'sandbox']);
@@ -497,7 +557,7 @@
     if (pid) document.documentElement.dataset.cpu = pid; else delete document.documentElement.dataset.cpu;
     window.scrollTo(0, 0);
     try {
-      if (!pid) { if (parts[0] === 'progress') viewProgress(); else viewCourse(); }
+      if (!pid) { if (parts[0] === 'progress') viewProgress(); else if (parts[0] === 'compare') viewCompare(parts[1]); else viewCourse(); }
       else switch (parts[0]) {
         case undefined: viewMap(); break;
         case 'world': viewWorld(parts[1]); break;

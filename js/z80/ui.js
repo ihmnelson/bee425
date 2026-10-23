@@ -22,6 +22,8 @@ window.PACK_UI = {
     ['hardware', '🧱', 'Hardware Lab', 'Address lines, page decoding, base resistors.', 'L6-8'],
     ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across all topics.', 'all'],
   ],
+  twin: { pack: 'm68k', name: '68000', guides: { model: 'programmers-model', vs68k: 'z80', oshonsoft: 'workflow', 'bus-trace': null } },
+  compareTopics: { cpu: 'for', inst: 'max', modes: 'index', flow: 'for', hw: 'endian', m68: 'for' },
   navExtra: [],
   guidesButtons: [['#/guide/oshonsoft', 'Oshonsoft IDE guide']],
   examples: () => window.EXAMPLES_Z80,

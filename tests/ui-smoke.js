@@ -51,7 +51,7 @@ async function open(storage) {
     for (const r of rs) {
       app = await go(base + r);
       if (app.textContent.trim().length < 40) fail(`${slug}/${r} is empty`);
-      const bare = [...app.querySelectorAll('a[href^="#/"]')].filter((a) => { const h = a.getAttribute('href'); return h !== '#/' && !/^#\/(68k|z80|sys|progress)(\/|$)/.test(h); });
+      const bare = [...app.querySelectorAll('a[href^="#/"]')].filter((a) => { const h = a.getAttribute('href'); return h !== '#/' && !/^#\/(68k|z80|sys|progress|compare)(\/|$)/.test(h); });
       if (bare.length) fail(`${slug}/${r}: ${bare.length} link(s) not prefixed, e.g. ${bare[0].getAttribute('href')}`);
       if (w.PACKS.cur !== id) fail(`${slug}/${r}: wrong processor active`);
       const em = app.textContent.match(/(?![\u2190-\u21FF\u25A0-\u25FF])\p{Extended_Pictographic}/u); if (em) fail(`${slug}/${r}: emoji in page text: ${em[0]}`);
@@ -83,6 +83,13 @@ async function open(storage) {
   if (![...d.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#/z80/sandbox')) fail('nav links not prefixed for Z80');
   await go('#/68k/'); if (![...d.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#/68k/homework')) fail('68K nav has no Homework');
 
+  // Compare page: pairs run on both cores; guides and topics link to their twins
+  app = await go('#/compare'); if (app.querySelectorAll('details.pair').length < 8 || !/Quick map/.test(app.textContent)) fail('compare page');
+  { const b = d.querySelector('[data-run="countdown"]'); b.click(); const o = d.getElementById('out-countdown').textContent; if (!/150/.test(o) || !/Same answer/.test(o)) fail('compare run: ' + o); const e = d.querySelector('[data-run="endian"]'); e.click(); if (!/differ/.test(d.getElementById('out-endian').textContent)) fail('endian pair should report different answers'); }
+  if (![...d.querySelectorAll('.nav a')].some((a) => a.textContent === 'Compare')) fail('Compare missing from nav');
+  app = await go('#/68k/guide/branches'); if (![...app.querySelectorAll('a')].some((a) => a.getAttribute('href') === '#/z80/guide/branches')) fail('68K branches guide should link to the Z80 branches guide');
+  app = await go('#/z80/guide/model'); if (![...app.querySelectorAll('a')].some((a) => a.getAttribute('href') === '#/68k/guide/programmers-model')) fail('Z80 model guide should link to the 68K programmer\'s model guide');
+  app = await go('#/z80/world/flow'); if (![...app.querySelectorAll('a')].some((a) => a.getAttribute('href') === '#/compare/for')) fail('Z80 flow topic should link to the Compare page');
   // Data conversion section: no processor pages, a converter lab, drills that grade, a demo that finishes on 1100B
   app = await go('#/sys/'); if (!/Data conversion/.test(app.textContent) || !/Start with topic 1/.test(app.textContent)) fail('sys home');
   { const names = [...d.querySelectorAll('.nav a')].map((a) => a.textContent); if (names.includes('Explain code') || !names.includes('Converter lab')) fail('sys nav: ' + names.join(',')); }

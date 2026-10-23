@@ -22,6 +22,8 @@ window.PACK_UI = {
     ['hardware', '🧱', 'Hardware Lab', 'Address lines, page decoding, base resistors.', 'L6-8'],
     ['blitz', '⚡', 'Quiz Blitz', 'Timed multiple choice across all topics.', 'all'],
   ],
+  twin: { pack: 'z80', name: 'Z80', guides: { 'programmers-model': 'model', z80: 'vs68k', workflow: 'oshonsoft' } },
+  compareTopics: { regs: 'for', inst: 'max', modes: 'index', flow: 'for', hw: 'endian', z80: 'for' },
   navExtra: [{ href: '#/homework', name: 'homework', label: 'Homework' }],
   guidesButtons: [['#/homework', 'Homework 2 walkthrough']],
   examples: () => window.EXAMPLES_68K,

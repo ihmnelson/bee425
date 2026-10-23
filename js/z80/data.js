@@ -431,3 +431,14 @@ QUEST.MODES = [
   { key: 'page0',  name: 'Modified page-zero',             what: 'RST jumps to one of eight fixed addresses in page zero.' },
 ];
 })();
+
+/* ---- added: loop forms and the Z80/68000 loop instructions (mirrored on the 68000 deck) ---- */
+QUEST.CARDS.push(
+  { deck: 'flow', q: 'FOR, WHILE and DO/WHILE in assembly: where does each put its test?', a: 'WHILE tests at the top, before the body, so the body may never run. FOR is a WHILE with a counter: initialise it, test at the top, change it at the end, jump back. DO/WHILE tests at the bottom, so the body always runs at least once. Each is built from a compare (or an instruction that changes a value) plus a jump. See the Compare page for all three on both processors.', src: 'L5' },
+  { deck: 'flow', q: 'DJNZ loop with B = 5 on entry: how many passes? And with B = 0?', a: '5 passes (B = 5, 4, 3, 2, 1 before each decrement; it falls through when B reaches 0). With B = 0 the first DJNZ makes B = 255, so the body runs 256 times. DJNZ changes no flags.', src: 'L5' },
+  { deck: 'flow', q: 'What is the 68000 equivalent of DJNZ, and what is the off-by-one difference?', a: 'DBRA Dn,label. DJNZ stops when B reaches 0, so you load N; DBRA stops when Dn reaches −1, so you load N − 1. DBRA can use any of D0-D7 and counts 16 bits; DJNZ always uses B and counts 8 bits.', src: 'L5' },
+);
+QUEST.QUIZ.push(
+  { world: 'flow', q: 'A loop with DJNZ must run 5 times. What do you load into B?', correct: '5', wrong: ['4', '6', '1'], why: 'DJNZ stops when B reaches 0, so N gives N passes (LD B,0 gives 256). The 68000 DBRA wants N − 1.' },
+  { world: 'flow', q: 'Which loop form always runs its body at least once?', correct: 'DO/WHILE (test at the bottom)', wrong: ['WHILE (test at the top)', 'FOR with the test at the top', 'none of them'], why: 'Lesson 5 slide 43: the call happens at least once because the test comes after the body.' },
+);

@@ -327,3 +327,12 @@ table.bus { font: .78rem var(--mono); } table.bus th, table.bus td { padding: 1p
 table.bus tr.first td { border-top: 2px solid var(--rule); }
 table.bus tr.fetchrow td { background: var(--tint); }
 table.bus td b { color: var(--accent); }
+
+.pair { border: 1px solid var(--rule); border-radius: var(--r2, 6px); background: var(--sheet); margin-bottom: var(--s3); padding: 0 var(--s3); }
+.pair > summary { cursor: pointer; padding: var(--s3) 0; }
+.pair[open] > summary { border-bottom: 1px solid var(--rule-2); margin-bottom: var(--s2); }
+.twocol { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s3); margin: var(--s2) 0; }
+.twocol h4 { margin: 0 0 var(--s1); }
+.twocol pre.code { margin: 0; overflow-x: auto; }
+.runout { margin: var(--s2) 0; }
+.pair .row { margin: var(--s2) 0; }

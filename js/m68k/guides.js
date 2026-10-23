@@ -592,6 +592,18 @@ test_loop  JSR    subroutine
            BNE    test_loop
 \`\`\`
 
+### Counted loop with DBRA
+
+\`DBRA\` (also written \`DBF\`) is the 68000's counted loop, the equivalent of the Z80's \`DJNZ\`:
+
+\`\`\`
+        MOVEQ  #4,D0         * N - 1: five passes
+loop    ...                  * body
+        DBRA   D0,loop       * D0 = D0 - 1; branch unless D0 is now -1
+\`\`\`
+
+It subtracts 1 from the **low word** of the counter and branches unless the result is **−1**, so you load N − 1 (the Z80's \`DJNZ\` stops at 0 and takes N). \`DBRA\` is not on the slides; it is the \`DBcc\` family from the 68000 manual, whose other members also stop early when a condition is true. The **Compare** page runs it next to \`DJNZ\`.
+
 ## Testing a single bit
 
 Mask everything except the bit, then test for zero:
