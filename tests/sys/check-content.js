@@ -37,6 +37,24 @@ eq('dual slope: Vx = Vref·tref/T', CV.dualSlopeVx(10, 50, 100), 5);
 eq('1-bit flash comparators', CV.flashComparators(1), 1);
 { const t = CV.thermometer(1.23, 1.5, 4); if (t.join('') !== '111111111111000'.slice(0, 15) && t.filter(Boolean).length !== 12) fail('thermometer code count'); if (t.join('').replace(/1+/, '').includes('1')) fail('thermometer code not contiguous'); }
 
+/* ---- slides 36-61 ---- */
+eq('termination length 0.5 ns, 150 ps/in = 1.67 in (slide 49)', CV.termLen(0.5, 150), 1.6667, 1e-3);
+eq('11th harmonic of 220 Hz = 2420 Hz (slide 36 says 2427)', CV.oddHarmonic(220, 6), 2420);
+eq('ASIC NRE 300k+200k+25k', 300000 + 200000 + 25000, 525000);
+eq('NRE per device at 1,000 units', CV.perDevice(525000, 1000), 525);
+eq('NRE per device at 500,000 units', CV.perDevice(525000, 500000), 1.05, 1e-9);
+eq('ASIC parts at 1,000 units', 14 * 1000, 14000); eq('ASIC parts at 500,000 units', 6 * 500000, 3000000);
+eq('hardware total 1,000 units', CV.hwTotal(525000, 14, 1000), 539000); eq('hardware total 500,000 units', CV.hwTotal(525000, 6, 500000), 3525000);
+eq('software per device 1,000 units', CV.perDevice(300000, 1000), 300); eq('software per device 500,000 units', CV.perDevice(300000, 500000), 0.6, 1e-9);
+eq('software total', CV.swTotal(300000, 500000), 300000);
+eq('CMOS power 5 V to 3.3 V is 43.56% (calc)', CV.cmosPowerRatio(5, 3.3), 0.4356, 1e-9);
+eq('68K power ratio on slide 42 (2.92x for 2.5x clock)', 0.38 / 0.13, 2.923, 1e-3);
+eq('expected ASIC respin cost 30% x $200,000', 0.3 * 200000, 60000);
+eq('break-even: 525000 + 6V = 300000 + 16V -> 22,500 units', CV.breakEven(525000, 300000, 16, 6), 22500);
+{ // a Schmitt trigger makes one transition on a clean ramp; a plain comparator on a noisy ramp makes more
+  let st = 0, tr = 0, prev = null; for (let i = 0; i < 240; i++) { st = CV.schmitt(i / 239, 0.4, 0.6, st); if (prev !== null && st !== prev) tr++; prev = st; } if (tr !== 1) fail('Schmitt on a clean ramp: ' + tr + ' transitions');
+}
+
 /* ---- successive approximation equals direct quantization (exhaustive on a fine grid) ---- */
 let n = 0, mism = 0;
 for (let bits = 1; bits <= 8; bits++) for (const s of [0.01, 0.1, 0.25, 1]) { const vfs = CV.levels(bits) * s; for (let i = 0; i <= 4000; i++) { const v = (vfs * i) / 4000; n++; if (CV.sar(v, vfs, bits).code !== CV.code(v, vfs, bits)) mism++; } }
@@ -57,6 +75,11 @@ for (const lv of ['easy', 'medium', 'hard']) for (let i = 0; i < 3000; i++) {
   // an absurd answer must be wrong
   if (q.grade(q.fields.map(() => '1e99')).ok) fail(`${lv}: absurd answer accepted for "${q.prompt}"`);
   if (q.grade(q.fields.map(() => '-1')).ok) fail(`${lv}: negative answer accepted for "${q.prompt}"`);
+}
+for (const lv of ['easy', 'medium', 'hard']) for (let i = 0; i < 3000; i++) {
+  const q = Games.designQ(lv);
+  if (q.kind !== 'fields' || !q.prompt || !q.grade) { fail('design: malformed ' + q.prompt); break; }
+  if (q.grade(q.fields.map(() => '1e99')).ok || q.grade(q.fields.map(() => '-1')).ok) fail('design: absurd answer accepted: ' + q.prompt);
 }
 console.log('drill questions generated:', JSON.stringify(stat));
 
@@ -92,6 +115,30 @@ for (const lv of ['easy', 'medium', 'hard']) for (let i = 0; i < 4000; i++) {
 console.log(`independently recomputed and accepted: ${checked} questions across ${seen.size} question shapes`);
 if (seen.size < 13) fail('expected 14 question shapes, saw ' + seen.size);
 
+/* ---- design drills: independent solvers ---- */
+const comma = (t) => +String(t).replace(/,/g, '');
+function indepDesign(q) {
+  const p = q.prompt; let m;
+  if ((m = /rise time of ([\d.]+) ns and signals propagate at (\d+) ps per inch/.exec(p))) return [(+m[1] * 1000) / (2 * +m[2])];
+  if ((m = /switches high at ([\d.]+) V \(rising\) and low at ([\d.]+) V/.exec(p))) return [+m[1] - +m[2]];
+  if ((m = /A (\d+) Hz square wave is built from its first (\d+) terms/.exec(p))) return [+m[1] * (2 * +m[2] - 1)];
+  if ((m = /costs total \$([\d,.]+)\. Spread over ([\d,]+) units/.exec(p))) return [comma(m[1]) / comma(m[2])];
+  if ((m = /one-off cost and each part costs \$(\d+)\. What is the total hardware cost at ([\d,]+) units/.exec(p))) { const nre = comma(/has \$([\d,]+) of one-off/.exec(p)[1]); return [nre + +m[1] * comma(m[2])]; }
+  if ((m = /from a ([\d.]+) V supply to ([\d.]+) V/.exec(p))) return [((+m[2] * +m[2]) / (+m[1] * +m[1])) * 100];
+  if ((m = /dissipates ([\d.]+) W at (\d+) MHz\. .* at (\d+) MHz\?/.exec(p))) return [(+m[1] * +m[3]) / +m[2]];
+  if ((m = /software solution costs \$([\d,]+) to develop and adds nothing per unit\. .* at ([\d,]+) units/.exec(p))) return [comma(m[1]) / comma(m[2])];
+  if ((m = /ASIC costs \$([\d,]+) one-off plus \$(\d+) per unit\. The software solution costs \$([\d,]+) to develop .* adds \$(\d+) per unit/.exec(p))) return [(comma(m[1]) - comma(m[3])) / (+m[4] - +m[2])];
+  return null;
+}
+{ const shapes = new Set(); let ok = 0;
+  for (const lv of ['easy', 'medium', 'hard']) for (let i = 0; i < 4000; i++) {
+    const q = Games.designQ(lv), ans = indepDesign(q);
+    if (!ans) { fail('no independent solver for: ' + q.prompt); break; }
+    shapes.add(q.prompt.replace(/[\d.,$]+/g, '#').slice(0, 30));
+    const r = q.grade(ans.map(String)); if (!r.ok) { fail(`design answer rejected: "${q.prompt}" -> ${ans} (${r.detail})`); break; } ok++;
+  }
+  console.log(`design drills: ${ok} questions independently recomputed and accepted, ${shapes.size} shapes`); if (shapes.size < 9) fail('expected 9 design question shapes, saw ' + shapes.size); }
+
 /* ---- quiz, cards, glossary, guides ---- */
 const Q = window.QUEST;
 const worlds = new Set(Q.WORLDS.map((w) => w.id));
@@ -104,6 +151,7 @@ Q.QUIZ.forEach((q) => {
 Q.CARDS.forEach((c) => {
   if (!worlds.has(c.deck)) fail('card deck unknown: ' + c.q);
   if (!/^L10, slides? \d+(-\d+)?( and \d+)?(, \d+)*$/.test(c.src) && !/^L10, slides \d+(, | and )[\d, and-]+$/.test(c.src)) fail('card source is not a slide reference: ' + c.src);
+  { const nums = (c.src.match(/\d+/g) || []).slice(1).map(Number); if (nums.some((n) => n < 1 || n > 61)) fail('slide number out of range: ' + c.src); }
   if (!c.q || !c.a) fail('empty card');
 });
 if (new Set(Q.CARDS.map((c) => c.q)).size !== Q.CARDS.length) fail('duplicate card questions');

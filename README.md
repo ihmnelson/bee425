@@ -30,9 +30,9 @@ Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) stil
 
 `#/compare` puts the 68000 and the Z80 side by side. A quick-map table lists the same idea in each instruction set (17 rows), and eight program pairs (FOR, WHILE and DO/WHILE loops, DBRA against DJNZ, if/else, the stack, byte order, indexed access) each have both versions, a **Run both** button that executes them on the two simulator cores (answer, program bytes, instructions executed, Z80 T-states), links to open either in its sandbox, and a list of what differs and why. `node tests/compare-check.js` runs every pair and requires the documented answers (the byte-order pair differs on purpose: $12 against $34). Every guide has an "On the other processor" panel linking to its twin, topics link to the matching pair, and the loop cards, quiz questions and guide sections are mirrored on both decks. Not mirrored yet: the Z80 Bus Cycles topic has no 68000 counterpart, and Homework 2 is 68000 only.
 
-## Data conversion section
+## Data conversion and system design section
 
-Lesson 10, slides 1 to 35, in three numbered topics: Comparators and D/A, A/D methods, Data acquisition. 27 flashcards and 18 quiz questions (each tagged with its slide number), three guides, a 24-term glossary, **Converter Drills** (13 kinds of numeric question, new numbers every time: step size, code, comparator count, V/F counts, flash rate, droop time, dual-slope, aliasing, successive-approximation trials, slew error) and the **Converter lab**: a quantizer (bits, span and input give the code, a staircase, the flash thermometer code and each successive-approximation trial) and a sampling panel (signal and sample frequency, with the samples and the wave they imply). The home page runs a 4-bit successive-approximation converter on 1.23 V. Where the slides disagree with each other or with the arithmetic (comparator count on slide 6 against slide 12; the 50 mV/s droop figure on slide 31) the guides and the section's "How accurate is this site?" page say so. Hysteresis, isolation, watchdog, power and partitioning (slides 36 to 61) are not covered yet.
+All of Lesson 10 (slides 1 to 61) in six numbered topics: Comparators and D/A, A/D methods, Data acquisition, Noisy inputs (bandwidth, hysteresis, debouncing, optical isolation, watchdog), Power, RF and traces (CMOS power, regulation, emissions, bus loading, termination) and Design and partitioning (specification, stakeholders, hardware against software, the ASIC cost example). 56 flashcards and 33 quiz questions (each card tagged with its slide number), six guides, a 39-term glossary, two drill sets (**Converter Drills**: 13 kinds of question; **Design Drills**: 9 kinds) with new numbers every time, and the **Converter lab** (a quantizer with staircase, flash thermometer code and successive-approximation trials; a sampling and aliasing panel; a Schmitt trigger on a noisy ramp; calculators for trace termination, CMOS power and ASIC against software cost). The home page runs a 4-bit successive-approximation converter on 1.23 V. Where the slides disagree with each other or with the arithmetic (comparator count on slide 6 against slide 12; the 50 mV/s droop on slide 31; 2427 Hz against 2420 Hz on slide 36; the "linear" power on slide 42) the guides and the section's "How accurate is this site?" page say so. Questions the slides pose without answering (the watchdog RESET-or-NMI question, the printer decision) are answered only in text marked as our own analysis. Lesson 9 is not in the folder.
 
 ## Layout
 
@@ -72,9 +72,9 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 - **Disassembler** round trip, **example programs**, **Bug Hunt / Program Sorter / game generators** are all executed on the CPU core.
 - **Content audit** (`tests/z80/audit`): 433 items checked mechanically against the lecture text (Lessons 3-8, 10, 11), the Lab 2 handout, the Zilog Z80 CPU User Manual, the Oshonsoft help pages and the simulator: 338 confirmed, 3 corrected, 92 unverified. The confirmations are quoted phrases or executed checks, not a human reading of every nuance.
 
-**Data conversion** (`node tests/sys/check-content.js`)
-- Every worked figure on the cards and guides (0.04 V and 0.00015 V steps, the 1.5 V DAC maximum, 5 µs droop time, 500 MHz flash rate, V/F counts, the 10 kHz filter cutoff) is recomputed; successive approximation is compared with direct quantization in 128,032 cases (1 to 8 bits), 0 differences.
-- Each of the 13 drill kinds is solved a second time by a separate parser-based solver for 12,000 generated questions; every answer is accepted and absurd answers are rejected.
+**Data conversion and system design** (`node tests/sys/check-content.js`)
+- Every worked figure (including the slides 36-61 figures: 1.67 inch termination length, $525, $1.05, $539,000, $3,525,000) on the cards and guides (0.04 V and 0.00015 V steps, the 1.5 V DAC maximum, 5 µs droop time, 500 MHz flash rate, V/F counts, the 10 kHz filter cutoff) is recomputed; successive approximation is compared with direct quantization in 128,032 cases (1 to 8 bits), 0 differences.
+- Each of the 13 converter drill kinds and 9 design drill kinds is solved a second time by a separate parser-based solver (12,000 generated questions each); every answer is accepted and absurd answers are rejected.
 - Not checked: the slides' content against other textbooks, and the three links copied from the slides.
 
 **Site**
@@ -91,7 +91,7 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 
 ## Roadmap
 
-- Data conversion: slides 36 to 61 of Lesson 10 (hysteresis, debouncing, optical isolation, watchdog, power, terminating traces, partitioning); Lesson 9 is not in the folder.
+- A 68000 counterpart of the Z80 Bus Cycles topic (Lab 3 uses a 68008); Lesson 11 debugging tools (debug monitors, ROM emulation, in-circuit emulation, JTAG); Lesson 9 is not in the folder.
 - Merge the duplicated hardware and transistor material (memory, buses, I/O pins, base resistors) so it lives once.
 - Run the oracle test vectors live in the browser.
 - 68000: structured assembly, `INCLUDE`, a disassembler view, cycle counts. Z80: homework-style walkthroughs when the lab handouts are available.

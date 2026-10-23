@@ -205,6 +205,7 @@
     numbers:  { title: 'Number Ninja', icon: '🥷', levels: true, make: (l) => G.numberQ(l) },
     hardware: { title: 'Hardware Lab', icon: '🧱', levels: true, make: (l) => G.hardwareQ(l) },
     convert:  { title: 'Converter Drills', icon: '🧮', levels: true, make: (l) => G.convertQ(l) },
+    design:   { title: 'Design Drills', icon: '🧱', levels: true, make: (l) => G.designQ(l) },
     blitz:    { title: 'Quiz Blitz', icon: '⚡', timer: 20, make: (l, world) => G.quizQ(world) },
   };
   const ROUNDS = 8;

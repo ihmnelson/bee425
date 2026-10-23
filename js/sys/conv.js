@@ -29,7 +29,17 @@
   const vfCounts = (k, vin, t) => k * vin * t;                           // k in Hz per volt, t in s
   const dualSlopeVx = (vref, tref, T) => vref * tref / T;
   const flashRate = (tCompNs, tLogicNs) => 1000 / (tCompNs + tLogicNs);  // MHz
+  /* Lesson 10 slides 36-61: filters, hysteresis, power, traces, partitioning */
+  const oddHarmonic = (f0, k) => f0 * (2 * k - 1);                       // k-th term of a square wave: f0, 3 f0, 5 f0, ...
+  const deadband = (vHigh, vLow) => vHigh - vLow;
+  const termLen = (trNs, tprPsPerInch) => (trNs * 1000) / (2 * tprPsPerInch);   // inches: terminate traces at least this long (slide 49)
+  const cmosPowerRatio = (v1, v2) => (v2 * v2) / (v1 * v1);              // power scales as Vcc squared (slide 46)
+  const perDevice = (total, volume) => total / volume;
+  const hwTotal = (nre, unit, volume) => nre + unit * volume;            // ASIC: development, foundry and tools, plus the part
+  const swTotal = (dev, volume, extraPerUnit) => dev + (extraPerUnit || 0) * volume;
+  const breakEven = (nreHw, devSw, extraSwPerUnit, unitHw) => (nreHw - devSw) / (extraSwPerUnit - unitHw);   // volume where totals tie
+  const schmitt = (vin, vLow, vHigh, prev) => (vin >= vHigh ? 1 : vin <= vLow ? 0 : prev);
   const bin = (c, n) => c.toString(2).padStart(n, '0');
-  const api = { levels, step, code, dac, flashComparators, thermometer, sar, rampCounts, nyquistMin, alias, droopTime, vfCounts, dualSlopeVx, flashRate, bin };
+  const api = { levels, step, code, dac, flashComparators, thermometer, sar, rampCounts, nyquistMin, alias, droopTime, vfCounts, dualSlopeVx, flashRate, bin, oddHarmonic, deadband, termLen, cmosPowerRatio, perDevice, hwTotal, swTotal, breakEven, schmitt };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.ConvSys = api;
 })(typeof window !== 'undefined' ? window : globalThis);

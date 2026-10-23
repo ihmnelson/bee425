@@ -98,6 +98,59 @@
       `${slew} V/s × ${tc} ms = ${num(slew * tc / 1000)} V. (Slide 26 asks this for 1000 V/s and 1 ms: 1 V.) A sample-and-hold freezes the input so the converter sees one value.`);
   }
 
+
+  /* Design Drills: slides 36-61 (bandwidth, hysteresis, power, termination, cost) */
+  const money = (x) => '$' + (Math.abs(x) >= 100 ? Math.round(x).toLocaleString('en-US') : x.toFixed(2));
+  function designQ(level) {
+    const kinds = level === 'easy' ? ['term', 'dead', 'harm', 'amort'] : level === 'medium' ? ['hw', 'amort', 'cmos', 'freq', 'term'] : ['hw', 'break', 'cmos', 'swdev'];
+    const k = pick(kinds), R = CV;
+    if (k === 'term') {
+      const tr = pick([0.25, 0.5, 1, 2, 4]), tpr = pick([120, 150, 180]), L = R.termLen(tr, tpr);
+      return build(`Logic edges have a rise time of ${tr} ns and signals propagate at ${tpr} ps per inch. Beyond what trace length should you terminate? (inches, ±2% accepted)`, [{ label: 'Length (in)', ans: L, tol: 0.02, ph: 'inches' }],
+        `Length ≥ tR ÷ (2 × tPR) = ${tr * 1000} ps ÷ (2 × ${tpr} ps) = ${num(L)} inches. (Slide 49 gives 1.67 inches for 0.5 ns and 150 ps/in.)`);
+    }
+    if (k === 'dead') {
+      const lo = pick([0.8, 1.0, 1.2, 1.5]), hi = lo + pick([0.4, 0.5, 0.8, 1.0, 1.2]);
+      return build(`A Schmitt trigger switches high at ${num(hi)} V (rising) and low at ${num(lo)} V (falling). How wide is its deadband? (V)`, [{ label: 'Deadband (V)', ans: R.deadband(hi, lo), tol: 0.01, ph: 'volts' }],
+        `Deadband = ${num(hi)} − ${num(lo)} = ${num(hi - lo)} V. Noise smaller than this cannot toggle the output; the price is that the circuit switches at two different input voltages.`);
+    }
+    if (k === 'harm') {
+      const f0 = pick([110, 220, 440, 1000]), n = pick([3, 4, 5, 6]);
+      return build(`A ${f0} Hz square wave is built from its first ${n} terms (odd harmonics only). What is the frequency of the highest term? (Hz)`, [{ label: 'Highest (Hz)', ans: R.oddHarmonic(f0, n), ph: 'Hz' }],
+        `The terms are ${Array.from({ length: n }, (_, i) => R.oddHarmonic(f0, i + 1)).join(', ')} Hz; the highest is ${R.oddHarmonic(f0, n)} Hz. (Slide 36 uses 220 Hz and six terms: 2420 Hz.)`);
+    }
+    if (k === 'amort') {
+      const nre = pick([525000, 300000, 750000]), vol = pick([1000, 10000, 500000]), v = R.perDevice(nre, vol);
+      return build(`Development, foundry and tool costs total ${money(nre)}. Spread over ${vol.toLocaleString('en-US')} units, what is the cost per device? ($, ±1% accepted)`, [{ label: 'Per device ($)', ans: v, tol: 0.01, ph: 'dollars' }],
+        `${money(nre)} ÷ ${vol.toLocaleString('en-US')} = $${num(v)} per device. (Slide 59: $525,000 gives $525 at 1,000 units and $1.05 at 500,000.)`);
+    }
+    if (k === 'hw') {
+      const nre = pick([525000, 400000, 650000]), unit = pick([6, 9, 14]), vol = pick([1000, 20000, 500000]), t = R.hwTotal(nre, unit, vol);
+      return build(`An ASIC has ${money(nre)} of one-off cost and each part costs $${unit}. What is the total hardware cost at ${vol.toLocaleString('en-US')} units? ($)`, [{ label: 'Total ($)', ans: t, tol: 0.001, ph: 'dollars' }],
+        `${money(nre)} + ${vol.toLocaleString('en-US')} × $${unit} = ${money(t)}. (Slide 60: $525,000 + 500,000 × $6 = $3,525,000.)`);
+    }
+    if (k === 'cmos') {
+      const v1 = pick([5, 3.3, 2.5]), v2 = pick([3.3, 2.5, 1.8, 1.2].filter((x) => x < v1)), r = R.cmosPowerRatio(v1, v2) * 100;
+      return build(`A CMOS chip is moved from a ${v1} V supply to ${v2} V at the same clock and activity. What percentage of its old power does it dissipate now? (%, ±2% accepted)`, [{ label: 'Power (%)', ans: r, tol: 0.02, ph: '%' }],
+        `Power falls as Vcc squared: (${v2} ÷ ${v1})² = ${num(r / 100)}, so ${num(r)}% of the old power. (Slide 46.)`);
+    }
+    if (k === 'freq') {
+      const p0 = pick([0.1, 0.2, 0.5]), f1 = pick([4, 8, 10]), f2 = f1 * pick([2, 3, 4]);
+      return build(`A CMOS part dissipates ${p0} W at ${f1} MHz. Assuming power rises linearly with clock frequency (slide 46), what does it dissipate at ${f2} MHz? (W)`, [{ label: 'Power (W)', ans: p0 * f2 / f1, tol: 0.01, ph: 'watts' }],
+        `${p0} W × ${f2} ÷ ${f1} = ${num(p0 * f2 / f1)} W. (Real parts only approximate this: slide 42's 68K goes from 0.13 W at 8 MHz to 0.38 W at 20 MHz.)`);
+    }
+    if (k === 'swdev') {
+      const dev = pick([300000, 450000, 600000]), vol = pick([1000, 50000, 500000]);
+      return build(`A software solution costs ${money(dev)} to develop and adds nothing per unit. What is the development cost per device at ${vol.toLocaleString('en-US')} units? ($)`, [{ label: 'Per device ($)', ans: dev / vol, tol: 0.01, ph: 'dollars' }],
+        `${money(dev)} ÷ ${vol.toLocaleString('en-US')} = $${num(dev / vol)}. (Slide 60: $300,000 gives $300 at 1,000 units and $0.60 at 500,000.)`);
+    }
+    // break-even: hypothetical model, stated in the question
+    const nre = pick([525000, 400000]), dev = pick([300000, 150000]), unit = pick([6, 8]), extra = unit + pick([4, 5, 10]);
+    const be = R.breakEven(nre, dev, extra, unit);
+    return build(`Hypothetical: the ASIC costs ${money(nre)} one-off plus $${unit} per unit. The software solution costs ${money(dev)} to develop but needs a bigger processor that adds $${extra} per unit. At what volume are the two total costs equal? (units, ±1% accepted)`, [{ label: 'Break-even (units)', ans: be, tol: 0.01, ph: 'units' }],
+      `Set ${money(nre)} + ${unit}V = ${money(dev)} + ${extra}V, so V = (${nre} − ${dev}) ÷ (${extra} − ${unit}) = ${Math.round(be).toLocaleString('en-US')} units. Below this the software solution is cheaper; above it the ASIC wins. (This model is ours, not the slide's, where software adds no per-unit cost.)`);
+  }
+
   function quizQ(worldId) {
     const Q = QUEST();
     const pool = worldId ? Q.QUIZ.filter((q) => q.world === worldId) : Q.QUIZ;
@@ -105,6 +158,6 @@
     return { kind: 'choice', prompt: q.q, options: opts, answer: opts.indexOf(q.correct), detail: esc(q.why), world: q.world };
   }
 
-  const api = { convertQ, quizQ, shuffle, pick, esc };
+  const api = { convertQ, designQ, quizQ, shuffle, pick, esc };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Games = api;
 })(typeof window !== 'undefined' ? window : globalThis);

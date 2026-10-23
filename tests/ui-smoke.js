@@ -57,7 +57,7 @@ async function open(storage) {
       const em = app.textContent.match(/(?![\u2190-\u21FF\u25A0-\u25FF])\p{Extended_Pictographic}/u); if (em) fail(`${slug}/${r}: emoji in page text: ${em[0]}`);
     }
     const isSys = id === 'sys';
-    for (const g of (isSys ? ['convert', 'blitz'] : ['tracer', 'flags', 'branch', 'modes', 'bugs', 'numbers', 'hardware', 'blitz'])) {
+    for (const g of (isSys ? ['convert', 'design', 'blitz'] : ['tracer', 'flags', 'branch', 'modes', 'bugs', 'numbers', 'hardware', 'blitz'])) {
       for (const lv of (g === 'blitz' ? ['', pk.QUEST.WORLDS[0].id] : ['easy', 'medium', 'hard'])) {
         app = await go(`${base}game/${g}${lv ? '/' + lv : ''}`);
         if (!app.querySelector('.q')) fail(`game ${slug}/${g}/${lv} shows no question: ${app.textContent.slice(0, 100)}`);
@@ -101,6 +101,11 @@ async function open(storage) {
   d.getElementById('lf').value = '10'; d.getElementById('lfs').value = '10'; d.getElementById('lf').dispatchEvent(new w.Event('input'));
   if (!/Aliased/.test(d.getElementById('lsamp').textContent) || !/constant voltage/.test(d.getElementById('lsamp').textContent)) fail('lab: 10 kHz at 10 kHz should alias to a constant voltage');
   d.getElementById('lf').value = '3'; d.getElementById('lf').dispatchEvent(new w.Event('input')); if (!/No aliasing/.test(d.getElementById('lsamp').textContent)) fail('lab: 3 kHz at 10 kHz');
+  d.getElementById('hn').value = '0.08'; d.getElementById('hb').value = '0.2'; d.getElementById('hn').dispatchEvent(new w.Event('input'));
+  { const rows = [...d.querySelectorAll('#hout td.mono')].map((x) => +x.textContent); if (!(rows[0] > 1 && rows[1] === 1)) fail('lab hysteresis: plain comparator should chatter and the Schmitt trigger switch once: ' + rows); }
+  if (!/1\.67/.test(d.getElementById('trout').textContent)) fail('lab termination calculator: ' + d.getElementById('trout').textContent);
+  if (!/539,000/.test(d.getElementById('ccout').textContent)) fail('lab cost calculator: ' + d.getElementById('ccout').textContent);
+  app = await go('#/sys/world/des'); if (!/Design Drills/.test(app.textContent)) fail('sys design topic should offer Design Drills');
   app = await go('#/sys/world/adc'); if (app.querySelectorAll('.step').length < 4 || /Explain code/.test(app.textContent)) fail('sys topic steps (guide, cards, practice, quiz, lab; no Explain code)');
   app = await go('#/sys/game/convert/hard'); { const inputs = [...app.querySelectorAll('input[data-f]')]; inputs.forEach((x) => (x.value = '99999')); d.getElementById('check').click(); await sleep(20); if (!d.querySelector('.fb.no')) fail('sys drill should reject 99999'); }
   { const z = (await go('#/')).querySelector('.machine[data-pack="sys"]'); for (let i = 0; i < 40; i++) z.querySelector('.mstep').click(); const t = z.textContent; if (!/result 1100B = 12/.test(t) && !/trial 1 of 4/.test(t)) fail('sys demo: ' + t.slice(0, 200)); }
