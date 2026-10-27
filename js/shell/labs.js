@@ -22,7 +22,7 @@ You connect it with a 40-wire probe cable: eight data lines (D0 to D7, D7 the mo
 | Shows | When things change, so you can measure delays | The sequence of values, one per clock |
 | Lab use | Measure propagation delay | List the sequence of states |
 
-In state mode you must choose the clock edge carefully. The flip-flops in the circuit change on the **rising** edge, so right after that edge the outputs are still changing. The handout asks whether you should acquire data while the outputs are changing, and leaves the edge choice to you: pick the edge that samples when the outputs have settled.
+In state mode you must choose the clock edge carefully. The flip-flops in the circuit change on the **rising** edge, so right after that edge the outputs are still changing. The Lab 1 handout asks whether you should acquire data while the outputs are changing and leaves the choice to you; the **Lab 2 handout uses the falling edge** of CLK1 for state mode.
 
 **Resolution (calc).** At 500 MHz the analyzer takes a sample every 1 / 500 MHz = 2 ns, so that is the finest delay it can resolve.
 
@@ -135,6 +135,18 @@ The board is a **four-layer** design: power and ground are the two inner layers,
 
 On power-up the seven-segment display shows a start-up sequence (it spells b-E-E-4-2-5), a quick check that the board works.
 
+## The Lab 2 measurements
+
+- **State mode** samples on the **falling edge of CLK1**.
+- **Timing mode** at first: with a 4 MHz clock, the handout suggests an analyzer clock of **50 to 100 MHz**. Then set it to the maximum, **500 MHz**, to measure the ~M1 and ~MREQ edges against the clock (30 points in the handout): how long after a clock edge they go active and inactive, and whether that falls between the published **Min and Max** for the Z80A.
+- The handout asks why the timing resolution is limited to **+/- 2 ns**. (calc) A 500 MHz sample clock takes a sample every 2 ns, so an edge can only be placed to within one sample.
+
+## Triggering on the first instruction after reset
+
+The Z80 comes out of reset and starts executing at address **0000H**. To capture that: use ~MREQ to qualify the address (you can also use ~RESET going high and ~M1), so the trigger is the **first instruction fetch** after reset. Procedure: hold the board's RESET button down, press the analyzer's single acquisition button, wait for the "buffer prefill complete, waiting for trigger" message, then release RESET.
+
+The trace is **raw bus cycle data**, not a decoded instruction listing; you match it by hand against the assembler's **list file** (source to machine code). The Intel Hex file is the industry-standard format used to program the EPROM.
+
 ## Reading a trace (the 80% of the lab)
 
 The aim is to **design a debug strategy** that uses the analyzer to **disassemble the bus cycles**: from the signals, work out which instructions ran and where the data went.
@@ -150,6 +162,8 @@ The Z80 pages of this site have a **Bus trace** tab in the sandbox that draws th
         ['What is the DS1232 for?', 'It is a supervisor that generates a clean RESET for the Z80.'],
         ['Which address line separates the EPROM from the RAM?', 'A15: 0 selects the EPROM, 1 selects the RAM. (32K needs 15 lines, A14 to A0.)'],
         ['Why does the board have a 40-pin connector that the circuit does not need?', 'Design for testability: one cable connects the logic analyzer instead of 40 individual clips.'],
+        ['Where does the Z80 start executing after reset, and how do you trigger on it?', 'At address 0000H. Qualify the address with ~MREQ (optionally ~RESET going high and ~M1) so the trigger is the first instruction fetch; hold RESET while arming the analyzer, then release it.'],
+        ['Why is the timing measurement resolution +/- 2 ns?', 'At 500 MHz the analyzer takes a sample every 2 ns, so an edge can only be placed to within one sample.'],
         ['How do you spot an instruction fetch in a trace?', 'The row where ~M1, ~MREQ and ~RD are all low; the address shows where it is and the data bus carries the op-code.'],
       ],
       next: { z80: 'bus' },

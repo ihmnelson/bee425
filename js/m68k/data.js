@@ -342,7 +342,7 @@ QUEST.CARDS.push(
   { deck: 'flow', q: 'What is the 68000 equivalent of the Z80\'s DJNZ, and what is the off-by-one difference?', a: 'DBRA Dn,label. DJNZ stops when B reaches 0, so you load N; DBRA stops when Dn reaches −1, so you load N − 1. DBRA can use any of D0-D7 and counts 16 bits; DJNZ always uses B and counts 8 bits.', src: 'L5' },
 );
 QUEST.QUIZ.push(
-  { world: 'flow', q: 'A loop with DBRA D0,loop must run 5 times. What do you load into D0?', correct: '4', wrong: ['5', '6', '0'], why: 'DBRA stops when the counter reaches −1, so N − 1 gives N passes.' },
+  { world: 'flow', q: 'A loop with DBRA D0,loop must run 5 times. What do you load into D0?', correct: '4', wrong: ['5', '6', '0'], why: 'DBRA stops when the counter reaches −1, so N − 1 gives N passes. (DBcc is not on the lecture slides; the slides build loops with SUBQ and BNE.)' },
   { world: 'flow', q: 'Which loop form always runs its body at least once?', correct: 'DO/WHILE (test at the bottom)', wrong: ['WHILE (test at the top)', 'FOR with the test at the top', 'none of them'], why: 'Lesson 5 slide 43: the function call happens at least once because the test comes after the body.' },
 );
 QUEST.PROGRAMS.push({ id: 'copy', title: 'Copy a string', src: 'L5', goal: 'Copy the zero-terminated string at SRC to DEST, one byte at a time (the 68000 has no block-copy instruction like the Z80 LDIR).',

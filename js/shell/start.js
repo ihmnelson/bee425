@@ -211,18 +211,20 @@ An instruction says *what to do*. An **addressing mode** says *where each piece 
 \`\`\`
         LEA     table,A0     A0 = address of the table
         CLR.W   D0           running total = 0
-        MOVEQ   #3,D1        loop counter (see the next lesson)
+        MOVEQ   #4,D1        loop counter: four words (see the next lesson)
 loop    ADD.W   (A0)+,D0     add a word, A0 += 2
-        DBRA    D1,loop      repeat
+        SUBQ.W  #1,D1        count down
+        BNE     loop         until the count is 0
 \`\`\`
 
 Result: **D0 = 100** ($64), and A0 has moved past the table. (Run on this site's emulator.) \`LEA\` ("load effective address") puts the *address* of \`table\` in A0, not the data stored there.`,
       examples: [{ title: 'Sum four words with (A0)+', src: `        ORG $1000
 start   LEA table,A0
         CLR.W D0
-        MOVEQ #3,D1
+        MOVEQ #4,D1
 loop    ADD.W (A0)+,D0
-        DBRA D1,loop
+        SUBQ.W #1,D1
+        BNE loop
         SIMHALT
 table   DC.W 10,20,30,40
         END start
@@ -236,7 +238,7 @@ table   DC.W 10,20,30,40
     },
     {
       id: 'branches', title: 'Decisions and loops', lecture: 'L5', mins: 15, needs: 'Addressing modes.',
-      goal: 'Use CMP with a conditional branch, pick the signed or unsigned branch, and write a counted loop.',
+      goal: 'Use CMP with a conditional branch, pick the signed or unsigned branch, and write a counted loop (FOR and DO/WHILE shapes).',
       md: `## Compare, then branch
 
 A program decides in two steps: an instruction sets the **flags**, then a **conditional branch** looks at them.
@@ -281,7 +283,11 @@ loop    ADD.W   D1,D0      D0 += D1
 
 Result: **D0 = 15**. (Run on this site's emulator.)
 
-**DBRA** is the 68000's built-in counted loop: \`DBRA D1,loop\` decrements D1 and branches *until D1 reaches -1*. So to run the body N times, load **N - 1** into the counter (the sum-four-words example above loaded 3 for four passes).`,
+## The loop shapes in the lecture
+
+The lecture shows the same constructs as C++: a **FOR** loop tests at the *top* (compare, branch out if done, body, \`BRA\` back to the test), and a **DO/WHILE** loop tests at the *bottom*, so its body always runs **at least once**. Counting down with \`SUBQ\` and \`BNE\`, as above, is the DO/WHILE shape.
+
+> **Optional extra (not in Lectures 3 to 8):** the 68000 also has \`DBRA D1,loop\`, a built-in counted loop that decrements D1 and branches *until D1 reaches -1*; to run N times, load N - 1. Some of this site's other pages use it. If a lecture or exam problem uses SUBQ and BNE, use that.`,
       examples: [{ title: 'Compare and branch', src: `        ORG $1000
 start   MOVE.W #7,D0
         CMP.W #10,D0
@@ -303,7 +309,8 @@ loop    ADD.W D1,D0
       check: [
         ['After CMP.W #10,D0 with D0 = 7, is BGT taken?', 'No. The comparison is 7 - 10 = -3, so D0 is not greater than 10.'],
         ['You want the smallest value in a block of signed bytes. Which skip-branch: BGT or BHI?', 'BGT. BHI is the unsigned test and would treat $FF as 255.'],
-        ['A DBRA loop must run 5 times. What goes in the counter?', '4. DBRA stops when the counter reaches -1.'],
+        ['Which loop form always runs its body at least once?', 'DO/WHILE, because the test is at the bottom. A FOR loop tests at the top first.'],
+        ['In the SUBQ/BNE loop above, what happens if the counter starts at 0?', 'SUBQ makes it -1 (not zero), so BNE keeps looping for a very long time. The test happens after the body, so the counter must start at the number of passes you want, not zero.'],
       ],
       next: { guide: 'branches', topic: 'flow', extra: [['#/homework/hw3', 'Homework 3 uses all of this']] },
     },
@@ -333,6 +340,8 @@ double  ADD.W   D0,D0        D0 = D0 + D0
 
 Result: **D0 = 10**, and the stack pointer is back to where it started. (Run on this site's emulator.)
 
+> **Why BSR and not JSR?** A lecture slide asks this about its memory-test program but does not answer it. The standard answer (general knowledge, not from the slide): \`BSR\` is a *relative* branch, so it is shorter and the code works wherever it is loaded, while \`JSR\` carries a full absolute address.
+
 > **Matching matters.** Every push needs a pop, and the stack must hold the return address when RTS runs. A subroutine that pushes something and forgets to pop it makes RTS jump to the wrong place.`,
       examples: [{ title: 'Call a subroutine', src: `        ORG $1000
 start   MOVE.W #5,D0
@@ -345,6 +354,7 @@ double  ADD.W D0,D0
       check: [
         ['Which direction does the 68000 stack grow?', 'Downward, toward lower addresses.'],
         ['What does BSR push?', 'The return address: the address of the instruction after the BSR.'],
+        ['On the 68000, how do you push and pop?', 'Push with pre-decrement, MOVE.W D0,-(SP); pop with post-increment, MOVE.W (SP)+,D0. This works because the stack grows downward.'],
         ['A subroutine pushes D1 but never pops it. What goes wrong at RTS?', 'RTS pops the saved D1 value as if it were the return address and jumps to the wrong place.'],
       ],
       next: { guide: 'stack', topic: 'flow' },
@@ -410,6 +420,14 @@ Take the CPU's address lines and split them in two:
 
 **Check one address.** Take $2A5C. Its top four bits are 0010 (page 2) so chip 2 is selected, and the low twelve bits $A5C are the location inside it.
 
+## The lecture's example: 16 MB in 32K pages
+
+Lecture 7 uses 16 MB of address space (24 address lines, A23-A0) and **32K pages**. A 32K page needs 15 offset lines (2^15 = 32,768), so **A14-A0 are the offset** and **A23-A15 (9 lines) are the page select**: 2^9 = 512 pages.
+
+The lecture's example selects the page at page address **$1A4** (binary 1 1010 0100). Its **~CS (chip select) goes low** only when A23-A15 equal that pattern.
+
+(calc) Where is that page? It starts at $1A4 x $8000 = **$D20000** and ends at $D27FFF, so it covers **$D20000-$D27FFF**. Check with an address: $D23456 in binary starts 1101 0010 0, and those nine bits are 110100100 = $1A4. So $D23456 is on that page, at offset $3456.
+
 ## Things to watch for
 
 - A 4 KB chip covers $1000 addresses: **$1000 = 4,096**, so the ranges step by $1000.
@@ -420,12 +438,14 @@ Take the CPU's address lines and split them in two:
         ['In the example, which address lines select the chip?', 'A15-A12, the upper four.'],
         ['Which page and offset is address $2A5C?', 'Page 2 (A15-A12 = 0010), offset $A5C.'],
         ['What range does the chip at page 1 cover?', '$1000-$1FFF.'],
+        ['16 MB of memory in 32K pages: how many page-select lines and how many offset lines?', '9 page-select lines (A23-A15, giving 512 pages) and 15 offset lines (A14-A0).'],
+        ['Which page contains address $D23456 (32K pages)?', 'Page $1A4: the top nine bits (A23-A15) are 110100100 = $1A4; the offset is $3456.'],
       ],
       next: { guide: 'memory', topic: 'hw' },
     },
     {
       id: 'io', title: 'Transistors and I/O pins', lecture: 'L8', mins: 15, needs: 'Buses and tri-state outputs.',
-      goal: 'Use a transistor as a switch driven from a microprocessor pin and size its base resistor.',
+      goal: 'Use a transistor as a switch driven from a microprocessor pin and size its base resistor the way the lecture does.',
       md: `## The problem
 
 A processor output pin can supply only a few milliamps. A relay, motor or bright LED needs far more. The solution: let the pin control a **transistor** that switches the big current.
@@ -439,23 +459,27 @@ An NPN transistor has a **base**, a **collector** and an **emitter**. A small cu
 
 ## Sizing the base resistor
 
-The resistor sees the output voltage minus Vbe:
+The lecture's rule: **design for the worst case**. The transistor's current gain beta is only known as a range (the example says 75 to 200), so size the base current using the **smallest** beta, which guarantees enough base current even for the weakest transistor.
 
 \`\`\`
+Ib = Ic / beta(min)
 Rb = (Vout - Vbe) / Ib
 \`\`\`
 
-**Worked example.** The load needs Ic = 50 mA. A common rule is to supply at least Ic/10 to be sure the transistor switches fully on, so Ib = 5 mA. The pin outputs 5 V.
+**Worked example (the lecture's).** An I/O pin outputs 5 V at 5 mA. You want 100 mA through the collector. Beta ranges from 75 to 200.
 
 \`\`\`
-Rb = (5 V - 0.6 V) / 5 mA = 880 ohms
+Ib = 100 mA / 75 = 1.33 mA       (use beta = 75, the worst case)
+Rb = (5 V - 0.6 V) / 1.33 mA = 3.3 kilohms
 \`\`\`
 
-The nearest standard value is 820 ohms, which gives Ib = 4.4 V / 820 ohms = 5.4 mA (a little more than we need, which is the safe side).
+The lecture rounds the base current to 1.3 mA and gets 3.38 kilohms; either way the closest standard value is **3.3 kilohms**. Note that 1.33 mA is well inside what the pin can supply (the lecture says an I/O pin can safely output about 1 mA to 20 mA).
 
-> Check the lecture for the exact design rule it uses; "Ic/10" is a common rule of thumb, not something to quote on an exam without confirming it matches the lecture.
+When enough base current flows the transistor **saturates**: the collector voltage drops to about 0.4 V and the transistor acts as a closed switch.
 
-## What the other pieces do
+## Two extra practical points
+
+These are general knowledge, not from the slides I checked, so treat them as background:
 
 - A **diode across a relay or motor** (a flyback diode) gives the coil's current a path when the transistor turns off, protecting the transistor.
 - A **pull-down resistor** on the base keeps the transistor off if the pin is disconnected or high-Z.`,
@@ -463,6 +487,8 @@ The nearest standard value is 820 ohms, which gives Ib = 4.4 V / 820 ohms = 5.4 
         ['Roughly what voltage appears across a conducting base-emitter junction?', 'About 0.6 V.'],
         ['Why do you never connect a pin straight to the base?', 'The base-emitter junction acts like a diode and would draw excessive current; a series resistor sets the base current.'],
         ['The pin outputs 5 V and you want Ib = 2 mA. What Rb?', '(5 - 0.6) / 0.002 = 2,200 ohms (2.2 k).'],
+        ['Which beta do you use to size the base resistor if beta is only known as a range, and why?', 'The smallest one (the worst case), so there is enough base current even for the weakest transistor.'],
+        ['Lecture 8 "Now you try" problem 1: beta = 150, 50 mA collector current, 50 V supply, 500 ohm collector resistor, a 3.3 V pin. Find the base resistor and the collector voltage.', 'Ib = 50 mA / 150 = 0.333 mA. Rb = (3.3 - 0.6) / 0.333 mA = 8.1 kilohms. Collector voltage = 50 V - (50 mA x 500 ohms) = 50 - 25 = 25 V. (Worked here from the problem statement; check it against your own notes.)'],
       ],
       next: { guide: 'transistor', topic: 'io' },
     },
