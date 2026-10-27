@@ -16,6 +16,10 @@ if [ -n "$Z80_VECTORS" ]; then
   node --max-old-space-size=8192 tests/z80/oracle/bustrace-check.js "$Z80_VECTORS"
   node tests/z80/oracle/bustrace-decode.js "$Z80_VECTORS" 50
 else echo "(skipping z80 vectors and bus-trace checks: set Z80_VECTORS)"; fi
+echo "== Start here =="
+node tests/start-check.js
+echo "== Homework 3 =="
+node tests/m68k/hw3-check.js
 echo "== 68000 / Z80 pairs =="
 node tests/compare-check.js
 echo "== Data conversion =="

@@ -9,6 +9,9 @@ Pick a processor on the home page (or with the switcher in the header). XP, leve
 | `#/` | BEE 425 home: two live machines, one per processor |
 | `#/68k/...` and `#/z80/...` | that processor's Topics, Guides, Flashcards, Practice, Explain code and Sandbox (the 68000 also has Homework 2) |
 | `#/sys/...` | Data conversion, shared by both processors: Topics, Guides, Flashcards, Practice and the Converter lab (no Explain code page) |
+| `#/start` | **Start here**: ten from-zero lessons (bits and hex up to memory decoding and transistors), each with an example you can step through and questions to check yourself; meant to be read before using flashcards |
+| `#/labs` | **Labs**: what Lab 1 (logic analyzer, pseudorandom generator) and Lab 2 (Z80 bus cycle and board) taught, with exam-style questions; Lab 3 is not here yet |
+| `#/68k/mock` and `#/z80/mock` | **Mock exam**: a timed, one-sitting test from that processor's quiz bank with answers and a score by topic at the end |
 | `#/progress` | shared progress, badges, backup and restore |
 
 Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) still work and open the 68000 pages.
@@ -23,7 +26,7 @@ Links from the earlier single-processor site (`#/cards`, `#/sandbox?c=...`) stil
 | **Guides** | 13 (68000) and 14 (Z80) written guides, a searchable glossary (84 and 92 terms), and references. |
 | **Explain code** | Type any line for a plain-English breakdown, or open an example program and read it line by line. The Z80 version also shows the machine code and T-states. |
 | **Sandbox** | **68000:** an EASy68K-compatible editor, assembler and simulator (TRAP #15 console I/O, step back, breakpoints, .X68/.S68/.L68). **Z80:** an Oshonsoft-style editor, assembler and simulator with exact T-states, six run rates, starting address, a terminal on port 02H and an input device on port 01H with "prompt before IN", INT/NMI buttons, `.asm`/`.lst`/Intel-HEX downloads. Both: named projects, shareable links, ZIP export, JSON backup/restore. |
-| **Homework** | 68000 only: Homework 2 (problems 1-4) with hints, walkthrough, a try-it box and verified solutions. |
+| **Homework** | 68000 only: Homework 2 (problems 1-4) and Homework 3 (add two longwords, search for a word, smallest byte in its signed and unsigned readings), each with hints, a walkthrough, a try-it checker that runs your program on several data sets, and a traced solution. Homework 3's solutions were run on this site's emulator only (not on the real EASy68K), and the handout is ambiguous about signed versus unsigned, so both readings are provided. |
 | **How accurate is this site?** | What was verified and how, plus a content-audit table for that processor. |
 
 ## Compare: the same jobs on both processors
@@ -44,6 +47,8 @@ js/shell/store.js       XP, levels, badges, spaced repetition (one record for th
 js/shell/projects.js    per-processor projects, combined JSON backup, ZIP export
 js/shell/app.js         router, header, flashcards, game engine, progress and tests pages
 js/shell/icons.js       icon sprite (IBM Carbon icons, Apache-2.0) and the emoji-to-icon map
+js/shell/start.js       Start here lessons (shared by both processors)
+js/shell/labs.js        Lab pages
 js/shell/demo.js        the live machines on the home page (real simulator cores stepping a short program)
 fonts/                  IBM Plex Sans, Serif and Mono (SIL Open Font License), self-hosted
 js/m68k/                68000: cpu.js, asm.js, io.js (TRAP #15), examples, snippet, data, games, explain, guides,
@@ -77,6 +82,11 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 - Each of the 13 converter drill kinds and 9 design drill kinds is solved a second time by a separate parser-based solver (12,000 generated questions each); every answer is accepted and absurd answers are rejected.
 - Not checked: the slides' content against other textbooks, and the three links copied from the slides.
 
+**Start here, Labs and Homework 3** (`node tests/start-check.js`, `node tests/m68k/hw3-check.js`)
+- Every example program in Start here is assembled and run, and the results printed in the text (D0 = 8, $12345600 with flags 10101, 100, 15, 10) are asserted. Each link to a guide or topic is checked to exist.
+- Each Homework 3 reference solution passes its checker, and five deliberately wrong variants (ADD.W instead of ADD.L, forgetting the -2, the wrong signedness of branch, a wrong start value) are rejected.
+- The Start here text is written from standard 68000 and hardware fundamentals, not copied from slides; it has not been reviewed against every lecture slide, so use the guides and slides for exact wording. The Labs text uses only the Lab 1 Rev 5 and Lab 2 Rev 10 handouts, and does not quote the datasheet values those handouts ask students to look up.
+
 **Site**
 - `tests/ui-smoke.js` (jsdom) visits every route of both processors, starts every game, drives both sandboxes, and checks link rewriting, legacy URLs, per-processor project storage, combined backup/restore (including backups from the older sites) and the one-time migration of progress saved by the older sites.
 
@@ -91,6 +101,7 @@ Each processor is a *pack*: its scripts define the same global names (`QUEST`, `
 
 ## Roadmap
 
+- Lab 3 page (handout not in the folder yet), Lesson 9 (not in the folder), the 68000 mock exam bank is only 44 questions so longer mocks repeat topics; add homework-style written problems to the mock exam.
 - A 68000 counterpart of the Z80 Bus Cycles topic (Lab 3 uses a 68008); Lesson 11 debugging tools (debug monitors, ROM emulation, in-circuit emulation, JTAG); Lesson 9 is not in the folder.
 - Merge the duplicated hardware and transistor material (memory, buses, I/O pins, base resistors) so it lives once.
 - Run the oracle test vectors live in the browser.

@@ -2,11 +2,11 @@
 window.PACK_UI = {
   id: 'm68k', slug: '68k', name: '68000', fullName: 'Motorola 68000', chip: '68K', icon: '',
   projects: { key: 'q68k.projects.v1', ext: 'X68', label: '68K' },
-  tagline: 'Registers D0-D7 and A0-A7, MOVE and friends, EASy68K-compatible sandbox, Homework 2.',
+  tagline: 'Registers D0-D7 and A0-A7, MOVE and friends, EASy68K-compatible sandbox, Homework 2 and 3.',
   hero: {
     title: '68000 assembly',
     lede: 'Topics follow lectures 3 to 8 and the tools you use in the EASy68K labs and homework.',
-    buttons: [['#/homework', 'Homework 2', '']],
+    buttons: [['#/homework', 'Homework', '']],
   },
   topicGames: { regs: ['tracer', 'flags'], num: ['numbers'], dirs: ['bugs', 'sorter'], inst: ['tracer', 'flags'], modes: ['modes'], flow: ['branch', 'sorter'], hw: ['hardware'], io: ['hardware'], z80: [] },
   topicSandbox: ['dirs', 'inst', 'modes', 'flow'],
@@ -25,7 +25,7 @@ window.PACK_UI = {
   twin: { pack: 'z80', name: 'Z80', guides: { 'programmers-model': 'model', z80: 'vs68k', workflow: 'oshonsoft' } },
   compareTopics: { regs: 'for', inst: 'max', modes: 'index', flow: 'for', hw: 'endian', z80: 'for' },
   navExtra: [{ href: '#/homework', name: 'homework', label: 'Homework' }],
-  guidesButtons: [['#/homework', 'Homework 2 walkthrough']],
+  guidesButtons: [['#/homework/hw2', 'Homework 2 walkthrough'], ['#/homework/hw3', 'Homework 3 walkthrough']],
   examples: () => window.EXAMPLES_68K,
   readIntro: 'What does each line actually do? Type any 68K line for a plain-English breakdown, or open a lecture program and read it line by line.',
   readAnatomy: `<pre class="code"><span class="kw">LABEL</span>    <span class="kw">OPCODE</span>.<span class="kw">SIZE</span> <span class="kw">OPERAND1</span>,<span class="kw">OPERAND2</span>  <span class="cm">* COMMENT</span>

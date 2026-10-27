@@ -319,7 +319,257 @@ START
     ],
   };
 
+  /* ---------------- Homework 3 ---------------- */
+  const H3_1 = `* HW3 problem 1: add two longwords
+        ORG   $1000
+start   MOVE.L  $A300,D0     * first longword
+        ADD.L   $A304,D0     * + second longword
+        MOVE.L  D0,$A308     * store the sum
+        SIMHALT
+        ORG   $A300          * test data (not part of the answer)
+        DC.L  $00012345,$00054321
+        END   start
+`;
+  const H3_2 = `* HW3 problem 2: first occurrence of $AA55 (on a word boundary)
+* Result: A2 = address of the match (0 if there is none)
+start_addr EQU $00002000
+end_addr   EQU $00002020     * first address NOT searched
+pattern    EQU $AA55
+        ORG   $1000
+start   LEA     start_addr,A0  * A0 walks the block
+        LEA     end_addr,A1    * A1 = limit (never read)
+        MOVE.W  #pattern,D0    * the word we want
+        SUBA.L  A2,A2          * A2 = 0 means "not found yet"
+loop    CMPA.L  A1,A0          * A0 - A1: reached the end?
+        BHS     done           * unsigned >= : yes, give up
+        CMP.W   (A0)+,D0       * D0 - word, then A0 += 2
+        BNE     loop           * not it, try the next word
+        LEA     -2(A0),A2      * A0 is one word past the match
+done    SIMHALT
+        ORG   $2000            * test data
+        DC.W  $1234,$55AA,$AA55,$0000,$AA55,$FFFF,$AA55,$0001
+        DC.W  $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+        END   start
+`;
+  const H3_3 = `* HW3 problem 3 (signed reading): smallest byte, $80 = -128 is the smallest possible
+* Result: D0.B
+start_addr EQU $00003000
+end_addr   EQU $0000300C     * first address NOT searched
+        ORG   $1000
+start   LEA     start_addr,A0
+        LEA     end_addr,A1
+        MOVE.B  #$7F,D0        * start with the LARGEST signed byte (+127)
+loop    CMPA.L  A1,A0
+        BHS     done
+        MOVE.B  (A0)+,D1       * next byte
+        CMP.B   D0,D1          * D1 - D0
+        BGT     loop           * signed D1 > D0: not smaller, skip
+        MOVE.B  D1,D0          * smaller (or equal): remember it
+        BRA     loop
+done    SIMHALT
+        ORG   $3000            * test data
+        DC.B  5,$7F,$FF,$20,$80,9,0,1,2,3,4,6
+        END   start
+`;
+  const H3_4 = `* HW3 problem 3 (unsigned reading): smallest byte, $00 is the smallest possible
+* Result: D0.B
+start_addr EQU $00003000
+end_addr   EQU $0000300C
+        ORG   $1000
+start   LEA     start_addr,A0
+        LEA     end_addr,A1
+        MOVE.B  #$FF,D0        * start with the LARGEST unsigned byte (255)
+loop    CMPA.L  A1,A0
+        BHS     done
+        MOVE.B  (A0)+,D1
+        CMP.B   D0,D1          * D1 - D0
+        BHI     loop           * unsigned D1 > D0: not smaller, skip
+        MOVE.B  D1,D0
+        BRA     loop
+done    SIMHALT
+        ORG   $3000
+        DC.B  5,$7F,$FF,$20,$80,9,3,1,2,3,4,6
+        END   start
+`;
+  const H3_SKEL = {
+    1: `* Problem 1: add the longwords at $A300 and $A304; store the sum at $A308
+        ORG   $1000
+start
+* your code goes here
+
+        SIMHALT
+        END   start
+`,
+    2: `* Problem 2: find the first $AA55 word. Result: A2 = its address (0 if none)
+* The checker puts the block at $2000..$201F; keep these equates.
+start_addr EQU $00002000
+end_addr   EQU $00002020     * first address NOT searched
+pattern    EQU $AA55
+        ORG   $1000
+start
+* your code goes here
+
+        SIMHALT
+        END   start
+`,
+    3: `* Problem 3 (signed): smallest byte, result in D0.B ($80 = -128 is the smallest)
+* The checker puts 12 bytes at $3000..$300B; keep these equates.
+start_addr EQU $00003000
+end_addr   EQU $0000300C     * first address NOT searched
+        ORG   $1000
+start
+* your code goes here
+
+        SIMHALT
+        END   start
+`,
+    4: `* Problem 3 (unsigned): smallest byte, result in D0.B ($00 is the smallest)
+start_addr EQU $00003000
+end_addr   EQU $0000300C     * first address NOT searched
+        ORG   $1000
+start
+* your code goes here
+
+        SIMHALT
+        END   start
+`,
+  };
+  const b2 = (x) => x.toString(16).toUpperCase().padStart(2, '0');
+  const long = (cpu, a) => ((cpu.mem[a] << 24) | (cpu.mem[a + 1] << 16) | (cpu.mem[a + 2] << 8) | cpu.mem[a + 3]) >>> 0;
+  const H3_CHECKS = {
+    1(source) {
+      const sets = [[0x12345, 0x54321], [0xFFFFFFFF, 1], [0x80000000, 0x80000001], [rnd(0x7FFFFFFF), rnd(0x7FFFFFFF)]];
+      const out = [];
+      for (const [a, b] of sets) {
+        const lb = (x) => [x >>> 24, (x >>> 16) & 255, (x >>> 8) & 255, x & 255];
+        const l = runWith(source, [[0xA300, lb(a).concat(lb(b))], [0xA308, [0xEE, 0xEE, 0xEE, 0xEE]]]); if (l.error) return { error: l.error };
+        const want = (a + b) >>> 0, got = long(l.cpu, 0xA308);
+        out.push({ name: `longwords ${hx(a, 8)}, ${hx(b, 8)}`, want: hx(want, 8), got: hx(got, 8), ok: got === want });
+      }
+      return { results: out };
+    },
+    2(source) {
+      const out = [];
+      for (let t = 0; t < 4; t++) {
+        const w = Array.from({ length: 16 }, () => { let x; do { x = rnd(65536); } while (x === 0xAA55); return x; });
+        const first = t === 1 ? -1 : t === 0 ? 2 : 1 + rnd(13);
+        if (first >= 0) { w[first] = 0xAA55; if (t >= 2) w[first + 1] = 0xAA55; } // a second copy: must return the FIRST
+        else w[0] = 0x55AA;                                                          // byte-swapped decoy only
+        const bytes = w.flatMap((x) => [x >> 8, x & 255]);
+        const l = runWith(source, [[0x2000, bytes], [0x2020, [0xAA, 0x55]]]); if (l.error) return { error: l.error }; // an $AA55 just past the end must not be found
+        const want = first < 0 ? 0 : 0x2000 + 2 * first, got = l.cpu.A[2] >>> 0;
+        out.push({ name: first < 0 ? 'no $AA55 in the block (one just past the end)' : `$AA55 first at word ${first}${t >= 2 ? ' (and again right after it)' : ''}`, want: 'A2 = ' + hx(want, 8), got: 'A2 = ' + hx(got, 8), ok: got === want });
+      }
+      return { results: out };
+    },
+  };
+  function minByte(signed) {
+    return (source) => {
+      const sets = [[5, 0x7F, 0xFF, 0x20, 0x80, 9, 0, 1, 2, 3, 4, 6], [0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F],
+        [0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7, 0xF6, 0xF5, 0xF4], Array.from({ length: 12 }, () => rnd(256)), Array.from({ length: 12 }, () => rnd(256))];
+      const out = [];
+      for (const d of sets) {
+        const l = runWith(source, [[0x3000, d], [0x300C, [0x00, 0x80]]]); if (l.error) return { error: l.error };
+        const want = signed ? d.reduce((a, b) => ((a << 24 >> 24) <= (b << 24 >> 24) ? a : b)) : Math.min(...d), got = l.cpu.D[0] & 255;
+        out.push({ name: d.map(b2).join(' '), want: 'D0.B = ' + b2(want), got: 'D0.B = ' + b2(got), ok: got === want });
+      }
+      return { results: out };
+    };
+  }
+  H3_CHECKS[3] = minByte(true); H3_CHECKS[4] = minByte(false);
+
+  const HW3 = {
+    id: 'hw3', title: 'Homework 3', due: 'Thursday, October 29 (no credit)',
+    intro: 'Three small 68K programs: add two longwords, search a block for a word, and find the smallest byte. The last one is where signed versus unsigned branches bite, so it is split into the two readings of the handout. Solve each yourself first; the checker runs your program on several data sets. The program you write is the kind of problem the exams ask.',
+    note: 'The handout header still says "Spring Quarter 2024" and problem 3 refers to a "problem #4" that does not exist: it is a recycled handout. The handout also does not say where the results go, so each problem here fixes a convention (see the problem text).',
+    problems: [
+      {
+        n: 1, title: 'Add two longwords', src: H3_1, check: 1, skel: H3_SKEL[1], checkFn: H3_CHECKS[1],
+        ask: 'Write a short 68K program that adds the longword at memory location $A300 and the longword at $A304 and stores the result at $A308. (The handout writes $000A300 and $0000A304; the leading zeros do not change the address.)',
+        concepts: [['Absolute addressing', '#/guide/modes'], ['Operand sizes', '#/guide/programmers-model'], ['Big-endian bytes', '#/guide/memory'], ['ADD and flags', '#/guide/numbers']],
+        hints: [
+          'A longword is 4 bytes. The first one occupies $A300-$A303, the second $A304-$A307, so $A308 is the next free slot.',
+          'Use `.L` on every instruction. A `.W` or `.B` would touch only part of the value.',
+          'You need one data register: load the first value, add the second from memory, store the sum.',
+          'Remember the 68000 can do `ADD.L <memory>,D0` directly, so you do not need to load the second value into its own register first.',
+        ],
+        walkthrough: [
+          ['Read the spec', 'Two 32-bit values at $A300 and $A304, answer at $A308. Everything is a longword, so every instruction ends in `.L`.'],
+          ['Three instructions', '`MOVE.L $A300,D0` / `ADD.L $A304,D0` / `MOVE.L D0,$A308`. The addresses are written as absolute addresses; the assembler uses the long form automatically because $A300 does not fit in a positive 16-bit value.'],
+          ['Why `.L` matters', 'The 68000 is big-endian, so a `.W` access at $A300 reads the HIGH half of the longword, not the low half. `ADD.W` here would add the wrong halves and leave the upper half of D0 alone.'],
+          ['Overflow', 'The sum is 32 bits. $FFFFFFFF + 1 wraps to $00000000 with the carry (C and X) flag set. The problem does not ask you to detect that.'],
+          ['Test it', 'Put `DC.L $00012345,$00054321` at $A300 (`ORG $A300`). The sum $00066666 should appear at $A308 as the bytes 00 06 66 66.'],
+        ],
+        verified: 'Run on this site\'s 68000 emulator and checked against four data sets including $FFFFFFFF + 1 (wraps to 0). Not run on the real EASy68K.',
+        solutions: [{ title: 'Three instructions', code: H3_1 }], trace: { src: H3_1 },
+      },
+      {
+        n: 2, title: 'Search a block for $AA55', src: H3_2, check: 2, skel: H3_SKEL[2], checkFn: H3_CHECKS[2],
+        ask: 'Write a 68K program that searches a block of memory for the first occurrence of the 16-bit word $AA55. The word sits on an even (word-boundary) address. Use EQU for the start and end addresses so the block can be any size. Convention used here: when you find it, leave its address in A2.',
+        concepts: [['Loops and CMPA', '#/guide/branches'], ['Post-increment', '#/guide/modes'], ['EQU', '#/guide/syntax'], ['Condition codes', '#/guide/instructions']],
+        hints: [
+          'Reuse the shape of the lecture\'s zeroing loop: a pointer in A0, a limit in A1, a compare at the top, and a branch back at the bottom.',
+          'Load the pattern into a data register once: `MOVE.W #pattern,D0`. Then `CMP.W (A0)+,D0` compares it with the next word and steps A0 by 2.',
+          'After `CMP.W (A0)+,D0` matches, A0 already points one word PAST the match. How do you get the match address back? `LEA -2(A0),A2`.',
+          'Step by two bytes per word, not one. That is automatic with `.W` and post-increment, and it keeps you on even addresses (a word access at an odd address is an address error on the 68000).',
+          'The end address is not searched (it is the first address past the block), exactly as in the zeroing example.',
+        ],
+        walkthrough: [
+          ['Plan', 'A0 = start, A1 = end, D0 = $AA55. Loop: if A0 has reached A1, stop; otherwise compare the word at A0 with D0; if equal we are done, if not move on.'],
+          ['The loop test', '`CMPA.L A1,A0` computes A0 - A1. `BHS done` branches when A0 >= A1 (unsigned), i.e. the whole block has been searched. Addresses are unsigned, so use the unsigned branch (BHS = BCC).'],
+          ['The compare', '`CMP.W (A0)+,D0` computes D0 - (A0) and then adds 2 to A0. `BNE loop` keeps going while they differ. Post-increment happens even when the compare fails, which is what makes the loop advance without a separate ADDQ.'],
+          ['Off by one word', 'On a match A0 is already past it, so the address of the match is A0 - 2: `LEA -2(A0),A2`.'],
+          ['First occurrence', 'The loop stops at the first match, so later copies are never examined. The checker puts a second $AA55 after the first one to make sure you return the earlier address.'],
+          ['Not found', 'The handout does not say what to do. This solution clears A2 first, so A2 = 0 means "no match". Always say what your program returns when the search fails.'],
+        ],
+        verified: 'Run on this site\'s 68000 emulator against four data sets (a match early in the block, no match at all with a byte-swapped $55AA decoy and an $AA55 just past the end, and two cases with a second copy right after the first). Not run on the real EASy68K.',
+        solutions: [{ title: 'Pointer loop with CMP.W (A0)+', code: H3_2 }], trace: { src: H3_2 },
+      },
+      {
+        n: 3, title: 'Smallest byte (signed reading)', src: H3_3, check: 3, skel: H3_SKEL[3], checkFn: H3_CHECKS[3],
+        ask: 'Write a 68K program that finds the smallest byte in a block of memory, treating bytes as SIGNED numbers (so $80 = -128 is the smallest possible and $7F = +127 the largest). Convention used here: the answer goes in D0.B.',
+        concepts: [['Signed and unsigned branches', '#/guide/branches'], ['CMP and the flags', '#/guide/instructions'], ['Two\'s complement', '#/guide/numbers'], ['Loops and CMPA', '#/guide/branches']],
+        hints: [
+          'Keep a "smallest so far" in D0 and compare every byte with it. What should D0 start as so that the first real byte always wins?',
+          'Start with the largest value a signed byte can hold: $7F (+127). Any byte is then smaller or equal.',
+          '`CMP.B D0,D1` computes D1 - D0. Use the table in the handout: for signed "D1 > D0" the branch is BGT, so `BGT loop` means "this byte is not smaller, skip it".',
+          'Do not use BHI/BLS/BCC/BCS for signed data. They compare as unsigned numbers and would call $FF (-1) larger than $7F.',
+        ],
+        walkthrough: [
+          ['Two ways to read a byte', 'The same bits are different numbers: $80 is 128 unsigned or -128 signed. "Smallest" depends on which, so the branch you pick must match.'],
+          ['The starting value', 'Initialise with the largest value so nothing is rejected wrongly: $7F for signed, $FF for unsigned. (The alternative is to load the first byte of the block into D0.)'],
+          ['The compare', '`CMP.B D0,D1` subtracts D0 from D1 and sets the flags. After it, `BGT` is "D1 greater than D0, signed" (Z clear and N = V). Skip when greater; otherwise replace D0.'],
+          ['Why not BHI?', 'BHI is the UNSIGNED "greater than". With signed data $FF (-1) would be treated as 255 and be skipped as "bigger", so the program would never pick -1 over +5. The handout says it used BHI, which actually finds the smallest UNSIGNED byte; problem 3b (unsigned) is that version.'],
+          ['Equal bytes', 'Replacing D0 when the byte is equal does nothing harmful, so `BGT` (strictly greater) is fine.'],
+          ['The loop test', 'Same as problem 2: `CMPA.L A1,A0` then `BHS done` (addresses are unsigned).'],
+        ],
+        verified: 'Run on this site\'s 68000 emulator against five data sets (including $80, $7F, all-equal and all-negative blocks). Not run on the real EASy68K.',
+        solutions: [{ title: 'Signed: start at $7F, skip with BGT', code: H3_3 }], trace: { src: H3_3 },
+      },
+      {
+        n: 4, title: 'Smallest byte (unsigned reading)', src: H3_4, check: 4, skel: H3_SKEL[4], checkFn: H3_CHECKS[4],
+        ask: 'The same task with bytes read as UNSIGNED numbers ($00 is the smallest possible, $FF = 255 the largest). This is the version the handout\'s hint (BHI) points to. Answer in D0.B.',
+        concepts: [['Signed and unsigned branches', '#/guide/branches'], ['CMP and the flags', '#/guide/instructions'], ['Loops and CMPA', '#/guide/branches']],
+        hints: [
+          'Only two things change from the signed version: the starting value and the branch.',
+          'Start with the largest unsigned byte, $FF.',
+          'Use the unsigned "greater than": BHI. The table says D1 > D0 unsigned is BHI after `CMP D0,D1`.',
+        ],
+        walkthrough: [
+          ['What changes', 'Start value $7F becomes $FF, and `BGT` becomes `BHI`. Nothing else.'],
+          ['The unsigned branches', 'After `CMP D0,D1`: D1 < D0 is BCS (also written BLO), D1 <= D0 is BLS, D1 > D0 is BHI, D1 >= D0 is BCC (BHS). They look at the carry flag (and Z), not at N and V.'],
+          ['The Motorola naming quirk', 'The signed set is BLT/BLE/BGT/BGE. The unsigned set is BCS/BLS/BHI/BCC. The names are not symmetrical; the processor is. This is the table in the handout.'],
+          ['Compare the two answers', 'On the same data $7F $FF $80 the signed minimum is $80 (-128) and the unsigned minimum is $7F (127). Run both versions and see.'],
+        ],
+        verified: 'Run on this site\'s 68000 emulator against five data sets. Not run on the real EASy68K.',
+        solutions: [{ title: 'Unsigned: start at $FF, skip with BHI', code: H3_4 }], trace: { src: H3_4 },
+      },
+    ],
+  };
+  const HWS = { hw2: HW2, hw3: HW3 };
+
   if (root.EXAMPLES_68K && !root.EXAMPLES_68K.some((e) => e.name.startsWith('Homework 2'))) root.EXAMPLES_68K.push({ name: 'Homework 2, problem 1 (program from the handout)', src: P1_SRC });
-  const api = { HW2, SKELETON, CHECKS, trace, runWith, load, P1_SRC };
+  HW2.id = 'hw2';
+  const api = { HW2, HW3, HWS, SKELETON, CHECKS, trace, runWith, load, P1_SRC };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Homework = api;
 })(typeof window !== 'undefined' ? window : globalThis);

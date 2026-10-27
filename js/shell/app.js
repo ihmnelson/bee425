@@ -76,6 +76,83 @@
       <div class="items">${rows}</div>`;
   }
 
+  /* Mock exam: one sitting, one countdown, answers shown at the end with a score by topic */
+  const MOCK_LESSON = { regs: 'registers', num: 'numbers', dirs: 'running', inst: 'registers', modes: 'modes', flow: 'branches', hw: 'decoding', io: 'io' };
+  function viewMock() {
+    setNav('mock');
+    const bank = QUEST.QUIZ.filter((q) => q.correct != null), worlds = QUEST.WORLDS.filter((w) => bank.some((q) => q.world === w.id));
+    const hist = () => (S.state.mock = S.state.mock || []);
+    const setup = () => {
+      const last = hist().slice(-5).reverse();
+      $app.innerHTML = `<h1>Mock exam</h1><p class="lede">A timed practice test on this processor's topics: ${bank.length} questions in the bank. Answer everything, then submit; you see the answers and a score for each topic. Nothing is revealed while you work, as in the real exam. Exams are a quarter of your grade each, and they ask about the homework and labs, so use the <a href="#/homework">homework pages</a> too.</p>
+        <div class="panel"><h3>Topics to include</h3><div class="row" style="flex-wrap:wrap;gap:12px">${worlds.map((w) => `<label><input type="checkbox" name="w" value="${w.id}" checked> ${esc(w.name)} <span class="stat">(${bank.filter((q) => q.world === w.id).length})</span></label>`).join('')}</div>
+        <p style="margin-top:12px"><label>Questions <select id="mn">${[10, 20, 30, bank.length].filter((v, k, arr) => v <= bank.length && arr.indexOf(v) === k).map((v) => `<option value="${v}" ${v === 20 || (bank.length < 20 && v === bank.length) ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+        &nbsp; <label>Minutes <select id="mt"><option value="0">no limit</option><option value="15">15</option><option value="30" selected>30</option><option value="45">45</option></select></label></p>
+        <button class="btn go" id="begin">Begin</button></div>
+        ${last.length ? `<h2 class="h-s">Recent attempts</h2><ul class="plain">${last.map((h) => `<li>${new Date(h.t).toLocaleDateString()}: <b>${h.right} of ${h.n}</b> (${Math.round(100 * h.right / h.n)}%)</li>`).join('')}</ul>` : ''}`;
+      $app.querySelector('#begin').onclick = () => {
+        const on = [...$app.querySelectorAll('input[name=w]:checked')].map((x) => x.value), pool = bank.filter((q) => on.includes(q.world));
+        if (!pool.length) return;
+        run(G.shuffle(pool).slice(0, Math.min(+$app.querySelector('#mn').value, pool.length)), +$app.querySelector('#mt').value);
+      };
+    };
+    function run(qs, mins) {
+      const items = qs.map((q) => ({ q, opts: G.shuffle([q.correct, ...q.wrong]) })); let timerId = null, ended = false;
+      $app.innerHTML = `<h1>Mock exam</h1><div class="row" style="position:sticky;top:0;background:var(--paper,#fff);padding:8px 0;z-index:2;justify-content:space-between"><span class="stat"><b id="mans">0</b> of ${items.length} answered</span><span class="stat" id="mclock">${mins ? mins + ':00' : 'no time limit'}</span><button class="btn go" id="msubmit">Submit</button></div>
+        <ol class="mock">${items.map((it, k) => `<li class="panel" style="margin:12px 0;list-style-position:inside"><p class="q" style="display:inline">${esc(it.q.q)}</p><div class="opts" style="margin-top:8px">${it.opts.map((o, j) => `<label class="opt" style="display:flex;gap:8px;cursor:pointer"><input type="radio" name="q${k}" value="${j}"> <span>${esc(o)}</span></label>`).join('')}</div></li>`).join('')}</ol>`;
+      const answered = () => items.filter((_, k) => $app.querySelector(`input[name=q${k}]:checked`)).length;
+      $app.onchange = () => { const e = document.getElementById('mans'); if (e) e.textContent = answered(); };
+      const t0 = Date.now(), tick = () => { if (!mins) return; const left = Math.max(0, mins * 60 - Math.floor((Date.now() - t0) / 1000)), el = document.getElementById('mclock'); if (el) el.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} left`; if (!left) finish(true); };
+      if (mins) timerId = setInterval(tick, 500);
+      const finish = (timeUp) => {
+        if (ended) return; ended = true; clearInterval(timerId); leaveHook = null;
+        const picked = items.map((it, k) => { const c = $app.querySelector(`input[name=q${k}]:checked`); return c ? it.opts[+c.value] : null; });
+        const right = picked.filter((p, k) => p === items[k].q.correct).length, by = {};
+        items.forEach((it, k) => { const b = (by[it.q.world] = by[it.q.world] || { n: 0, r: 0 }); b.n++; if (picked[k] === it.q.correct) b.r++; });
+        hist().push({ t: Date.now(), n: items.length, right }); if (hist().length > 20) S.state.mock = hist().slice(-20); award(Math.round(30 * right / items.length)); S.save();
+        const pct = Math.round(100 * right / items.length), lessonLink = (w) => (MOCK_LESSON[w] ? `<a href="#/start/${MOCK_LESSON[w]}">review the Start here lesson</a> or ` : '');
+        $app.innerHTML = `<h1>Mock exam result</h1>${timeUp ? '<p class="stat">Time ran out; unanswered questions count as wrong.</p>' : ''}<div class="panel"><p class="q"><b>${right} of ${items.length}</b> correct (${pct}%)</p></div>
+          <h2 class="h-s">By topic</h2><div class="tablewrap"><table class="gt"><thead><tr><th>Topic</th><th>Score</th><th>What to do</th></tr></thead><tbody>${Object.entries(by).map(([w, b]) => `<tr><td>${esc((worldById(w) || { name: w }).name)}</td><td>${b.r} / ${b.n}</td><td>${b.r === b.n ? 'solid' : `${lessonLink(w)}<a href="#/world/${w}">open the topic</a>`}</td></tr>`).join('')}</tbody></table></div>
+          <h2 class="h-s">Every question</h2>${items.map((it, k) => { const ok = picked[k] === it.q.correct; return `<div class="panel" style="margin:10px 0"><p class="q">${ok ? 'Correct. ' : picked[k] === null ? 'Not answered. ' : 'Wrong. '}${esc(it.q.q)}</p><p>Answer: <b>${esc(it.q.correct)}</b>${!ok && picked[k] ? `<br>You chose: ${esc(picked[k])}` : ''}</p>${it.q.why ? `<p class="stat">${esc(it.q.why)}</p>` : ''}</div>`; }).join('')}
+          <div class="row"><button class="btn go" id="again">Another attempt</button></div>`;
+        $app.querySelector('#again').onclick = setup; renderHud();
+      };
+      $app.querySelector('#msubmit').onclick = () => { const n = answered(); if (n < items.length && !confirm(`${items.length - n} question(s) unanswered. Submit anyway?`)) return; finish(false); };
+      leaveHook = () => clearInterval(timerId);
+    }
+    setup();
+  }
+
+  /* Start here (js/shell/start.js) and Labs (js/shell/labs.js): short lessons shared by both processors */
+  function viewStart(id, kind) {
+    const labs = kind === 'labs', base = labs ? 'labs' : 'start', title = labs ? 'Labs' : 'Start here';
+    setNav(base);
+    const L = labs ? START.LABS : START.LESSONS, st = () => (S.state[base] = S.state[base] || {}), enc = (s) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const i = L.findIndex((l) => l.id === id), l = L[i];
+    if (!l) {
+      const n = L.filter((x) => st()[x.id]).length;
+      $app.innerHTML = `<h1>${title}</h1><p class="lede">${labs ? 'The lectures say the exams ask lab questions. These pages cover what each lab taught: how the instruments and circuits work, the numbers you measured or calculated, and exam-style questions. They use only what the lab handouts say. Lab 3 is not here yet (no handout in the folder).' : 'New to this material? Work through these in order <b>before</b> you use flashcards. Each lesson explains one idea in plain words, works an example, and ends with a few questions to check you understood it.'} About ${L.reduce((a, x) => a + x.mins, 0)} minutes in all.</p>
+        <p class="stat">${n} of ${L.length} marked understood.${labs ? '' : ' They follow Lectures 3 to 8; data conversion (Lesson 10) has its own <a href="#/sys/">section</a>.'}</p>
+        <div class="items">${L.map((x, k) => item('#/' + base + '/' + x.id, '', `${k + 1}. ${x.title}`, x.goal, '', `${st()[x.id] ? 'understood' : x.mins + ' min'}`)).join('')}</div>
+        <p class="stat" style="margin-top:var(--s4)">After a lesson, the guides go deeper, the flashcards help you remember it, and the homework pages let you practise solving problems yourself, which is what the exams test.</p>`;
+      return;
+    }
+    const prev = L[i - 1], next = L[i + 1], nx = l.next || {};
+    $app.innerHTML = `<p class="crumb"><a href="#/${base}">${title}</a> / ${i + 1} of ${L.length}</p><h1>${esc(l.title)}</h1>
+      <p class="stat">${esc(/^L\d/.test(l.lecture) ? l.lecture.replace(/^L/, 'Lecture ') : l.lecture)} &middot; about ${l.mins} minutes &middot; you need: ${esc(l.needs)}</p>
+      <div class="panel"><b>After this lesson you can:</b> ${esc(l.goal)}</div>
+      <div class="guide">${START.render(l.md)}</div>
+      ${(l.examples || []).map((e, k) => `<div class="panel" style="margin:12px 0"><h3>${esc(e.title)}</h3><pre class="code">${esc(e.src)}</pre><div class="row"><a class="btn" href="#/68k/sandbox?c=${enc(e.src)}">Open in the 68000 sandbox and step through it</a></div></div>`).join('')}
+      <div class="sec"><h2>Check yourself</h2><small>try to answer before you open each one</small></div>
+      ${l.check.map((c) => `<details class="wk" style="margin:6px 0"><summary class="btn">${esc(c[0])}</summary><p style="margin:8px 0 0">${esc(c[1])}</p></details>`).join('')}
+      <div class="row" style="margin-top:16px"><button class="btn go" id="understood">${st()[l.id] ? 'Marked understood' : 'Mark understood'}</button></div>
+      ${labs && !nx.z80 ? '' : '<div class="sec"><h2>Then</h2></div>'}
+      <div class="row">${nx.guide ? `<a class="btn" href="#/68k/guide/${nx.guide}">Read the full guide</a>` : ''}${nx.topic ? `<a class="btn" href="#/68k/world/${nx.topic}">Open the topic: review the cards</a>` : ''}${nx.z80 ? `<a class="btn" href="#/z80/world/${nx.z80}">Open the Z80 topic: Bus Cycles and the Logic Analyzer</a>` : ''}${(nx.extra || []).map((x) => `<a class="btn" href="${x[0]}">${esc(x[1])}</a>`).join('')}</div>
+      <div class="row" style="justify-content:space-between;margin-top:18px">${prev ? `<a class="btn" href="#/${base}/${prev.id}">Previous: ${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="btn" href="#/${base}/${next.id}">Next: ${esc(next.title)}</a>` : labs ? '<a class="btn" href="#/z80/">On to the Z80 pages</a>' : '<a class="btn" href="#/68k/world/regs">On to the topics</a>'}</div>`;
+    const b = $app.querySelector('#understood');
+    b.onclick = () => { if (!st()[l.id]) { st()[l.id] = true; S.save(); award(10); } b.textContent = 'Marked understood'; };
+  }
+
   function viewCourse() {
     setNav('');
     const machine = (id) => {
@@ -88,6 +165,7 @@
     const procs = PACKS.order.filter((id) => PACKS.list[id].PACK_UI.kind !== 'topic'), topics = PACKS.order.filter((id) => PACKS.list[id].PACK_UI.kind === 'topic');
     $app.innerHTML = `<h1>BEE 425 Quest</h1>
       <p class="lede">Study tools for Microprocessor System Design. Each processor has the same set of pages: topics that follow the lectures, written guides, flashcards, practice drills, and an assembler and simulator that run in the browser. Topics that belong to both processors, such as data conversion, have their own section.</p>
+      <div class="panel"><b>Never seen any of this before?</b> <a href="#/start">Start here</a>: ten short lessons from bits and hex up to memory decoding and transistors, with questions to check yourself, before you touch flashcards or drills.</div>
       <h2 class="h-s">Which processor first?</h2>
       <ul class="plain"><li>If your lab or homework uses <b>EASy68K</b>, open the 68000.</li><li>If it uses the <b>Oshonsoft Z80 Simulator IDE</b>, open the Z80.</li><li>Not sure? Start with the 68000, which the lectures introduce first. The Z80 pages cover the same ideas on an 8-bit machine, so they work well for comparison.</li>${topics.length ? '<li>Studying A/D and D/A converters (Lesson 10)? That is not processor-specific: open <b>Data conversion</b> below.</li>' : ''}</ul>
       <h2 class="h-s">The two machines</h2>
@@ -532,8 +610,8 @@
   function renderHeader() {
     const nav = document.querySelector('.nav'), sw = document.getElementById('cpusw');
     sw.innerHTML = PACKS.order.map((id) => { const u = PACKS.list[id].PACK_UI; return `<a href="#/${u.slug}/" class="${id === P() ? 'on' : ''}" aria-label="${esc(u.fullName)}">${u.chip}</a>`; }).join('');
-    const CMP = ['compare', 'Compare', '#/compare'];
-    const items = P() ? [...BASE_NAV.filter(([k]) => !(k === 'read' && UI().hasRead === false)).map(([k, l, h]) => [k, k === 'sandbox' && UI().sandboxLabel ? UI().sandboxLabel : l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), CMP, ['progress', 'Progress', '#/progress']] : [CMP, ['progress', 'Progress', '#/progress']];
+    const CMP = ['compare', 'Compare', '#/compare'], STR = ['start', 'Start here', '#/start'], LAB = ['labs', 'Labs', '#/labs'];
+    const items = P() ? [STR, LAB, ...BASE_NAV.filter(([k]) => !(k === 'read' && UI().hasRead === false)).map(([k, l, h]) => [k, k === 'sandbox' && UI().sandboxLabel ? UI().sandboxLabel : l, h.replace(/^#\//, here())]), ...UI().navExtra.map((x) => [x.name, x.label, x.href.replace(/^#\//, here())]), ['mock', 'Mock exam', here() + 'mock'], CMP, ['progress', 'Progress', '#/progress']] : [STR, LAB, CMP, ['progress', 'Progress', '#/progress']];
     const ft = document.getElementById('foot'); if (ft) ft.innerHTML = `Built from BEE 425 F26 Lessons 3&ndash;8, 10 and 11. Progress is saved in this browser only. ${P() ? `<a href="${here()}tests">How accurate is this site?</a> &middot; ` : ''}<a href="https://github.com/ihmnelson/bee425" target="_blank" rel="noopener">Source code on GitHub</a>`;
     nav.innerHTML = items.map(([k, l, h]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('');
   }
@@ -543,7 +621,7 @@
     root.querySelectorAll('a[href^="#/"]').forEach((a) => { const h = a.getAttribute('href'); if (!/^#\/(68k|z80|sys|progress|compare)(\/|$)/.test(h) && h !== '#/') a.setAttribute('href', h.replace(/^#\//, here())); else if (h === '#/') a.setAttribute('href', here()); });
   }
   new MutationObserver(() => fixLinks($app)).observe($app, { childList: true, subtree: true });
-  const LEGACY = new Set(['world', 'cards', 'study', 'arcade', 'game', 'read', 'guides', 'guide', 'glossary', 'tests', 'homework', 'sandbox']);
+  const LEGACY = new Set(['world', 'cards', 'study', 'arcade', 'game', 'read', 'guides', 'guide', 'glossary', 'tests', 'homework', 'sandbox', 'mock']);
 
   function route() {
     if (window.Demo) Demo.stopAll();
@@ -558,7 +636,7 @@
     if (pid) document.documentElement.dataset.cpu = pid; else delete document.documentElement.dataset.cpu;
     window.scrollTo(0, 0);
     try {
-      if (!pid) { if (parts[0] === 'progress') viewProgress(); else if (parts[0] === 'compare') viewCompare(parts[1]); else viewCourse(); }
+      if (!pid) { if (parts[0] === 'progress') viewProgress(); else if (parts[0] === 'start') viewStart(parts[1]); else if (parts[0] === 'labs') viewStart(parts[1], 'labs'); else if (parts[0] === 'compare') viewCompare(parts[1]); else viewCourse(); }
       else switch (parts[0]) {
         case undefined: viewMap(); break;
         case 'world': viewWorld(parts[1]); break;
@@ -570,8 +648,9 @@
         case 'guides': viewGuides(); break;
         case 'guide': viewGuide(parts[1]); break;
         case 'glossary': viewGlossary(); break;
+        case 'mock': viewMock(); break;
         case 'tests': viewTests(); break;
-        case 'homework': if (window.HomeworkUI) { setNav('homework'); if (parts[2]) HomeworkUI.viewProblem($app, +parts[2], { Store: S, award }); else HomeworkUI.viewList($app, { Store: S, award }); } else viewMap(); break;
+        case 'homework': if (window.HomeworkUI) { setNav('homework'); if (parts[2]) HomeworkUI.viewProblem($app, +parts[2], { Store: S, award }, parts[1]); else if (parts[1]) HomeworkUI.viewList($app, { Store: S, award }, parts[1]); else HomeworkUI.viewIndex($app, { Store: S, award }); } else viewMap(); break;
         case 'sandbox': if (window.Sandbox && window.Sandbox.view) { setNav('sandbox'); window.Sandbox.view($app, { award, afterRestore: renderHud, query: new URLSearchParams(raw.split('?')[1] || ''), onLeave: (f) => (leaveHook = f) }); } else viewMap(); break;
         default: viewMap();
       }

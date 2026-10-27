@@ -71,6 +71,15 @@ async function open(storage) {
     if (!isSys) { await go(base + 'read'); const inp = d.getElementById('rdline'); inp.dispatchEvent(new w.Event('input')); if (d.getElementById('rdout').textContent.length < 20) fail(slug + ' Read Code explains nothing'); }
   }
   // 68K homework pages (only the 68000 has them)
+  for (const pk of ['68k', 'z80']) { app = await go('#/' + pk + '/mock'); if (!/Mock exam/.test(app.textContent) || !app.querySelector('#begin')) fail(pk + ' mock setup'); app.querySelector('#begin').click(); if (!app.querySelector('input[name=q0]') || !app.querySelector('#msubmit')) fail(pk + ' mock run'); app.querySelector('input[name=q0]').click(); app.querySelector('#msubmit').click(); if (!/Mock exam result/.test(app.textContent) || !/By topic/.test(app.textContent)) fail(pk + ' mock result'); }
+  app = await go('#/start'); if (!/Numbers a computer uses/.test(app.textContent) || !/Transistors and I\/O pins/.test(app.textContent)) fail('start index');
+  for (const id of ['numbers', 'system', 'running', 'registers', 'modes', 'branches', 'stack', 'buses', 'decoding', 'io']) { app = await go('#/start/' + id); if (!app.querySelector('h1') || !app.querySelector('details.wk') || !app.querySelector('#understood')) fail('start lesson ' + id); }
+  app = await go('#/start/numbers'); app.querySelector('#understood').click(); app = await go('#/start'); if (!/understood/.test(app.textContent)) fail('start progress not saved');
+  app = await go('#/labs'); if (!/Lab 1: using a logic analyzer/.test(app.textContent) || !/Lab 2: the Z80 bus cycle/.test(app.textContent)) fail('labs index');
+  for (const id of ['lab1-analyzer', 'lab1-prng', 'lab2-buscycle', 'lab2-board']) { app = await go('#/labs/' + id); if (!app.querySelector('h1') || !app.querySelector('details.wk') || !app.querySelector('#understood')) fail('lab page ' + id); }
+  app = await go('#/68k/homework'); if (!/Homework 3/.test(app.textContent) || !/Homework 2/.test(app.textContent)) fail('68k homework index');
+  for (const h of ['hw2', 'hw3']) { app = await go('#/68k/homework/' + h); if (!/Problem 1/.test(app.textContent)) fail(h + ' list'); }
+  for (const n of [1, 2, 3, 4]) { app = await go('#/68k/homework/hw3/' + n); if (!new RegExp('Problem ' + n).test(app.textContent) || !app.querySelector('#code')) fail('hw3 problem ' + n + ' page'); }
   app = await go('#/68k/homework/hw2/1'); if (!/Problem 1/.test(app.textContent)) fail('68k homework problem page'); if (![...app.querySelectorAll('a')].every((a) => !/^#\/homework/.test(a.getAttribute('href') || ''))) fail('homework links not prefixed');
   app = await go('#/z80/homework'); if (/Homework 2/.test(app.textContent)) fail('Z80 should not show 68K homework');
   // a topic is a lesson plan; a long guide has contents; the nav names the four activities
