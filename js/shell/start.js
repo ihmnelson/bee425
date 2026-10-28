@@ -165,7 +165,7 @@ ADD.B  #1,D0           D0 = $12345600   (low byte wrapped; upper bits untouched)
 
 The last result: the low byte went from $FF to $00, so **Z = 1** (the byte result is zero) and **C = 1** and **X = 1** (it carried out of the byte). N is 0 and V is 0. The flags describe only the byte that was operated on. (Run on this site's emulator: flags XNZVC = 10101.)
 
-> **Byte order in memory.** The 68000 is **big-endian**: the most significant byte of a word or long word goes at the *lowest* address. A long $12345678 at $2000 is stored as 12 at $2000, 34 at $2001, 56 at $2002, 78 at $2003.
+> **Byte order in memory.** The 68000 is **big-endian**: the most significant byte of a word or long word goes at the *lowest* address. A long $12345678 at $2000 is stored as 12 at $2000, 34 at $2001, 56 at $2002, 78 at $2003. The lecture's own example: the word $AA55 stored at $1000 and $1001 is AA 55 big-endian and 55 AA little-endian. The **Z80 is little-endian**, so the same word is stored low byte first.
 
 > **Words and longs must start at even addresses** on the 68000. A word access at an odd address causes an address error.`,
       examples: [{ title: 'Sizes and flags', src: `        ORG $1000
@@ -179,6 +179,7 @@ start   MOVE.L #$12345678,D0
         ['In MOVE.W D1,D2, which register is the source?', 'D1. The source always comes first.'],
         ['D0 = $12345678. After MOVE.B #$FF,D0, what is D0?', '$123456FF. Only the low byte changes.'],
         ['In big-endian memory, where does the byte $12 of the long $12345678 go?', 'At the lowest address of the four.'],
+        ['Store the word $AA55 at $1000 and $1001. What is in each byte, big-endian and little-endian?', 'Big-endian: AA at $1000, 55 at $1001. Little-endian: 55 at $1000, AA at $1001.'],
       ],
       next: { guide: 'programmers-model', topic: 'regs' },
     },
@@ -189,16 +190,22 @@ start   MOVE.L #$12345678,D0
 
 An instruction says *what to do*. An **addressing mode** says *where each piece of data is*. The same ADD can take its data from a constant, a register or memory, just by how you write the operand.
 
-| Written as | Name | Meaning |
-|---|---|---|
-| \`#5\` | Immediate | the value 5 itself |
-| \`D0\` | Data register | the contents of D0 |
-| \`A0\` | Address register | the contents of A0 |
-| \`$A300\` | Absolute | the contents of memory at address $A300 |
-| \`(A0)\` | Indirect | memory at the address held in A0 |
-| \`(A0)+\` | Post-increment | memory at A0, **then** A0 moves on by the operand size |
-| \`-(A0)\` | Pre-decrement | A0 moves back first, **then** memory at A0 |
-| \`4(A0)\` | Displacement | memory at A0 + 4 |
+The lecture numbers the 68000's addressing modes **Mode 0 to Mode 7**; exam questions may use those numbers.
+
+| Mode | Written as | Name | Meaning |
+|---|---|---|---|
+| 0 | \`D0\` | Data register | the contents of D0 |
+| 1 | \`A0\` | Address register | the contents of A0 |
+| 2 | \`(A0)\` | Indirect | memory at the address held in A0 |
+| 3 | \`(A0)+\` | Post-increment | memory at A0, **then** A0 moves on by the operand size |
+| 4 | \`-(A0)\` | Pre-decrement | A0 moves back first, **then** memory at A0 |
+| 5 | \`4(A0)\` | Displacement | memory at A0 + 4 |
+| 6 | \`4(A0,D1)\` | Indexed | memory at A0 + D1 + 4 (walks a table or array row) |
+| 7 | \`$A300\` | Absolute (short or long) | the contents of memory at address $A300 |
+| 7 | \`#5\` | Immediate | the value 5 itself |
+| 7 | \`label(PC)\` | Program-counter relative | memory at the PC plus a displacement |
+
+Mode 7 is a family: the lecture calls the variants its **subclasses** (absolute short and long, PC with displacement, PC with index, immediate).
 
 > **The most common mistake:** \`#\` means "the value", no \`#\` means "the contents of that address". \`MOVE.W #$A300,D0\` puts $A300 in D0. \`MOVE.W $A300,D0\` puts whatever is stored *at* $A300 in D0.
 
@@ -230,6 +237,7 @@ table   DC.W 10,20,30,40
         END start
 ` }],
       check: [
+        ['Which addressing mode numbers are post-increment, pre-decrement and displacement?', 'Mode 3 post-increment, Mode 4 pre-decrement, Mode 5 displacement (Mode 2 is plain indirect, Mode 6 indexed).'],
         ['What is the difference between MOVE.W #$A300,D0 and MOVE.W $A300,D0?', 'The first puts the number $A300 into D0. The second reads the word stored at memory address $A300.'],
         ['After ADD.W (A0)+,D0, how far has A0 moved?', '2 bytes, because the operation is word sized.'],
         ['What does LEA table,A0 put in A0?', 'The address of table, not the data stored there.'],
