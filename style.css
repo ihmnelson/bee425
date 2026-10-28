@@ -336,3 +336,21 @@ table.bus td b { color: var(--accent); }
 .twocol pre.code { margin: 0; overflow-x: auto; }
 .runout { margin: var(--s2) 0; }
 .pair .row { margin: var(--s2) 0; }
+
+/* figures in Start here and Labs: our own SVGs and lecture images */
+.fig { margin: var(--s5) 0; }
+.figsvg { display: block; width: 100%; max-width: 700px; height: auto; margin: 0 auto; }
+.figimg { display: block; max-width: 100%; height: auto; margin: 0 auto; border: 1px solid var(--rule); background: #fff; }
+.fig figcaption { margin-top: var(--s2); text-align: center; font-size: var(--t-s); color: var(--ink-2); }
+.fg-box { fill: var(--sheet); stroke: var(--ink); stroke-width: 1.5; }
+.fg-hi { fill: color-mix(in srgb, var(--blue) 18%, var(--sheet)); stroke: var(--blue); }
+.fg-t { fill: var(--ink); font: 400 14px var(--sans); }
+.fg-tb { fill: var(--ink); font: 600 15px var(--sans); }
+.fg-s { fill: var(--ink-2); font: 400 13px var(--sans); }
+.fg-mono { fill: var(--ink); font: 500 18px var(--mono); }
+.fg-mono-s { fill: var(--ink-2); font: 500 12px var(--mono); }
+.fg-line { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.fg-thick { stroke: var(--ink); stroke-width: 4; fill: none; }
+.fg-dash { stroke-dasharray: 5 4; }
+.fg-dot { fill: var(--ink); }
+.fg-head { fill: var(--ink); }

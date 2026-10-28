@@ -15,6 +15,14 @@ for (const l of START.LESSONS) {
 require('../js/shell/labs.js'); const LABS = START.LABS || require('../js/shell/labs.js');
 for (const l of LABS) { if (ids.has(l.id)) fail('duplicate id ' + l.id); ids.add(l.id); if (!l.check || l.check.length < 3) fail(l.id + ': fewer than 3 check questions'); }
 if (!LABS.length) fail('no labs');
+// figures: every {{fig:}} / {{img:}} marker resolves, every image file exists, every figure is used
+const F = require('../js/shell/figs.js'), usedF = new Set(), usedI = new Set();
+for (const l of [...START.LESSONS, ...LABS]) for (const m of l.md.matchAll(/\{\{(fig|img):([\w-]+)\}\}/g)) {
+  if (m[1] === 'fig') { usedF.add(m[2]); if (!F.FIGS[m[2]]) fail(`${l.id}: no figure ${m[2]}`); }
+  else { usedI.add(m[2]); const im = F.IMAGES[m[2]]; if (!im) fail(`${l.id}: no image ${m[2]}`); else if (!fs.existsSync(__dirname + '/../' + im[0])) fail(`missing file ${im[0]}`); }
+}
+for (const k of Object.keys(F.FIGS)) if (!usedF.has(k)) fail('unused figure ' + k);
+for (const k of Object.keys(F.IMAGES)) if (!usedI.has(k)) fail('unused image ' + k);
 // the numbers printed in the lessons
 const run = (src) => H.runWith(src).cpu;
 const byId = (id) => START.LESSONS.find((l) => l.id === id).examples;
@@ -24,5 +32,5 @@ const c3 = run(byId('modes')[0].src); if (c3.D[0] !== 100) fail('modes: expected
 const c4 = run(byId('branches')[0].src); if (c4.D[1] !== 0) fail('branches: expected D1=0 for 7 vs 10');
 const c5 = run(byId('branches')[1].src); if (c5.D[0] !== 15) fail('branches: expected 15');
 const c6 = run(byId('stack')[0].src); if (c6.D[0] !== 10 || c6.A[7] !== 0x01000000) fail('stack: expected D0=10 and SP restored');
-console.log(bad ? `${bad} failure(s)` : `start-here checks pass (${START.LESSONS.length} lessons, ${LABS.length} lab pages, ${n} example programs run, printed results match)`);
+console.log(bad ? `${bad} failure(s)` : `start-here checks pass (${START.LESSONS.length} lessons, ${LABS.length} lab pages, ${Object.keys(F.FIGS).length} diagrams, ${Object.keys(F.IMAGES).length} slide images, ${n} example programs run, printed results match)`);
 process.exit(bad ? 1 : 0);

@@ -141,7 +141,7 @@
     $app.innerHTML = `<p class="crumb"><a href="#/${base}">${title}</a> / ${i + 1} of ${L.length}</p><h1>${esc(l.title)}</h1>
       <p class="stat">${esc(/^L\d/.test(l.lecture) ? l.lecture.replace(/^L/, 'Lecture ') : l.lecture)} &middot; about ${l.mins} minutes &middot; you need: ${esc(l.needs)}</p>
       <div class="panel"><b>After this lesson you can:</b> ${esc(l.goal)}</div>
-      <div class="guide">${START.render(l.md)}</div>
+      <div class="guide">${FIGURES.place(START.render(l.md))}</div>
       ${(l.examples || []).map((e, k) => `<div class="panel" style="margin:12px 0"><h3>${esc(e.title)}</h3><pre class="code">${esc(e.src)}</pre><div class="row"><a class="btn" href="#/68k/sandbox?c=${enc(e.src)}">Open in the 68000 sandbox and step through it</a></div></div>`).join('')}
       <div class="sec"><h2>Check yourself</h2><small>try to answer before you open each one</small></div>
       ${l.check.map((c) => `<details class="wk" style="margin:6px 0"><summary class="btn">${esc(c[0])}</summary><p style="margin:8px 0 0">${esc(c[1])}</p></details>`).join('')}

@@ -49,6 +49,7 @@ js/shell/app.js         router, header, flashcards, game engine, progress and te
 js/shell/icons.js       icon sprite (IBM Carbon icons, Apache-2.0) and the emoji-to-icon map
 js/shell/start.js       Start here lessons (shared by both processors)
 js/shell/labs.js        Lab pages
+js/shell/figs.js        figures for those lessons: original SVG diagrams and the captioned slide images in img/slides/
 js/shell/demo.js        the live machines on the home page (real simulator cores stepping a short program)
 fonts/                  IBM Plex Sans, Serif and Mono (SIL Open Font License), self-hosted
 js/m68k/                68000: cpu.js, asm.js, io.js (TRAP #15), examples, snippet, data, games, explain, guides,
@@ -119,6 +120,6 @@ A lab-bench / datasheet look: paper and ink, hairline structure, IBM Plex type, 
 
 ## Credits and disclaimer
 
-Course content is adapted from the BEE 425 lecture slides by Arnold S. Berger, University of Washington Bothell. This is an independent student study project: it is not affiliated with or endorsed by the instructor, the university, the authors of EASy68K, Zilog or Oshonsoft.
+Course content is adapted from the BEE 425 lecture slides by Arnold S. Berger, University of Washington Bothell. The images in `img/slides/` are reproduced from those lecture slides and from the Lab 2 handout (each is captioned with its lecture, slide number and PDF page) for study purposes; the seven diagrams drawn in `js/shell/figs.js` are original. This is an independent student study project: it is not affiliated with or endorsed by the instructor, the university, the authors of EASy68K, Zilog or Oshonsoft.
 
 The EASy68K name and behaviour belong to Chuck Kelly and Tim Larson, and the Oshonsoft name and behaviour to Oshonsoft; this project contains none of their code and uses EASy68K, `z80dasm` and the SingleStepTests vectors (MIT) only as black-box references. The 68000 core and assembler were written independently from Motorola's M68000 Programmer's Reference Manual, and the Z80 core, assembler and disassembler from Zilog's Z80 CPU User Manual (UM0080). Typefaces are IBM Plex (SIL Open Font License 1.1) and icons are IBM Carbon icons (Apache-2.0), both included under their licences. The idea of a browser-based teaching IDE was also inspired by [ASM Editor](https://asm-editor.specy.app) (AGPL-3.0); no code from it is used.

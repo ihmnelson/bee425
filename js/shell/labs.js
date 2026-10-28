@@ -90,6 +90,8 @@ An **op-code fetch** reads the first byte of an instruction. It takes **4 clock 
 
 At a 4 MHz clock, one period (one T-state) is 250 ns, so the fetch takes 4 x 250 ns = **1 microsecond**.
 
+{{img:lab2-fig1}}
+
 | Time | What happens |
 |---|---|
 | Start of T1 | The address appears on the 16 address lines; ~M1 goes low |
@@ -104,6 +106,8 @@ At a 4 MHz clock, one period (one T-state) is 250 ns, so the fetch takes 4 x 250
 ## Other memory reads and writes
 
 A memory read or write that is not an op-code fetch is **3 clock cycles** long, not 4, because no decoding is needed: 3 x 250 ns = 750 ns at 4 MHz (calc).
+
+{{img:lab2-fig2}}
 
 > The handout says you can ignore the refresh part of M1 and the WAIT signal for this lab.`,
       check: [

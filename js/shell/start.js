@@ -71,6 +71,8 @@ They are joined by **buses**, which are just groups of wires shared by everythin
 | **Data bus** | The actual value being read or written | Both ways |
 | **Control bus** | Timing and meaning: read or write, "the address is valid now" | Mostly from the CPU |
 
+{{fig:system}}
+
 **Analogy.** Memory is a long street of numbered mailboxes. The address bus is the number the CPU shouts; the data bus is the letter that goes in or comes out; the control lines say *whether* it is putting a letter in or taking one out.
 
 ## How big is the street?
@@ -100,6 +102,8 @@ The CPU has no idea what a "program" is. It only repeats one loop:
 
 A jump or branch works by simply putting a different number in the PC.
 
+{{fig:cycle}}
+
 ## Assembly versus machine code
 
 People write **assembly language**: short readable names like \`MOVE.W #5,D0\`. An **assembler** translates each line into **machine code**, the numbers the CPU actually runs. Assembly and machine code are one-to-one: each line is one instruction.
@@ -112,6 +116,10 @@ $1000    303C 0005      MOVE.W #5,D0
 $1004    5640           ADD.W  #3,D0
 $1006    31C0 2000      MOVE.W D0,$2000
 \`\`\`
+
+The lecture shows the same idea with its own examples; the machine-code values on this slide match what the real EASy68K assembler produces.
+
+{{img:L4-s8}}
 
 Reading it: the first word \`$303C\` *means* "move a word, immediate value to D0", and the next word \`$0005\` is the 5. Instructions are different lengths, which is why the next one starts at $1004, not $1002.
 
@@ -163,9 +171,15 @@ MOVE.B #$FF,D0         D0 = $123456FF   (only the low byte changed)
 ADD.B  #1,D0           D0 = $12345600   (low byte wrapped; upper bits untouched)
 \`\`\`
 
+{{fig:regsizes}}
+
 The last result: the low byte went from $FF to $00, so **Z = 1** (the byte result is zero) and **C = 1** and **X = 1** (it carried out of the byte). N is 0 and V is 0. The flags describe only the byte that was operated on. (Run on this site's emulator: flags XNZVC = 10101.)
 
 > **Byte order in memory.** The 68000 is **big-endian**: the most significant byte of a word or long word goes at the *lowest* address. A long $12345678 at $2000 is stored as 12 at $2000, 34 at $2001, 56 at $2002, 78 at $2003. The lecture's own example: the word $AA55 stored at $1000 and $1001 is AA 55 big-endian and 55 AA little-endian. The **Z80 is little-endian**, so the same word is stored low byte first.
+
+{{fig:endian}}
+
+{{img:L6-s25}}
 
 > **Words and longs must start at even addresses** on the 68000. A word access at an odd address causes an address error.`,
       examples: [{ title: 'Sizes and flags', src: `        ORG $1000
@@ -207,7 +221,13 @@ The lecture numbers the 68000's addressing modes **Mode 0 to Mode 7**; exam ques
 
 Mode 7 is a family: the lecture calls the variants its **subclasses** (absolute short and long, PC with displacement, PC with index, immediate).
 
+{{img:L5-s6}}
+
 > **The most common mistake:** \`#\` means "the value", no \`#\` means "the contents of that address". \`MOVE.W #$A300,D0\` puts $A300 in D0. \`MOVE.W $A300,D0\` puts whatever is stored *at* $A300 in D0.
+
+{{img:L5-s10}}
+
+{{fig:postinc}}
 
 ## Why pointers matter
 
@@ -348,6 +368,8 @@ double  ADD.W   D0,D0        D0 = D0 + D0
 
 Result: **D0 = 10**, and the stack pointer is back to where it started. (Run on this site's emulator.)
 
+{{fig:stack}}
+
 > **Why BSR and not JSR?** A lecture slide asks this about its memory-test program but does not answer it. The standard answer (general knowledge, not from the slide): \`BSR\` is a *relative* branch, so it is shorter and the code works wherever it is loaded, while \`JSR\` carries a full absolute address.
 
 > **Matching matters.** Every push needs a pop, and the stack must hold the return address when RTS runs. A subroutine that pushes something and forgets to pop it makes RTS jump to the wrong place.`,
@@ -382,7 +404,11 @@ A **tri-state** (three-state) output can be:
 2. driving **low** (0), or
 3. **high impedance** ("high-Z"): effectively disconnected from the wire.
 
+{{img:L6-s8}}
+
 An **output enable** pin chooses between "drive the bus" and "disconnect". With it disabled, the chip's outputs are all in the high-Z state and it does not interfere with anyone else.
+
+{{img:L6-s4}}
 
 **Analogy.** A conference call where everyone is muted except the one person whose turn it is. Tri-state is the mute button; the rule is *exactly one device talks at a time*.
 
@@ -426,6 +452,8 @@ Take the CPU's address lines and split them in two:
 | 0010 | 2 | $2000-$2FFF |
 | ... | ... | ... |
 
+{{fig:decode}}
+
 **Check one address.** Take $2A5C. Its top four bits are 0010 (page 2) so chip 2 is selected, and the low twelve bits $A5C are the location inside it.
 
 ## The lecture's example: 16 MB in 32K pages
@@ -435,6 +463,12 @@ Lecture 7 uses 16 MB of address space (24 address lines, A23-A0) and **32K pages
 The lecture's example selects the page at page address **$1A4** (binary 1 1010 0100). Its **~CS (chip select) goes low** only when A23-A15 equal that pattern.
 
 (calc) Where is that page? It starts at $1A4 x $8000 = **$D20000** and ends at $D27FFF, so it covers **$D20000-$D27FFF**. Check with an address: $D23456 in binary starts 1101 0010 0, and those nine bits are 110100100 = $1A4. So $D23456 is on that page, at offset $3456.
+
+The lecture's two decoding slides show this in circuit form. The first decodes a page by watching A23-A15 with a NAND gate; the second shows the bit pattern for page $1A4, where the address lines that must be 0 pass through inverters first so that every NAND input is 1 only for that page.
+
+{{img:L7-s2}}
+
+{{img:L7-s4}}
 
 ## Things to watch for
 
@@ -481,7 +515,11 @@ Ib = 100 mA / 75 = 1.33 mA       (use beta = 75, the worst case)
 Rb = (5 V - 0.6 V) / 1.33 mA = 3.3 kilohms
 \`\`\`
 
+{{img:L8-s16}}
+
 The lecture rounds the base current to 1.3 mA and gets 3.38 kilohms; either way the closest standard value is **3.3 kilohms**. Note that 1.33 mA is well inside what the pin can supply (the lecture says an I/O pin can safely output about 1 mA to 20 mA).
+
+{{img:L8-s15}}
 
 When enough base current flows the transistor **saturates**: the collector voltage drops to about 0.4 V and the transistor acts as a closed switch.
 
