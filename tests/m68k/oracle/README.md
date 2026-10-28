@@ -10,3 +10,5 @@ These scripts compare this site's assembler and CPU (`js/asm.js`, `js/cpu.js`) w
    `node cmp_asm.js program.X68` compares the machine code of a whole program line by line.
 
 Known, intentional differences (the site follows Motorola's manual): MULS leaves V alone in EASy68K; DIVU/DIVS overflow leaves C alone; ABCD/SBCD/NBCD N and V are "undefined"; CHK exception frames differ. `ASL` by a register count larger than the operand size also differs (hardware sets V; EASy68K does not).
+
+`node compare-site-programs.js <site dir> <oracle dir> <empty work dir>` runs every Homework 2/3 solution and Start here example through both and compares registers, flags and key memory.

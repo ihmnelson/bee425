@@ -500,7 +500,7 @@ start
           ['Overflow', 'The sum is 32 bits. $FFFFFFFF + 1 wraps to $00000000 with the carry (C and X) flag set. The problem does not ask you to detect that.'],
           ['Test it', 'Put `DC.L $00012345,$00054321` at $A300 (`ORG $A300`). The sum $00066666 should appear at $A308 as the bytes 00 06 66 66.'],
         ],
-        verified: 'Run on this site\'s 68000 emulator and checked against four data sets including $FFFFFFFF + 1 (wraps to 0). Not run on the real EASy68K.',
+        verified: 'Run on this site\'s 68000 emulator and checked against four data sets including $FFFFFFFF + 1 (wraps to 0). The solution was also assembled and run in a real EASy68K build (macOS port): identical registers, flags and memory.',
         solutions: [{ title: 'Three instructions', code: H3_1 }], trace: { src: H3_1 },
       },
       {
@@ -522,7 +522,7 @@ start
           ['First occurrence', 'The loop stops at the first match, so later copies are never examined. The checker puts a second $AA55 after the first one to make sure you return the earlier address.'],
           ['Not found', 'The handout does not say what to do. This solution clears A2 first, so A2 = 0 means "no match". Always say what your program returns when the search fails.'],
         ],
-        verified: 'Run on this site\'s 68000 emulator against four data sets (a match early in the block, no match at all with a byte-swapped $55AA decoy and an $AA55 just past the end, and two cases with a second copy right after the first). Not run on the real EASy68K.',
+        verified: 'Run on this site\'s 68000 emulator against four data sets (a match early in the block, no match at all with a byte-swapped $55AA decoy and an $AA55 just past the end, and two cases with a second copy right after the first). The solution was also assembled and run in a real EASy68K build (macOS port): identical registers, flags and memory.',
         solutions: [{ title: 'Pointer loop with CMP.W (A0)+', code: H3_2 }], trace: { src: H3_2 },
       },
       {
@@ -543,7 +543,7 @@ start
           ['Equal bytes', 'Replacing D0 when the byte is equal does nothing harmful, so `BGT` (strictly greater) is fine.'],
           ['The loop test', 'Same as problem 2: `CMPA.L A1,A0` then `BHS done` (addresses are unsigned).'],
         ],
-        verified: 'Run on this site\'s 68000 emulator against five data sets (including $80, $7F, all-equal and all-negative blocks). Not run on the real EASy68K.',
+        verified: 'Run on this site\'s 68000 emulator against five data sets (including $80, $7F, all-equal and all-negative blocks). The solution was also assembled and run in a real EASy68K build (macOS port): identical registers, flags and memory.',
         solutions: [{ title: 'Signed: start at $7F, skip with BGT', code: H3_3 }], trace: { src: H3_3 },
       },
       {
@@ -561,7 +561,7 @@ start
           ['The Motorola naming quirk', 'The signed set is BLT/BLE/BGT/BGE. The unsigned set is BCS/BLS/BHI/BCC. The names are not symmetrical; the processor is. This is the table in the handout.'],
           ['Compare the two answers', 'On the same data $7F $FF $80 the signed minimum is $80 (-128) and the unsigned minimum is $7F (127). Run both versions and see.'],
         ],
-        verified: 'Run on this site\'s 68000 emulator against five data sets. Not run on the real EASy68K.',
+        verified: 'Run on this site\'s 68000 emulator against five data sets. The solution was also assembled and run in a real EASy68K build (macOS port): identical registers, flags and memory.',
         solutions: [{ title: 'Unsigned: start at $FF, skip with BHI', code: H3_4 }], trace: { src: H3_4 },
       },
     ],
