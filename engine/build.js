@@ -27,8 +27,22 @@ for (const c of Object.values(data.concepts)) {
   };
 }
 const { course } = data;
+/* One lesson order per unit: shared concepts first, then each processor-specific concept of the first track with the
+   concepts of the following track that call back to it placed right after it, then any left over. */
+const firstTrack = course.tracks[0].id;
+const pathFor = (u) => {
+  const full = (t) => (u.concepts[t] || []).map((n) => `${u.id}.${n}`);
+  const path = [...full('shared')], placed = new Set(path);
+  const add = (id) => { if (!placed.has(id)) { placed.add(id); path.push(id); } };
+  for (const id of full(firstTrack)) {
+    add(id);
+    for (const t of course.tracks.filter((x) => x.id !== firstTrack)) for (const z of full(t.id)) if (concepts[z]?.bridge?.to === id) add(z);
+  }
+  for (const t of course.tracks) full(t.id).forEach(add);
+  return path;
+};
 const units = course.units.map((u) => ({
-  id: u.id, title: u.title, lesson: u.lesson, blurb: u.blurb,
+  id: u.id, title: u.title, lesson: u.lesson, blurb: u.blurb, path: pathFor(u),
   concepts: Object.fromEntries(Object.entries(u.concepts).map(([t, names]) => [t, names.map((n) => `${u.id}.${n}`)])),
 }));
 const exams = Object.values(data.exams).map((e) => ({ id: e.id, title: e.title, source: e.source, problems: e.problems.map((p) => ({ n: p.n, title: p.title, concepts: p.concepts || [], parts: p.parts || [], html: p.html })) }));

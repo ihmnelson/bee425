@@ -14,14 +14,13 @@ const C = COURSE.concepts;
 store.init(COURSE.id);
 
 const trackTitle = (id) => COURSE.tracks.find((t) => t.id === id)?.title || id;
-const myTrack = () => store.get().prefs.track || COURSE.tracks[0].id;
 const unitById = (id) => COURSE.units.find((u) => u.id === id);
 /* a unit's concepts for one track: the shared ones first, then that track's own */
-const pathOf = (unit, track) => [...(unit.concepts.shared || []), ...(unit.concepts[track] || [])];
+const pathOf = (unit) => unit.path;
 const rec = (id) => store.record(id);
 /* units grouped under their lesson label, keeping course order */
 const lessonGroups = () => { const g = []; for (const u of COURSE.units) { const last = g[g.length - 1]; if (last && last[0] === u.lesson) last[1].push(u); else g.push([u.lesson, [u]]); } return g; };
-const dueIds = () => COURSE.units.flatMap((u) => pathOf(u, myTrack())).filter((id) => isDue(rec(id)));
+const dueIds = () => COURSE.units.flatMap((u) => pathOf(u)).filter((id) => isDue(rec(id)));
 
 const useHash = () => {
   const [h, setH] = useState(location.hash || '#/');
@@ -36,7 +35,6 @@ const Html = ({ html, ...p }) => <div dangerouslySetInnerHTML={{ __html: html }}
 /* ---------- header and footer ---------- */
 function Header() {
   store.useStore();
-  const t = myTrack();
   return (
     <header class="top">
       <Link to="/" class="brand">{COURSE.title}</Link>
@@ -47,9 +45,6 @@ function Header() {
         <Link to="/exam">Exam prep</Link>
         <Link to="/progress">Progress</Link>
       </nav>
-      <div class="tracks" role="group" aria-label="Processor track">
-        {COURSE.tracks.map((x) => <button class={'chip' + (x.id === t ? ' on' : '')} onClick={() => store.setTrack(x.id)} aria-pressed={x.id === t}>{x.title}</button>)}
-      </div>
     </header>
   );
 }
@@ -58,7 +53,7 @@ const Footer = () => <footer class="foot">{COURSE.note} <a href="archive/">Previ
 /* ---------- home ---------- */
 function Home() {
   store.useStore();
-  const t = myTrack(), due = dueIds().length;
+  const due = dueIds().length;
   return (
     <main>
       <h1>{COURSE.title}</h1>
@@ -67,15 +62,15 @@ function Home() {
         <Link to="/diagnostic" class="btn primary">Start with a diagnostic</Link>
         {due > 0 && <Link to="/review" class="btn">Review {due} due</Link>}
       </div>
-      <p class="meta">Following the <b>{trackTitle(t)}</b> track. {COURSE.tracks.find((x) => x.id === t).blurb}</p>
+      <p class="meta">Every lesson teaches the 68000 first and then the Z80, each Z80 concept calling back to its 68000 twin. The two processors differ in the simulators, not in the lesson order.</p>
       {lessonGroups().map(([lesson, us]) => (
         <section>
           <h2>{lesson}</h2>
           <ul class="rows">
-            {us.map((u) => { const p = unitProgress(pathOf(u, t).map(rec)); return (
+            {us.map((u) => { const p = unitProgress(pathOf(u).map(rec)); return (
               <li><Link to={'/unit/' + u.id}>
                 <span><b>{u.title}</b><br /><span class="meta">{u.blurb}</span></span>
-                <span class="meta">{pathOf(u, t).length} concepts &middot; {Math.round(p.proficient * 100)}% proficient</span>
+                <span class="meta">{pathOf(u).length} concepts &middot; {Math.round(p.proficient * 100)}% proficient</span>
               </Link></li>); })}
           </ul>
         </section>
@@ -87,7 +82,7 @@ function Home() {
 /* ---------- unit ---------- */
 function Unit({ id }) {
   store.useStore();
-  const u = unitById(id), t = myTrack(), ids = pathOf(u, t);
+  const u = unitById(id), ids = pathOf(u);
   const allFamiliar = ids.every((c) => rec(c).level >= FAMILIAR);
   return (
     <main>
@@ -98,14 +93,14 @@ function Unit({ id }) {
         <Link to={'/testout/' + id} class="btn">Test out of this unit</Link>
         <Link to={'/test/' + id} class={'btn' + (allFamiliar ? ' primary' : '')}>Chapter test</Link>
       </div>
-      <p class="meta">Track: {trackTitle(t)}. Do the concepts in order; each one ends with checks. The chapter test mixes all of them.</p>
+      <p class="meta">Do the concepts in order; each one ends with checks. The chapter test mixes all of them.</p>
       <ol class="path">
         {ids.map((cid, i) => { const c = C[cid]; const blocked = c.needs.filter((n) => rec(n).level < FAMILIAR); return (
           <li>
             <Link to={'/learn/' + cid}>
               <span class="n">{i + 1}</span>
               <span class="grow"><b>{c.title}</b>{c.track !== 'shared' && <span class="tag">{trackTitle(c.track)}</span>}<br /><span class="meta">{c.summary}</span>
-                {blocked.length > 0 && <span class="meta warn"> Builds on: {blocked.map((n) => C[n].title).join(', ')}.</span>}</span>
+                {blocked.length > 0 && <span class="meta"> Builds on: {blocked.map((n) => C[n].title).join(', ')}.</span>}</span>
               <Level id={cid} />
             </Link>
           </li>); })}
@@ -116,7 +111,7 @@ function Unit({ id }) {
 
 /* ---------- the learn flow: Learn -> Worked example -> Try it -> Checks ---------- */
 function Learn({ id }) {
-  const c = C[id], u = unitById(c.unit), ids = pathOf(u, myTrack());
+  const c = C[id], u = unitById(c.unit), ids = pathOf(u);
   const [step, setStep] = useState(0);                      /* 0 learn, 1 worked, 2 try, 3 checks, 4 done */
   const [reveal, setReveal] = useState(false);
   const [result, setResult] = useState(null);
@@ -210,12 +205,11 @@ function Results({ results, mode, back }) {
 }
 
 function Test({ unitId, mode }) {                            /* mode: mixed | testout | diagnostic | review */
-  const t = myTrack();
   let ids, title, intro, per = 1;
-  if (mode === 'diagnostic') { ids = COURSE.units.flatMap((u) => pathOf(u, t)); title = 'Course diagnostic'; intro = 'One question per concept. Get one right and that concept is credited as Proficient (tested out); it still comes back in review. Skip anything you do not know: a wrong answer changes nothing.'; }
+  if (mode === 'diagnostic') { ids = COURSE.units.flatMap((u) => pathOf(u)); title = 'Course diagnostic'; intro = 'One question per concept. Get one right and that concept is credited as Proficient (tested out); it still comes back in review. Skip anything you do not know: a wrong answer changes nothing.'; }
   else if (mode === 'review') { ids = dueIds().slice(0, 10); title = 'Review'; intro = 'Concepts that are due. A miss moves a concept down a level so it returns sooner.'; }
-  else if (mode === 'testout') { ids = pathOf(unitById(unitId), t); title = `Test out: ${unitById(unitId).title}`; intro = 'One question per concept. Each one you get right is credited as Proficient. A wrong answer changes nothing, so you can still take the lessons.'; }
-  else { ids = pathOf(unitById(unitId), t); per = 2; title = `Chapter test: ${unitById(unitId).title}`; intro = 'Two questions per concept, mixed together. A concept is right only if both are right. Right moves Proficient concepts to Mastered; wrong moves a concept down.'; }
+  else if (mode === 'testout') { ids = pathOf(unitById(unitId)); title = `Test out: ${unitById(unitId).title}`; intro = 'One question per concept. Each one you get right is credited as Proficient. A wrong answer changes nothing, so you can still take the lessons.'; }
+  else { ids = pathOf(unitById(unitId)); per = 2; title = `Chapter test: ${unitById(unitId).title}`; intro = 'Two questions per concept, mixed together. A concept is right only if both are right. Right moves Proficient concepts to Mastered; wrong moves a concept down.'; }
   const [items] = useState(() => sample(ids, per));
   const [results, setResults] = useState(null);
   const [started, setStarted] = useState(false);
@@ -329,7 +323,7 @@ function Progress() {
       <h1>Progress</h1>
       <p class="lede">Saved in this browser only. Export it to move it to another device or keep a copy.</p>
       {COURSE.units.map((u) => <section><h2>{u.title}</h2>
-        <ul class="rows">{[...new Set([...(u.concepts.shared || []), ...COURSE.tracks.flatMap((t) => u.concepts[t.id] || [])])].map((cid) => (
+        <ul class="rows">{pathOf(u).map((cid) => (
           <li><Link to={'/learn/' + cid}><span><b>{C[cid].title}</b>{C[cid].track !== 'shared' && <span class="tag">{trackTitle(C[cid].track)}</span>}</span><Level id={cid} /></Link></li>))}</ul></section>)}
       <h2>Backup</h2>
       <div class="cta">
