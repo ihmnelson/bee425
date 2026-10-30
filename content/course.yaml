@@ -112,21 +112,45 @@ units:
     blurb: "Designing a memory system, byte lanes and endianness, the memory map, timing, SRAM versus DRAM and DRAM operation."
     concepts:
       shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write]
-  - id: lab-3-68008
-    title: "Lab 3: debugging a 68008 system"
-    lesson: "Lab 3"
-    blurb: "The 68008 board, reset vectors, the prefetch queue, chip selects, wait states and logic-analyzer measurements."
-    concepts:
-      shared: [m68008-board, reset-vector-fetch, prefetch-queue, function-codes-chip-selects, dtack-wait-states, la-measurements, decode-unknown-rom, lab-handling]
   - id: transistor-switching
     title: Diodes and transistors as switches
     lesson: "Lesson 8"
     blurb: "A practical review: diodes, the BJT as a switch, base resistors, saturation, open-collector drivers, Darlington pairs, MOSFETs and PNP circuits."
     concepts:
       shared: [diodes-led-zener, bjt-switch-model, base-resistor-design, saturation, choosing-transistor, open-collector-drivers, darlington-sziklai, mosfet-switch, pnp-high-side]
+  - id: data-conversion
+    title: Data conversion
+    lesson: "Lesson 10"
+    blurb: "Sensors, comparators, flash, ramp, successive-approximation and dual-slope converters, D/A converters, sample and hold, multiplexers and aliasing."
+    concepts:
+      shared: [analog-world, comparators, flash-adc, dac, adc-methods, adc-resolution-step, ramp-and-sar, vf-dual-slope, conversion-chain, analog-mux, sample-hold-droop, aliasing-nyquist]
+  - id: noise-and-isolation
+    title: Noise, isolation and watchdogs
+    lesson: "Lesson 10"
+    blurb: "Hysteresis and debouncing, optical isolation and watchdog timers."
+    concepts:
+      shared: [hysteresis-debounce, optical-isolation, watchdog-timer]
+  - id: power-and-compliance
+    title: Power, compliance and traces
+    lesson: "Lesson 10"
+    blurb: "CMOS power, regulation, RF emissions, trace termination and bus loading."
+    concepts:
+      shared: [cmos-power, power-regulation, rf-compliance, trace-termination, bus-loading]
+  - id: system-partitioning
+    title: Specifications and partitioning
+    lesson: "Lesson 10"
+    blurb: "Design specifications, stakeholders, hardware versus software and the cost trade-offs."
+    concepts:
+      shared: [design-spec-stakeholders, hw-sw-partitioning, hw-sw-cost-analysis]
   - id: debug-tools
     title: Tools for real-time design and debugging
     lesson: "Lesson 11"
     blurb: "What makes embedded systems different, debug monitors, ROM emulators, logic analyzers, in-circuit emulators, prefetch and cache headaches, BDM and JTAG."
     concepts:
       shared: [embedded-systems-and-process, debug-monitor-rom-emulator, logic-analyzer-tool, in-circuit-emulator, trace-challenges-jtag]
+  - id: lab-3-68008
+    title: "Lab 3: debugging a 68008 system"
+    lesson: "Lab 3"
+    blurb: "The 68008 board, reset vectors, the prefetch queue, chip selects, wait states and logic-analyzer measurements."
+    concepts:
+      shared: [m68008-board, reset-vector-fetch, prefetch-queue, function-codes-chip-selects, dtack-wait-states, la-measurements, decode-unknown-rom, lab-handling]
