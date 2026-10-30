@@ -12,9 +12,35 @@ tracks:
 slides:
   dir: "../Lecture slides"
   file: "BEE425F26Lesson{n}.pdf"
-  footer: 'BEE 425 / Microprocessor System Design\s+(\d+)'
+  footer: 'Microprocessor System Design\s+(\d+)'
 
 units:
+  - id: processor-basics
+    title: Microprocessors and microcontrollers
+    lesson: "Lesson 3"
+    blurb: "What a microprocessor is, its buses, CISC versus RISC, the blocks inside, and where the 68000 and Z80 came from."
+    concepts:
+      shared: [micro-vs-controller, bus-types, cisc-vs-risc, functional-blocks, system-components, processor-history]
+  - id: pcb-design
+    title: Designing a PCB
+    lesson: "Lesson 2"
+    blurb: "From schematic to board: workflow, why layouts fail, trace resistance, planes, bypass capacitors, grounds, clock skew and testability."
+    concepts:
+      shared: [pcb-workflow, pcb-error-causes, trace-resistance, power-planes-bypass, ground-management, clock-skew, testability-mechanical]
+  - id: clocks-and-pulses
+    title: Clocks and pulses
+    lesson: "Lesson 2"
+    blurb: "Period and frequency, duty cycle, pulse measurements, ringing and propagation delay."
+    concepts:
+      shared: [time-and-frequency, duty-cycle, pulse-parameters, signal-integrity, propagation-delay]
+  - id: programmers-model
+    title: The programmer's model
+    lesson: "Lesson 3"
+    blurb: "Registers, flags and number notation on each processor, and two's complement arithmetic."
+    concepts:
+      shared: [programmers-model, twos-complement, signed-overflow]
+      m68k: [m68k-registers, m68k-flags, m68k-notation]
+      z80: [z80-registers, z80-flags, z80-notation]
   - id: memory-decoding
     title: Memory decoding
     lesson: "Lessons 6-7"

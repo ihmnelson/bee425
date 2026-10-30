@@ -32,7 +32,8 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
       const q = g.make(rng(s));
       const got = parseNumber(q.answer), want = g.verify(q);
       kinds.add(q.prompt);
-      if (!(Math.abs(got - want) < 1e-9)) { bad++; if (bad <= 3) errors.push(`generator ${id} seed ${s}: make() says ${q.answer}, independent solver says ${want} (${q.prompt.slice(0, 70)})`); }
+      const slack = (q.tolerance || 0) * Math.max(1, Math.abs(want)) / 2 + 1e-9;   /* the stored answer may be rounded, within half the allowed tolerance */
+      if (!(Math.abs(got - want) <= slack)) { bad++; if (bad <= 3) errors.push(`generator ${id} seed ${s}: make() says ${q.answer}, independent solver says ${want} (${q.prompt.slice(0, 70)})`); }
       for (const f of ['prompt', 'explain']) if (!q[f]) { errors.push(`generator ${id} seed ${s}: no ${f}`); break; }
     }
     genStats.push(`${id}: ${seeds} seeds, ${kinds.size} distinct questions, ${bad} disagreements`);
@@ -51,8 +52,21 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
         const pdf = path.join(dir, sl.file.replace('{n}', n));
         if (!fs.existsSync(pdf)) return (cache[n] = null);
         const txt = execFileSync('pdftotext', [pdf, '-'], { encoding: 'utf8', maxBuffer: 64e6 });
-        const re = new RegExp(sl.footer, 'g'); const map = {}; let last = 0, m;
-        while ((m = re.exec(txt))) { map[m[1]] = squash(txt.slice(last, m.index)); last = m.index + m[0].length; }
+        /* one PDF page = one slide. The printed slide number is read from the footer; a page whose footer has no number
+           (the footer is sometimes empty) is numbered from its neighbours. */
+        const pages = txt.split('\f'); if (pages.length && !pages[pages.length - 1].trim()) pages.pop();
+        const re = new RegExp(sl.footer);
+        const nums = pages.map((t) => { const m = re.exec(t); return m ? Number(m[1]) : null; });
+        const map = {};
+        pages.forEach((t, i) => {
+          let num = nums[i];
+          if (num === null) {
+            let j = i - 1; while (j >= 0 && nums[j] === null) j--;
+            if (j >= 0) num = nums[j] + (i - j);
+            else { j = i + 1; while (j < nums.length && nums[j] === null) j++; if (j < nums.length) num = nums[j] - (j - i); }
+          }
+          if (num !== null) map[num] = (map[num] || '') + squash(t);
+        });
         return (cache[n] = map);
       };
       let checked = 0, ok = 0;
