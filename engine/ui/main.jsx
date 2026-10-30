@@ -19,6 +19,8 @@ const unitById = (id) => COURSE.units.find((u) => u.id === id);
 /* a unit's concepts for one track: the shared ones first, then that track's own */
 const pathOf = (unit, track) => [...(unit.concepts.shared || []), ...(unit.concepts[track] || [])];
 const rec = (id) => store.record(id);
+/* units grouped under their lesson label, keeping course order */
+const lessonGroups = () => { const g = []; for (const u of COURSE.units) { const last = g[g.length - 1]; if (last && last[0] === u.lesson) last[1].push(u); else g.push([u.lesson, [u]]); } return g; };
 const dueIds = () => COURSE.units.flatMap((u) => pathOf(u, myTrack())).filter((id) => isDue(rec(id)));
 
 const useHash = () => {
@@ -66,14 +68,18 @@ function Home() {
         {due > 0 && <Link to="/review" class="btn">Review {due} due</Link>}
       </div>
       <p class="meta">Following the <b>{trackTitle(t)}</b> track. {COURSE.tracks.find((x) => x.id === t).blurb}</p>
-      <h2>Units</h2>
-      <ul class="rows">
-        {COURSE.units.map((u) => { const p = unitProgress(pathOf(u, t).map(rec)); return (
-          <li><Link to={'/unit/' + u.id}>
-            <span><b>{u.title}</b> <span class="meta">{u.lesson}</span><br /><span class="meta">{u.blurb}</span></span>
-            <span class="meta">{Math.round(p.proficient * 100)}% proficient</span>
-          </Link></li>); })}
-      </ul>
+      {lessonGroups().map(([lesson, us]) => (
+        <section>
+          <h2>{lesson}</h2>
+          <ul class="rows">
+            {us.map((u) => { const p = unitProgress(pathOf(u, t).map(rec)); return (
+              <li><Link to={'/unit/' + u.id}>
+                <span><b>{u.title}</b><br /><span class="meta">{u.blurb}</span></span>
+                <span class="meta">{pathOf(u, t).length} concepts &middot; {Math.round(p.proficient * 100)}% proficient</span>
+              </Link></li>); })}
+          </ul>
+        </section>
+      ))}
     </main>
   );
 }

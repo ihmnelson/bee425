@@ -25,6 +25,8 @@ export function splitSections(body) {
   return out;
 }
 
+/* active-low signal names (~CS, ~OE) use a tilde, so turn off GFM strikethrough */
+marked.use({ tokenizer: { del() { return undefined; } } });
 const html = (md) => (md ? marked.parse(md, { gfm: true }) : '');
 
 export function loadCourse(root) {

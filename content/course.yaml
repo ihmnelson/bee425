@@ -20,12 +20,6 @@ oracles:
   z80: oracles/z80.js
 
 units:
-  - id: processor-basics
-    title: Microprocessors and microcontrollers
-    lesson: "Lesson 3"
-    blurb: "What a microprocessor is, its buses, CISC versus RISC, the blocks inside, and where the 68000 and Z80 came from."
-    concepts:
-      shared: [micro-vs-controller, bus-types, cisc-vs-risc, functional-blocks, system-components, processor-history]
   - id: pcb-design
     title: Designing a PCB
     lesson: "Lesson 2"
@@ -38,6 +32,20 @@ units:
     blurb: "Period and frequency, duty cycle, pulse measurements, ringing and propagation delay."
     concepts:
       shared: [time-and-frequency, duty-cycle, pulse-parameters, signal-integrity, propagation-delay]
+  - id: processor-basics
+    title: Microprocessors and microcontrollers
+    lesson: "Lesson 3"
+    blurb: "What a microprocessor is, its buses, CISC versus RISC, the blocks inside, and where the 68000 and Z80 came from."
+    concepts:
+      shared: [micro-vs-controller, bus-types, cisc-vs-risc, functional-blocks, system-components, processor-history]
+  - id: programmers-model
+    title: The programmer's model
+    lesson: "Lesson 3"
+    blurb: "Registers, flags and number notation on each processor, and two's complement arithmetic."
+    concepts:
+      shared: [programmers-model, twos-complement, signed-overflow]
+      m68k: [m68k-registers, m68k-flags, m68k-notation]
+      z80: [z80-registers, z80-flags, z80-notation]
   - id: assembly-intro
     title: Introduction to assembly language
     lesson: "Lesson 4"
@@ -52,14 +60,6 @@ units:
       shared: []
       m68k: [m68k-instruction-words, m68k-directives, m68k-move, m68k-zero-block, m68k-largest-value]
       z80: [z80-instruction-bytes, z80-directives, z80-load, z80-zero-block, z80-largest-value]
-  - id: programmers-model
-    title: The programmer's model
-    lesson: "Lesson 3"
-    blurb: "Registers, flags and number notation on each processor, and two's complement arithmetic."
-    concepts:
-      shared: [programmers-model, twos-complement, signed-overflow]
-      m68k: [m68k-registers, m68k-flags, m68k-notation]
-      z80: [z80-registers, z80-flags, z80-notation]
   - id: addressing-modes
     title: Addressing modes
     lesson: "Lesson 5"
@@ -82,12 +82,6 @@ units:
     blurb: "Sharing a bus, chip enable and output enable, the SRAM cell, address space and alignment."
     concepts:
       shared: [bus-contention-tristate, chip-enable-output-enable, sram-cell, address-space-alignment]
-  - id: memory-systems
-    title: Memory systems and DRAM
-    lesson: "Lesson 7"
-    blurb: "Designing a memory system, byte lanes and endianness, the memory map, timing, SRAM versus DRAM and DRAM operation."
-    concepts:
-      shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write]
   - id: memory-decoding
     title: Memory decoding
     lesson: "Lessons 6-7"
@@ -96,3 +90,9 @@ units:
       shared: [address-lines, chip-organization, pages-and-offsets, page-ranges, chip-select]
       m68k: [m68k-memory-map]
       z80: [z80-memory-map]
+  - id: memory-systems
+    title: Memory systems and DRAM
+    lesson: "Lesson 7"
+    blurb: "Designing a memory system, byte lanes and endianness, the memory map, timing, SRAM versus DRAM and DRAM operation."
+    concepts:
+      shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write]
