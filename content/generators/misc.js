@@ -95,4 +95,25 @@ const traceBuffer = {
   verify({ params: { depth, pct } }) { let n = 0; for (let k = 0; k < 100; k++) if (k < pct) n += depth / 100; return n; },
 };
 
-export const generators = { 'la.statesPerClock': statesPerClock, 'la.traceBuffer': traceBuffer, 'adc.stepSize': adcStep, 'trends.moore': moore, 'lab.waitStates': waitStates, 'lab.laResolution': laResolution };
+/* ---- N-input XOR (odd parity) ---- */
+const xorOdd = {
+  make(rand) {
+    const n = rand.int(2, 5), bits = Array.from({ length: n }, () => rand.int(0, 1));
+    const out = bits.reduce((a, b) => a ^ b, 0);
+    return { type: 'numeric', params: { bits }, prompt: `A ${n}-input XOR gate (built as a cascade of two-input XORs) has the inputs **${bits.join(', ')}**. What is its output (0 or 1)?`, answer: out, display: String(out),
+      explain: `A multi-input XOR outputs 1 when the number of 1s at its inputs is **odd** (it is a parity generator). Here there are ${bits.filter(Boolean).length} ones, which is ${out ? 'odd, so the output is **1**' : 'even, so the output is **0**'}.` };
+  },
+  verify({ params: { bits } }) { let acc = 0; for (const b of bits) acc = acc === b ? 0 : 1; return acc; },      /* fold two-input XORs: equal inputs give 0, different give 1 */
+};
+
+/* ---- Trigger pattern: which bits of a byte are 1 ---- */
+const patternOnes = {
+  make(rand) {
+    const v = rand.int(1, 254), bin = v.toString(2).padStart(8, '0');
+    return { type: 'numeric', params: { v }, prompt: `You want the logic analyzer to trigger on the data byte **${v.toString(16).toUpperCase().padStart(2, '0')}h**. In the Pattern A column the eight bits D7 to D0 are set to 1, 0 or X. How many of the eight bits must be set to **1**?`, answer: bin.split('').filter((c) => c === '1').length, display: String(bin.split('').filter((c) => c === '1').length),
+      explain: `${v.toString(16).toUpperCase().padStart(2, '0')}h = ${bin.slice(0, 4)} ${bin.slice(4)} in binary (D7...D0), which has **${bin.split('').filter((c) => c === '1').length}** ones. Set those bits to 1 and the rest to 0 (X would mean don't care).` };
+  },
+  verify({ params: { v } }) { let n = 0, x = v; for (let i = 0; i < 8; i++) { n += x % 2; x = Math.floor(x / 2); } return n; },
+};
+
+export const generators = { 'lab.xorOdd': xorOdd, 'lab.patternOnes': patternOnes, 'la.statesPerClock': statesPerClock, 'la.traceBuffer': traceBuffer, 'adc.stepSize': adcStep, 'trends.moore': moore, 'lab.waitStates': waitStates, 'lab.laResolution': laResolution };

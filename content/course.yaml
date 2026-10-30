@@ -16,6 +16,8 @@ slides:
 
 # Handouts (Word files) whose quotes the audit checks. The id is the first word of a handout source's ref.
 handouts:
+  lab1: "../../lab1/Lab Experiment 1-Rev5.pdf"
+  lab2: "../../lab2/BEE425 Lab Experiment 2 -Rev 10-remediated.pdf"
   lab3: "../../lab3/BEE425 Lab Experiment 3 -Rev 6-corrected.docx"
 
 # Cores that run executable claims (encodings and programs in concept files). Each module exports encode(asm) and run(source, expect).
@@ -148,6 +150,18 @@ units:
     blurb: "What makes embedded systems different, debug monitors, ROM emulators, logic analyzers, in-circuit emulators, prefetch and cache headaches, BDM and JTAG."
     concepts:
       shared: [embedded-systems-and-process, debug-monitor-rom-emulator, logic-analyzer-tool, in-circuit-emulator, trace-challenges-jtag]
+  - id: lab-1-logic-analyzer
+    title: "Lab 1: using the logic analyzer"
+    lesson: "Lab 1"
+    blurb: "The pseudorandom number generator, state-mode set-up and triggers, timing-mode propagation delay, and the report."
+    concepts:
+      shared: [pseudorandom-generator, la-state-mode-setup, timing-propagation-delay, lab1-report]
+  - id: lab-2-z80-logic-analyzer
+    title: "Lab 2: real-time debugging of a Z80"
+    lesson: "Lab 2"
+    blurb: "The Z80 op-code fetch cycle, the lab board, the analyzer procedure and decoding the sample program."
+    concepts:
+      shared: [z80-m1-cycle, z80-lab-board, z80-la-procedure, z80-sample-program]
   - id: lab-3-68008
     title: "Lab 3: debugging a 68008 system"
     lesson: "Lab 3"

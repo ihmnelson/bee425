@@ -138,8 +138,11 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
     const full = path.resolve(root, file);
     if (!fs.existsSync(full)) { warnings.push(`${c.id}: handout file for "${id}" not found, quote not checked`); continue; }
     if (!(id in handoutText)) {
+      if (/\.pdf$/i.test(full)) handoutText[id] = squash(execFileSync('pdftotext', [full, '-'], { encoding: 'utf8', maxBuffer: 64e6 }));
+      else {
       const xml = execFileSync('unzip', ['-p', full, 'word/document.xml'], { encoding: 'utf8', maxBuffer: 64e6 });
       handoutText[id] = squash(xml.replace(/<w:tab\/>|<\/w:p>/g, ' ').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'"));
+      }
     }
     hChecked++;
     if (handoutText[id].includes(squash(x.quote))) hOk++; else errors.push(`${c.id}: quote not found in handout ${id}: "${x.quote}"`);
