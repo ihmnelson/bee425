@@ -4,5 +4,6 @@ import { generators as pcb } from './pcb.js';
 import { generators as number } from './number.js';
 import { generators as dram } from './dram.js';
 import { generators as misc } from './misc.js';
+import { generators as transistor } from './transistor.js';
 
-export const generators = { ...memory, ...pcb, ...number, ...dram, ...misc };
+export const generators = { ...memory, ...pcb, ...number, ...dram, ...misc, ...transistor };

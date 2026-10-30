@@ -91,7 +91,14 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
            (the footer is sometimes empty) is numbered from its neighbours. */
         const pages = txt.split('\f'); if (pages.length && !pages[pages.length - 1].trim()) pages.pop();
         const re = new RegExp(sl.footer);
-        const nums = pages.map((t) => { const m = re.exec(t); return m ? Number(m[1]) : null; });
+        let nums = pages.map((t) => { const m = re.exec(t); return m ? Number(m[1]) : null; });
+        /* a footer number far from where its neighbours put it is a misread (a number split across lines): treat as unknown */
+        let lastNum = null, lastIdx = -1;
+        nums = nums.map((v, i) => {
+          if (v === null) return null;
+          if (lastNum === null || Math.abs(v - (lastNum + (i - lastIdx))) <= 3) { lastNum = v; lastIdx = i; return v; }
+          return null;
+        });
         const map = {};
         pages.forEach((t, i) => {
           let num = nums[i];

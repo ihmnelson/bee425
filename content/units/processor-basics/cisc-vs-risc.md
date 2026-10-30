@@ -4,7 +4,7 @@ title: CISC, RISC and DSP architectures
 summary: Many complex variable-length instructions versus few simple fixed-length ones.
 needs: [micro-vs-controller]
 sources:
-  - { type: slide, ref: "L3 s145", quote: "Characterized by many instructions and addressing modes" }
+  - { type: slide, ref: "L3 s113", quote: "Characterized by many instructions and addressing modes" }
   - { type: slide, ref: "L3 s114", quote: "One instruction executed per clock cycle" }
   - { type: slide, ref: "L3 s118", quote: "No memory to memory transfers" }
   - { type: slide, ref: "L3 s117", quote: "Add and store result" }
