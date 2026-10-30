@@ -16,6 +16,9 @@ slides:
 
 # Handouts (Word files) whose quotes the audit checks. The id is the first word of a handout source's ref.
 handouts:
+  hw1: "../../Homework/BEE425hw1.pdf"
+  hw2: "../../Homework/BEE425F26HW2(1).pdf"
+  hw3: "../../Homework/BEE425F26HW3.pdf"
   lab1: "../../lab1/Lab Experiment 1-Rev5.pdf"
   lab2: "../../lab2/BEE425 Lab Experiment 2 -Rev 10-remediated.pdf"
   lab3: "../../lab3/BEE425 Lab Experiment 3 -Rev 6-corrected.docx"
@@ -168,3 +171,21 @@ units:
     blurb: "The 68008 board, reset vectors, the prefetch queue, chip selects, wait states and logic-analyzer measurements."
     concepts:
       shared: [m68008-board, reset-vector-fetch, prefetch-queue, function-codes-chip-selects, dtack-wait-states, la-measurements, decode-unknown-rom, lab-handling]
+  - id: homework-1-pcb
+    title: "Homework 1: your first PCB"
+    lesson: "Homework"
+    blurb: "Schematic before layout, the instrumentation amplifier, CAD tools and Gerber files."
+    concepts:
+      shared: [hw1-schematic-first, hw1-iamp-matching, hw1-cad-gerber]
+  - id: homework-2-first-program
+    title: "Homework 2: your first 68000 program"
+    lesson: "Homework"
+    blurb: "The EASy68K workflow and tracing the homework program."
+    concepts:
+      shared: [hw2-workflow, hw2-trace]
+  - id: homework-3-programs
+    title: "Homework 3: three 68000 programs"
+    lesson: "Homework"
+    blurb: "Add longwords, search a block for a word, and find the smallest byte (signed or unsigned)."
+    concepts:
+      shared: [hw3-add-longwords, hw3-search-word, hw3-smallest-byte]
