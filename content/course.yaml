@@ -1,7 +1,7 @@
 id: bee425
 title: BEE 425 Quest
 subtitle: Microprocessor System Design, University of Washington Bothell
-note: "Rebuild in progress. Lessons 2 to 7 and the midterm practice problems are in; the rest is still coming. The previous version is at /archive/."
+note: "Rebuild in progress. Lessons 1 to 7, Lab 3 and the midterm practice problems are in; Lessons 8, 10 and 11, Labs 1 and 2, the homework, the simulators and the games are still coming."
 
 # Tracks share one learning model. A track with "follows" must give every concept a bridge back to the track it follows.
 tracks:
@@ -14,12 +14,28 @@ slides:
   file: "BEE425F26Lesson{n}.pdf"
   footer: 'Microprocessor System Design\s+(\d+)'
 
+# Handouts (Word files) whose quotes the audit checks. The id is the first word of a handout source's ref.
+handouts:
+  lab3: "../../lab3/BEE425 Lab Experiment 3 -Rev 6-corrected.docx"
+
 # Cores that run executable claims (encodings and programs in concept files). Each module exports encode(asm) and run(source, expect).
 oracles:
   m68k: oracles/m68k.js
   z80: oracles/z80.js
 
 units:
+  - id: course-intro
+    title: Welcome to BEE 425
+    lesson: "Lesson 1"
+    blurb: "How the course is organised and graded, analog computers, and Moore's law."
+    concepts:
+      shared: [course-structure, analog-computers, moores-law]
+  - id: design-process
+    title: The design process
+    lesson: "Lesson 1"
+    blurb: "From research to bring-up: design phases, software planning, design reviews, test plans and choosing parts."
+    concepts:
+      shared: [design-phases, software-planning, design-review, test-plan, adc-resolution]
   - id: pcb-design
     title: Designing a PCB
     lesson: "Lesson 2"
@@ -96,3 +112,9 @@ units:
     blurb: "Designing a memory system, byte lanes and endianness, the memory map, timing, SRAM versus DRAM and DRAM operation."
     concepts:
       shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write]
+  - id: lab-3-68008
+    title: "Lab 3: debugging a 68008 system"
+    lesson: "Lab 3"
+    blurb: "The 68008 board, reset vectors, the prefetch queue, chip selects, wait states and logic-analyzer measurements."
+    concepts:
+      shared: [m68008-board, reset-vector-fetch, prefetch-queue, function-codes-chip-selects, dtack-wait-states, la-measurements, decode-unknown-rom, lab-handling]

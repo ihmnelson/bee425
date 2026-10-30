@@ -20,6 +20,7 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
   const data = loadCourse(contentDir);
   const { errors, warnings } = validate(data, generators);
   const lines = [];
+  let lines_h = '';
 
   /* generators */
   const used = new Set(Object.values(data.concepts).flatMap((c) => (c.checks || []).filter((k) => k.gen).map((k) => k.gen)));
@@ -119,11 +120,31 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
     }
   }
 
+  /* handout quotes: {type: handout, ref: "<id> <section>", quote} is looked up in the .docx text */
+  const handoutText = {};
+  const hdir = data.course.handouts || {};
+  let hChecked = 0, hOk = 0;
+  for (const c of Object.values(data.concepts)) for (const x of c.sources || []) {
+    if (x.type !== 'handout' || !x.quote) continue;
+    const id = String(x.ref).split(' ')[0], file = hdir[id];
+    if (!file) { warnings.push(`${c.id}: handout "${id}" is not listed under handouts: in course.yaml`); continue; }
+    const full = path.resolve(root, file);
+    if (!fs.existsSync(full)) { warnings.push(`${c.id}: handout file for "${id}" not found, quote not checked`); continue; }
+    if (!(id in handoutText)) {
+      const xml = execFileSync('unzip', ['-p', full, 'word/document.xml'], { encoding: 'utf8', maxBuffer: 64e6 });
+      handoutText[id] = squash(xml.replace(/<w:tab\/>|<\/w:p>/g, ' ').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'"));
+    }
+    hChecked++;
+    if (handoutText[id].includes(squash(x.quote))) hOk++; else errors.push(`${c.id}: quote not found in handout ${id}: "${x.quote}"`);
+  }
+  if (hChecked) lines_h = `Handout quotes: ${hOk} of ${hChecked} found`;
+
   const concepts = Object.values(data.concepts);
   const unverified = warnings.filter((w) => w.includes(': unverified'));
   lines.push(`Exam problems: ${Object.values(data.exams || {}).reduce((n, e) => n + e.problems.length, 0)}`);
   lines.push(`Concepts: ${concepts.length}   Checks: ${concepts.reduce((n, c) => n + (c.checks || []).length, 0)}   Generated check slots: ${concepts.reduce((n, c) => n + (c.checks || []).filter((k) => k.gen).length, 0)}`);
   lines.push(`Slide quotes: ${quoteReport}`);
+  if (lines_h) lines.push(lines_h);
   lines.push(`Executable claims run on the cores: ${encChecked} encodings, ${progChecked} programs`);
   lines.push('Generators:', ...genStats.map((s) => '  ' + s));
   lines.push(`Unverified concepts (no slide/manual/oracle evidence): ${unverified.length}`);
