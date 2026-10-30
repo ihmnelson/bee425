@@ -10,7 +10,7 @@ export const conceptIds = (course, unit) => Object.values(unit.concepts).flat().
 const words = (s) => String(s).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(Boolean);
 const jaccard = (a, b) => { const A = new Set(a), B = new Set(b); let i = 0; for (const x of A) if (B.has(x)) i++; return i / (A.size + B.size - i || 1); };
 
-export function validate({ course, concepts, problems }, generators = {}) {
+export function validate({ course, concepts, exams = {}, problems }, generators = {}) {
   const errors = [...problems], warnings = [];
   const E = (id, msg) => errors.push(`${id}: ${msg}`);
   const W = (id, msg) => warnings.push(`${id}: ${msg}`);
@@ -78,6 +78,23 @@ export function validate({ course, concepts, problems }, generators = {}) {
     if (c.bridge && c.bridge !== 'none') {
       for (const f of ['to', 'same', 'different', 'why']) if (!c.bridge[f]) E(id, `bridge is missing "${f}"`);
       if (c.bridge.to && !concepts[c.bridge.to]) E(id, `bridge.to "${c.bridge.to}" is not a concept`);
+    }
+  }
+
+  for (const ex of Object.values(exams)) {
+    const id = `exam ${ex.id}`;
+    if (!ex.title) E(id, 'missing title');
+    if (!(ex.problems || []).length) E(id, 'no problems');
+    const seen = new Set();
+    for (const p of ex.problems || []) {
+      const where = `problem ${p.n}`;
+      if (seen.has(p.n)) E(id, `${where}: number used twice`); seen.add(p.n);
+      if (!p.title) E(id, `${where}: no title`);
+      if (!p.prompt) E(id, `${where}: no prompt`);
+      if (!p.solution && !(p.parts || []).length) E(id, `${where}: needs a solution or parts with answers`);
+      for (const c of p.concepts || []) if (!concepts[c]) E(id, `${where}: concept "${c}" does not exist`);
+      if (!(p.concepts || []).length) W(id, `${where}: not linked to any concept, so it cannot update mastery`);
+      for (const part of p.parts || []) for (const f of ['label', 'prompt', 'answer', 'explain']) if (part[f] === undefined) E(id, `${where}: a part has no ${f}`);
     }
   }
 

@@ -52,5 +52,16 @@ export function loadCourse(root) {
       };
     }
   }
-  return { course, concepts, problems };
+  const exams = {};
+  const examsDir = path.join(root, 'exams');
+  for (const file of fs.existsSync(examsDir) ? fs.readdirSync(examsDir).filter((f) => f.endsWith('.md')).sort() : []) {
+    const id = file.replace(/\.md$/, '');
+    let parsed;
+    try { parsed = splitFrontMatter(fs.readFileSync(path.join(examsDir, file), 'utf8')); }
+    catch (e) { problems.push(`exam ${id}: front matter is not valid YAML (${e.message.split('\n')[0]})`); continue; }
+    if (!parsed.meta) { problems.push(`exam ${id}: no front matter`); continue; }
+    const m = parsed.meta;
+    exams[id] = { id, ...m, problems: (m.problems || []).map((p) => ({ ...p, html: { prompt: html(p.prompt), solution: html(p.solution) } })) };
+  }
+  return { course, concepts, exams, problems };
 }

@@ -42,7 +42,7 @@ Written 2026-10-30. Goals: (1) remove duplicated material, (2) make it a good le
 
 0. **Archive** (done 2026-10-30): tag `v1-archive`, copy in `archive/`.
 1. **Engine** (pilot built 2026-10-30 on branch `rebuild`): schema, build, audit, Preact player, mastery model, one pilot unit end to end (memory decoding: 5 shared concepts, one 68000, one Z80 with a bridge). `npm run build`, `npm run audit`, `npm test`. Not yet: games, simulators, exam prep, the other units.
-2. **Migrate**: decompose existing flashcards, guides, quiz items, Start here and homework into concept records, one chapter at a time in lecture order. Delete the old duplicate as each lands.
+2. **Migrate** (in progress, 2026-10-30: Lessons 2-7 done as 75 concepts on both tracks; Lessons 1, 8, 10, 11 and the labs, homework and old Start here material still to do): decompose existing flashcards, guides, quiz items, Start here and homework into concept records, one chapter at a time in lecture order. Delete the old duplicate as each lands.
 3. **Add**: gaps found in the mock exam (trace width from resistivity, clock skew, split ground planes, bypass capacitors, duty cycle, hand assembly to hex, write-a-program) and Lab 3.
 4. **Test-out and Exam Prep**, then navigation overhaul and cutover.
 5. **Extract the skill** with a short guide; try it on a second class.

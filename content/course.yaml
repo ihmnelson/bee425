@@ -1,7 +1,7 @@
 id: bee425
 title: BEE 425 Quest
 subtitle: Microprocessor System Design, University of Washington Bothell
-note: Pilot build. Only the Memory decoding unit exists so far. The previous site is still at /archive/.
+note: "Rebuild in progress. Lessons 2 to 7 and the midterm practice problems are in; the rest is still coming. The previous version is at /archive/."
 
 # Tracks share one learning model. A track with "follows" must give every concept a bridge back to the track it follows.
 tracks:
@@ -81,7 +81,7 @@ units:
     lesson: "Lesson 6"
     blurb: "Sharing a bus, chip enable and output enable, the SRAM cell, address space and alignment."
     concepts:
-      shared: [bus-contention-tristate, chip-enable-output-enable, sram-cell, address-space-alignment]
+      shared: [bus-contention-tristate, chip-enable-output-enable, active-low-negative-logic, sram-cell, address-space-alignment]
   - id: memory-decoding
     title: Memory decoding
     lesson: "Lessons 6-7"

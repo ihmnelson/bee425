@@ -6,7 +6,7 @@ import { blank } from '../lib/mastery.js';
 const VERSION = 2;
 let key = 'quest.v2.course', state = null;
 const subs = new Set();
-const fresh = () => ({ v: VERSION, prefs: { track: null }, records: {} });
+const fresh = () => ({ v: VERSION, prefs: { track: null }, records: {}, exam: {} });
 
 export function init(courseId) {
   key = `quest.v2.${courseId}`;
@@ -20,6 +20,8 @@ const notify = () => subs.forEach((f) => f());
 export const get = () => state;
 export const record = (id) => state.records[id] || blank();
 export function setRecords(map) { state = { ...state, records: { ...state.records, ...map } }; persist(); notify(); }
+export function setExam(examId, n, status) { state = { ...state, exam: { ...(state.exam || {}), [examId]: { ...((state.exam || {})[examId] || {}), [n]: status } } }; persist(); notify(); }
+export const examStatus = (examId, n) => ((state.exam || {})[examId] || {})[n] || null;
 export function setTrack(track) { state = { ...state, prefs: { ...state.prefs, track } }; persist(); notify(); }
 export function reset() { state = fresh(); persist(); notify(); }
 export const exportJSON = () => JSON.stringify(state, null, 2);

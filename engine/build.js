@@ -31,7 +31,8 @@ const units = course.units.map((u) => ({
   id: u.id, title: u.title, lesson: u.lesson, blurb: u.blurb,
   concepts: Object.fromEntries(Object.entries(u.concepts).map(([t, names]) => [t, names.map((n) => `${u.id}.${n}`)])),
 }));
-const payload = { id: course.id, title: course.title, subtitle: course.subtitle, note: course.note || '', tracks: course.tracks, units, concepts };
+const exams = Object.values(data.exams).map((e) => ({ id: e.id, title: e.title, source: e.source, problems: e.problems.map((p) => ({ n: p.n, title: p.title, concepts: p.concepts || [], parts: p.parts || [], html: p.html })) }));
+const payload = { exams, id: course.id, title: course.title, subtitle: course.subtitle, note: course.note || '', tracks: course.tracks, units, concepts };
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });

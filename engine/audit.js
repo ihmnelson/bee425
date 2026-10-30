@@ -61,6 +61,18 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
     if (hasClaims && !claimsOracle) warnings.push(`${c.id}: has executable claims but no { type: oracle } source`);
   }
 
+  for (const ex of Object.values(data.exams || {})) for (const pr of ex.problems || []) {
+    for (const e of pr.encodings || []) {
+      const o = oracles[e.cpu]; const got = o.encode(e.asm); encChecked++;
+      if (got.error) errors.push(`exam ${ex.id} problem ${pr.n}: "${e.asm}" does not assemble: ${got.error}`);
+      else if (got.hex !== String(e.hex).replace(/\s+/g, '').toUpperCase()) errors.push(`exam ${ex.id} problem ${pr.n}: "${e.asm}" assembles to ${got.hex}, the solution says ${e.hex}`);
+    }
+    for (const p of pr.programs || []) {
+      const fails = oracles[p.cpu].run(p.source, p.expect || {}); progChecked++;
+      for (const f of fails) errors.push(`exam ${ex.id} problem ${pr.n}: program "${(p.name || '').slice(0, 40)}": ${f}`);
+    }
+  }
+
   /* slide quotes */
   let quoteReport = 'skipped';
   const sl = data.course.slides;
@@ -109,6 +121,7 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
 
   const concepts = Object.values(data.concepts);
   const unverified = warnings.filter((w) => w.includes(': unverified'));
+  lines.push(`Exam problems: ${Object.values(data.exams || {}).reduce((n, e) => n + e.problems.length, 0)}`);
   lines.push(`Concepts: ${concepts.length}   Checks: ${concepts.reduce((n, c) => n + (c.checks || []).length, 0)}   Generated check slots: ${concepts.reduce((n, c) => n + (c.checks || []).filter((k) => k.gen).length, 0)}`);
   lines.push(`Slide quotes: ${quoteReport}`);
   lines.push(`Executable claims run on the cores: ${encChecked} encodings, ${progChecked} programs`);

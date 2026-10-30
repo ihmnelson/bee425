@@ -44,7 +44,7 @@ function Header() {
         <Link to="/" class="on">Learn</Link>
         <span class="soon" title="Not rebuilt yet">Games</span>
         <span class="soon" title="Not rebuilt yet">Simulators</span>
-        <span class="soon" title="Not rebuilt yet">Exam prep</span>
+        <Link to="/exam">Exam prep</Link>
         <Link to="/progress">Progress</Link>
       </nav>
       <div class="tracks" role="group" aria-label="Processor track">
@@ -238,6 +238,79 @@ function Test({ unitId, mode }) {                            /* mode: mixed | te
   );
 }
 
+/* ---------- exam prep ---------- */
+const EXAMS = COURSE.exams || [];
+function ExamList() {
+  store.useStore();
+  return (
+    <main>
+      <h1>Exam prep</h1>
+      <p class="lede">Practice problems with full solutions. Try each one on paper first, then check yourself: the problems you miss pull their concepts back into your review.</p>
+      <ul class="rows">
+        {EXAMS.map((e) => { const done = e.problems.filter((p) => store.examStatus(e.id, p.n)).length; return (
+          <li><Link to={'/exam/' + e.id}><span><b>{e.title}</b><br /><span class="meta">{e.source}</span></span><span class="meta">{done} of {e.problems.length} done</span></Link></li>); })}
+      </ul>
+      <p class="meta">More sets (homework, labs, mock exams) are still to come.</p>
+    </main>
+  );
+}
+
+function Problem({ exam, p, onGrade }) {
+  const [shown, setShown] = useState({});
+  const status = store.examStatus(exam.id, p.n);
+  const all = (p.parts || []).length ? p.parts.every((x) => shown[x.label]) : !!shown.solution;
+  return (
+    <section class="problem">
+      <h2>Problem {p.n}: {p.title}</h2>
+      <Html class="prose" html={p.html.prompt} />
+      {(p.parts || []).map((x) => (
+        <div class="part">
+          <p><b>{x.label}.</b> <span dangerouslySetInnerHTML={{ __html: fmt(x.prompt) }} /></p>
+          {shown[x.label]
+            ? <div class="solution"><p><b>{x.answer}</b></p><p dangerouslySetInnerHTML={{ __html: fmt(x.explain) }} /></div>
+            : <button class="btn" onClick={() => setShown({ ...shown, [x.label]: true })}>Show answer</button>}
+        </div>
+      ))}
+      {p.html.solution && (shown.solution ? <Html class="prose solution" html={p.html.solution} /> : <button class="btn" onClick={() => setShown({ ...shown, solution: true })}>Show solution</button>)}
+      {!all && (p.parts || []).length > 1 && <div><button class="btn" onClick={() => setShown(Object.fromEntries(p.parts.map((x) => [x.label, true])))}>Show all answers</button></div>}
+      <div class="cta">
+        <span class="meta">How did you do?</span>
+        <button class={'btn' + (status === 'got' ? ' primary' : '')} onClick={() => onGrade('got')}>I had it</button>
+        <button class={'btn' + (status === 'missed' ? ' primary' : '')} onClick={() => onGrade('missed')}>I missed it</button>
+      </div>
+    </section>
+  );
+}
+
+function ExamSet({ id }) {
+  store.useStore();
+  const exam = EXAMS.find((e) => e.id === id);
+  const [i, setI] = useState(0);
+  const p = exam.problems[i];
+  const grade = (status) => {
+    const upd = {};
+    for (const cid of p.concepts) if (C[cid]) upd[cid] = mixedResult(rec(cid), status === 'got');
+    store.setRecords(upd); store.setExam(exam.id, p.n, status);
+  };
+  const missed = [...new Set(exam.problems.filter((x) => store.examStatus(exam.id, x.n) === 'missed').flatMap((x) => x.concepts))];
+  return (
+    <main>
+      <p class="crumb"><Link to="/exam">Exam prep</Link> / {exam.title}</p>
+      <h1>{exam.title}</h1>
+      <p class="meta">{exam.source}</p>
+      <ol class="steps" aria-label="Problems">
+        {exam.problems.map((x, k) => { const st = store.examStatus(exam.id, x.n); return <li class={k === i ? 'cur' : st === 'got' ? 'done' : st === 'missed' ? 'miss' : ''}><a href="#/exam/x" onClick={(e) => { e.preventDefault(); setI(k); }}>{x.n}</a></li>; })}
+      </ol>
+      <Problem key={p.n} exam={exam} p={p} onGrade={grade} />
+      <div class="cta">
+        {i > 0 && <button class="btn" onClick={() => setI(i - 1)}>Previous</button>}
+        {i < exam.problems.length - 1 && <button class="btn primary" onClick={() => setI(i + 1)}>Next problem</button>}
+      </div>
+      {missed.length > 0 && <><h2>Concepts to review</h2><ul class="rows">{missed.map((cid) => <li><Link to={'/learn/' + cid}><span><b>{C[cid].title}</b></span><Level id={cid} /></Link></li>)}</ul></>}
+    </main>
+  );
+}
+
 /* ---------- progress ---------- */
 function Progress() {
   store.useStore();
@@ -280,6 +353,8 @@ function App() {
   else if (a === 'testout' && unitById(b)) view = <Test key={'o' + b} unitId={b} mode="testout" />;
   else if (a === 'diagnostic') view = <Test key="d" mode="diagnostic" />;
   else if (a === 'review') view = <Test key="r" mode="review" />;
+  else if (a === 'exam' && EXAMS.find((e) => e.id === b)) view = <ExamSet key={b} id={b} />;
+  else if (a === 'exam') view = <ExamList />;
   else if (a === 'progress') view = <Progress />;
   else view = <Home />;
   return <><Header />{view}<Footer /></>;
