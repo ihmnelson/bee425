@@ -1,0 +1,25 @@
+id: bee425
+title: BEE 425 Quest
+subtitle: Microprocessor System Design, University of Washington Bothell
+note: Pilot build. Only the Memory decoding unit exists so far. The previous site is still at /archive/.
+
+# Tracks share one learning model. A track with "follows" must give every concept a bridge back to the track it follows.
+tracks:
+  - { id: m68k, title: "68000", blurb: "Motorola 68000: the course's first processor, used in EASy68K and Lab 3 (68008)." }
+  - { id: z80, title: "Z80", follows: m68k, blurb: "Zilog Z80: taught second, so each topic calls back to the 68000." }
+
+# Lecture PDFs used by the audit to check slide references and quotes. Optional: the audit skips this if the folder is missing.
+slides:
+  dir: "../Lecture slides"
+  file: "BEE425F26Lesson{n}.pdf"
+  footer: 'BEE 425 / Microprocessor System Design\s+(\d+)'
+
+units:
+  - id: memory-decoding
+    title: Memory decoding
+    lesson: "Lessons 6-7"
+    blurb: "From address lines to pages: how many chips, which address bits go where, and the logic that picks one page."
+    concepts:
+      shared: [address-lines, chip-organization, pages-and-offsets, page-ranges, chip-select]
+      m68k: [m68k-memory-map]
+      z80: [z80-memory-map]
