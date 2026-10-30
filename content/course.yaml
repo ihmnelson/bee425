@@ -60,6 +60,13 @@ units:
       shared: [programmers-model, twos-complement, signed-overflow]
       m68k: [m68k-registers, m68k-flags, m68k-notation]
       z80: [z80-registers, z80-flags, z80-notation]
+  - id: addressing-modes
+    title: Addressing modes
+    lesson: "Lesson 5"
+    blurb: "How the 68000 finds its operands: the effective address, register, indirect, auto-increment, displacement, index, absolute, immediate and PC-relative modes."
+    concepts:
+      shared: []
+      m68k: [m68k-effective-address, m68k-register-direct, m68k-indirect, m68k-post-pre, m68k-displacement-index, m68k-absolute-immediate, m68k-pc-relative]
   - id: memory-decoding
     title: Memory decoding
     lesson: "Lessons 6-7"
