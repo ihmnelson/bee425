@@ -2,5 +2,6 @@
 import { generators as memory } from './memory.js';
 import { generators as pcb } from './pcb.js';
 import { generators as number } from './number.js';
+import { generators as dram } from './dram.js';
 
-export const generators = { ...memory, ...pcb, ...number };
+export const generators = { ...memory, ...pcb, ...number, ...dram };

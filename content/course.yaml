@@ -76,6 +76,18 @@ units:
       shared: []
       m68k: [m68k-compare-and-flags, m68k-signed-unsigned-branches, m68k-loops-and-ifs, m68k-stack-subroutines]
       z80: [z80-jumps-and-calls, z80-loops-and-conditions, z80-stack-subroutines]
+  - id: buses-and-cells
+    title: Buses and memory cells
+    lesson: "Lesson 6"
+    blurb: "Sharing a bus, chip enable and output enable, the SRAM cell, address space and alignment."
+    concepts:
+      shared: [bus-contention-tristate, chip-enable-output-enable, sram-cell, address-space-alignment]
+  - id: memory-systems
+    title: Memory systems and DRAM
+    lesson: "Lesson 7"
+    blurb: "Designing a memory system, byte lanes and endianness, the memory map, timing, SRAM versus DRAM and DRAM operation."
+    concepts:
+      shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write]
   - id: memory-decoding
     title: Memory decoding
     lesson: "Lessons 6-7"
