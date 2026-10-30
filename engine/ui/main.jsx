@@ -8,6 +8,8 @@ import { Runner, CheckLoop } from './quiz.jsx';
 import { Feedback } from './quiz.jsx';
 import { answerText } from '../lib/check.js';
 import { fmt } from './format.js';
+import { Sandbox, SIM_IDS, simTitle, sendToSim } from './sandbox.jsx';
+import { Tracer, Drill, DrillList } from './games.jsx';
 
 const COURSE = window.COURSE;
 const C = COURSE.concepts;
@@ -40,8 +42,8 @@ function Header() {
       <Link to="/" class="brand">{COURSE.title}</Link>
       <nav aria-label="Sections">
         <Link to="/" class="on">Learn</Link>
-        <span class="soon" title="Not rebuilt yet">Games</span>
-        <span class="soon" title="Not rebuilt yet">Simulators</span>
+        <Link to="/games">Games</Link>
+        <Link to="/sim">Simulators</Link>
         <Link to="/exam">Exam prep</Link>
         <Link to="/progress">Progress</Link>
       </nav>
@@ -134,6 +136,7 @@ function Learn({ id }) {
           <dl><dt>Same</dt><dd>{bridge.same}</dd><dt>Different</dt><dd>{bridge.different}</dd><dt>Why</dt><dd>{bridge.why}</dd></dl></aside>}
         <Html class="prose" html={c.html.learn} />
         <Sources c={c} />
+        {(c.programs || []).length > 0 && <div class="cta">{c.programs.map((pr) => <Link to={'/sim/' + pr.cpu} class="btn" onClick={() => sendToSim(pr.cpu, pr.source.replace(/^\s*[*;] program\n/, ''))}>Open "{pr.name}" in the {simTitle(pr.cpu)} simulator</Link>)}</div>}
         <button class="btn primary" onClick={() => setStep(1)}>See a worked example</button>
       </>}
       {step === 1 && <>
@@ -207,17 +210,18 @@ function Results({ results, mode, back }) {
 function Test({ unitId, mode }) {                            /* mode: mixed | testout | diagnostic | review */
   let ids, title, intro, per = 1;
   if (mode === 'diagnostic') { ids = COURSE.units.flatMap((u) => pathOf(u)); title = 'Course diagnostic'; intro = 'One question per concept. Get one right and that concept is credited as Proficient (tested out); it still comes back in review. Skip anything you do not know: a wrong answer changes nothing.'; }
+  else if (mode === 'blitz') { ids = Object.keys(C); title = 'Quiz Blitz'; intro = 'Ten questions from across the whole course. Right moves a concept up, wrong moves it down.'; }
   else if (mode === 'review') { ids = dueIds().slice(0, 10); title = 'Review'; intro = 'Concepts that are due. A miss moves a concept down a level so it returns sooner.'; }
   else if (mode === 'testout') { ids = pathOf(unitById(unitId)); title = `Test out: ${unitById(unitId).title}`; intro = 'One question per concept. Each one you get right is credited as Proficient. A wrong answer changes nothing, so you can still take the lessons.'; }
   else { ids = pathOf(unitById(unitId)); per = 2; title = `Chapter test: ${unitById(unitId).title}`; intro = 'Two questions per concept, mixed together. A concept is right only if both are right. Right moves Proficient concepts to Mastered; wrong moves a concept down.'; }
-  const [items] = useState(() => sample(ids, per));
+  const [items] = useState(() => (mode === 'blitz' ? sample(ids, 1).slice(0, 10) : sample(ids, per)));
   const [results, setResults] = useState(null);
   const [started, setStarted] = useState(false);
   const finish = (r) => {
     const byConcept = {};
     for (const x of r) byConcept[x.conceptId] = (byConcept[x.conceptId] ?? true) && x.ok;
     const upd = {};
-    for (const [cid, ok] of Object.entries(byConcept)) upd[cid] = mode === 'mixed' || mode === 'review' ? mixedResult(rec(cid), ok) : testOutResult(rec(cid), ok);
+    for (const [cid, ok] of Object.entries(byConcept)) upd[cid] = mode === 'mixed' || mode === 'review' || mode === 'blitz' ? mixedResult(rec(cid), ok) : testOutResult(rec(cid), ok);
     store.setRecords(upd); setResults(r);
   };
   const back = unitId ? <Link to={'/unit/' + unitId} class="btn primary">Back to the unit</Link> : <Link to="/" class="btn primary">Back to the course</Link>;
@@ -228,6 +232,30 @@ function Test({ unitId, mode }) {                            /* mode: mixed | te
       {!started && !results && <><p class="lede">{intro}</p><p class="meta">{items.length} questions.</p><button class="btn primary" onClick={() => setStarted(true)}>Start</button></>}
       {started && !results && <Runner items={items} onFinish={finish} />}
       {results && <Results results={results} mode={mode} back={back} />}
+    </main>
+  );
+}
+
+/* ---------- simulators and games ---------- */
+function SimIndex() {
+  return (
+    <main>
+      <h1>Simulators</h1>
+      <p class="lede">The same 68000 and Z80 simulators the lessons are checked against. Each concept with a program has an "Open in the simulator" button.</p>
+      <ul class="rows">{SIM_IDS.map((id) => <li><Link to={'/sim/' + id}><span><b>{simTitle(id)} simulator</b></span></Link></li>)}</ul>
+    </main>
+  );
+}
+function GamesIndex() {
+  return (
+    <main>
+      <h1>Games</h1>
+      <p class="lede">Short games for the facts and skills the lessons teach. A miss in Quiz Blitz moves a concept down a level, like any test.</p>
+      <ul class="rows">
+        <li><Link to="/games/blitz"><span><b>Quiz Blitz</b><br /><span class="meta">Ten questions from across the whole course.</span></span></Link></li>
+        <li><Link to="/games/tracer"><span><b>Register Tracer</b><br /><span class="meta">Trace a short random program and give the register and a flag (68000 or Z80); each program is checked on the real core.</span></span></Link></li>
+        <li><Link to="/games/drill"><span><b>Drill</b><br /><span class="meta">Endless practice of one kind of calculation with fresh numbers.</span></span></Link></li>
+      </ul>
     </main>
   );
 }
@@ -347,6 +375,13 @@ function App() {
   else if (a === 'testout' && unitById(b)) view = <Test key={'o' + b} unitId={b} mode="testout" />;
   else if (a === 'diagnostic') view = <Test key="d" mode="diagnostic" />;
   else if (a === 'review') view = <Test key="r" mode="review" />;
+  else if (a === 'sim' && SIM_IDS.includes(b)) view = <Sandbox key={b} cpuId={b} />;
+  else if (a === 'sim') view = <SimIndex />;
+  else if (a === 'games' && b === 'tracer') view = <Tracer />;
+  else if (a === 'games' && b === 'blitz') view = <Test key="b" mode="blitz" />;
+  else if (a === 'games' && b === 'drill' && hash.split('/')[3]) view = <Drill key={hash} gens={COURSE.gens} id={hash.split('/')[3]} />;
+  else if (a === 'games' && b === 'drill') view = <DrillList gens={COURSE.gens} concepts={C} />;
+  else if (a === 'games') view = <GamesIndex />;
   else if (a === 'exam' && EXAMS.find((e) => e.id === b)) view = <ExamSet key={b} id={b} />;
   else if (a === 'exam') view = <ExamList />;
   else if (a === 'progress') view = <Progress />;

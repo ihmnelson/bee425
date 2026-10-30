@@ -24,6 +24,7 @@ for (const c of Object.values(data.concepts)) {
     needs: (c.needs || []).map((n) => (n.includes('.') ? n : `${c.unit}.${n}`)),
     sources: c.sources || [], checks: c.checks || [], card: c.card || null, glossary: c.glossary || [],
     bridge: c.bridge && c.bridge !== 'none' ? c.bridge : null, html: c.html,
+    programs: (c.programs || []).map((p) => ({ cpu: p.cpu, name: p.name, source: p.source })),
   };
 }
 const { course } = data;
@@ -46,7 +47,9 @@ const units = course.units.map((u) => ({
   concepts: Object.fromEntries(Object.entries(u.concepts).map(([t, names]) => [t, names.map((n) => `${u.id}.${n}`)])),
 }));
 const exams = Object.values(data.exams).map((e) => ({ id: e.id, title: e.title, source: e.source, problems: e.problems.map((p) => ({ n: p.n, title: p.title, concepts: p.concepts || [], parts: p.parts || [], html: p.html })) }));
-const payload = { exams, id: course.id, title: course.title, subtitle: course.subtitle, note: course.note || '', tracks: course.tracks, units, concepts };
+const gens = {};
+for (const c of Object.values(concepts)) for (const k of c.checks) if (k.gen) (gens[k.gen] ||= []).push(c.id);
+const payload = { gens, exams, id: course.id, title: course.title, subtitle: course.subtitle, note: course.note || '', tracks: course.tracks, units, concepts };
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });

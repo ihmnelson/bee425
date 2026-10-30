@@ -1,7 +1,7 @@
 id: bee425
 title: BEE 425 Quest
 subtitle: Microprocessor System Design, University of Washington Bothell
-note: "Rebuild in progress. Lessons 1 to 8 and 11, Lab 3 and the midterm practice problems are in; Lesson 10, Labs 1 and 2, the homework, the simulators and the games are still coming."
+note: "Rebuild in progress. Lessons 1 to 8, 10 and 11, Labs 1 to 3, Homework 1 to 3, the midterm practice problems, simulators and games are in. Lesson 9 is missing from the course folder."
 
 # Tracks share one learning model. A track with "follows" must give every concept a bridge back to the track it follows.
 tracks:
