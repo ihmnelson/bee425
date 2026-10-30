@@ -14,6 +14,11 @@ slides:
   file: "BEE425F26Lesson{n}.pdf"
   footer: 'Microprocessor System Design\s+(\d+)'
 
+# Cores that run executable claims (encodings and programs in concept files). Each module exports encode(asm) and run(source, expect).
+oracles:
+  m68k: oracles/m68k.js
+  z80: oracles/z80.js
+
 units:
   - id: processor-basics
     title: Microprocessors and microcontrollers
@@ -33,6 +38,20 @@ units:
     blurb: "Period and frequency, duty cycle, pulse measurements, ringing and propagation delay."
     concepts:
       shared: [time-and-frequency, duty-cycle, pulse-parameters, signal-integrity, propagation-delay]
+  - id: assembly-intro
+    title: Introduction to assembly language
+    lesson: "Lesson 4"
+    blurb: "Why assembly, machine code versus assembly, the layout of a line, and flow charts."
+    concepts:
+      shared: [why-assembly, machine-and-assembly, assembly-line-format, flowcharts]
+  - id: assembly-programs
+    title: First assembly programs
+    lesson: "Lesson 4"
+    blurb: "Machine code, directives, copying data, and two worked programs on each processor."
+    concepts:
+      shared: []
+      m68k: [m68k-instruction-words, m68k-directives, m68k-move, m68k-zero-block, m68k-largest-value]
+      z80: [z80-instruction-bytes, z80-directives, z80-load, z80-zero-block, z80-largest-value]
   - id: programmers-model
     title: The programmer's model
     lesson: "Lesson 3"

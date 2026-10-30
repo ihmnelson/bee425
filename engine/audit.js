@@ -39,6 +39,28 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
     genStats.push(`${id}: ${seeds} seeds, ${kinds.size} distinct questions, ${bad} disagreements`);
   }
 
+  /* executable claims: encodings and programs in a concept are assembled and run on the course's oracle modules */
+  const oracles = {};
+  for (const [cpu, rel] of Object.entries(data.course.oracles || {})) oracles[cpu] = await import(pathToFileURL(path.join(contentDir, rel)).href);
+  let encChecked = 0, progChecked = 0;
+  for (const c of Object.values(data.concepts)) {
+    for (const e of c.encodings || []) {
+      const o = oracles[e.cpu]; if (!o) { errors.push(`${c.id}: no oracle for cpu "${e.cpu}"`); continue; }
+      const got = o.encode(e.asm); encChecked++;
+      if (got.error) errors.push(`${c.id}: "${e.asm}" does not assemble: ${got.error}`);
+      else if (got.hex !== String(e.hex).replace(/\s+/g, '').toUpperCase()) errors.push(`${c.id}: "${e.asm}" assembles to ${got.hex}, the concept says ${e.hex}`);
+    }
+    for (const p of c.programs || []) {
+      const o = oracles[p.cpu]; if (!o) { errors.push(`${c.id}: no oracle for cpu "${p.cpu}"`); continue; }
+      const fails = o.run(p.source, p.expect || {}); progChecked++;
+      for (const f of fails) errors.push(`${c.id}: program "${(p.name || p.source.trim().split('\n')[0]).slice(0, 40)}": ${f}`);
+    }
+    const claimsOracle = (c.sources || []).some((x) => x.type === 'oracle');
+    const hasClaims = (c.encodings || []).length + (c.programs || []).length > 0;
+    if (claimsOracle && !hasClaims) warnings.push(`${c.id}: lists an oracle source but has no encodings or programs to run`);
+    if (hasClaims && !claimsOracle) warnings.push(`${c.id}: has executable claims but no { type: oracle } source`);
+  }
+
   /* slide quotes */
   let quoteReport = 'skipped';
   const sl = data.course.slides;
@@ -89,6 +111,7 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
   const unverified = warnings.filter((w) => w.includes(': unverified'));
   lines.push(`Concepts: ${concepts.length}   Checks: ${concepts.reduce((n, c) => n + (c.checks || []).length, 0)}   Generated check slots: ${concepts.reduce((n, c) => n + (c.checks || []).filter((k) => k.gen).length, 0)}`);
   lines.push(`Slide quotes: ${quoteReport}`);
+  lines.push(`Executable claims run on the cores: ${encChecked} encodings, ${progChecked} programs`);
   lines.push('Generators:', ...genStats.map((s) => '  ' + s));
   lines.push(`Unverified concepts (no slide/manual/oracle evidence): ${unverified.length}`);
   return { errors, warnings, lines, data };
