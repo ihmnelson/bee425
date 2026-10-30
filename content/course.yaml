@@ -124,3 +124,9 @@ units:
     blurb: "A practical review: diodes, the BJT as a switch, base resistors, saturation, open-collector drivers, Darlington pairs, MOSFETs and PNP circuits."
     concepts:
       shared: [diodes-led-zener, bjt-switch-model, base-resistor-design, saturation, choosing-transistor, open-collector-drivers, darlington-sziklai, mosfet-switch, pnp-high-side]
+  - id: debug-tools
+    title: Tools for real-time design and debugging
+    lesson: "Lesson 11"
+    blurb: "What makes embedded systems different, debug monitors, ROM emulators, logic analyzers, in-circuit emulators, prefetch and cache headaches, BDM and JTAG."
+    concepts:
+      shared: [embedded-systems-and-process, debug-monitor-rom-emulator, logic-analyzer-tool, in-circuit-emulator, trace-challenges-jtag]

@@ -65,4 +65,34 @@ const laResolution = {
   verify({ params: { mhz } }) { return 1 / (mhz * 1e6) * 1e9; },
 };
 
-export const generators = { 'adc.stepSize': adcStep, 'trends.moore': moore, 'lab.waitStates': waitStates, 'lab.laResolution': laResolution };
+/* ---- Logic analyzer: samples per processor clock ---- */
+const statesPerClock = {
+  make(rand) {
+    const cpu = rand.pick([10, 20, 50, 100]), la = rand.pick([500, 1000, 2000]);
+    const n = la / cpu, ns = sig(1000 / la, 3);
+    return {
+      type: 'numeric', params: { cpu, la },
+      prompt: `A processor runs at **${cpu} MHz** and the logic analyzer samples in **timing mode** at **${la} MHz**. How many samples does the analyzer record in **each processor clock cycle**?`,
+      answer: n, display: String(n),
+      explain: `Samples per cycle = analyzer rate / processor rate = ${la} / ${cpu} = **${n}**. The timing resolution is one analyzer sample period, ${ns} ns. (The lecture's example: a 100 MHz processor with a 1 GHz analyzer gives 10 samples per cycle and about 1 ns resolution.)`,
+    };
+  },
+  verify({ params: { cpu, la } }) { let n = 0; for (let k = 1; k * cpu <= la; k++) n++; return n; },       /* count whole analyzer samples that fit in one processor period */
+};
+
+/* ---- Trace buffer: states recorded before the trigger ---- */
+const traceBuffer = {
+  make(rand) {
+    const depth = rand.pick([2, 4, 8, 16, 32]), pct = rand.pick([10, 25, 50, 75, 90]);
+    const before = depth * pct / 100;
+    return {
+      type: 'numeric', params: { depth, pct },
+      prompt: `A logic analyzer's circular trace buffer holds **${depth}M states**. The trigger point is set **${pct}%** of the way into the buffer. How many **millions of states are recorded before** the trigger?`,
+      answer: before, display: `${before}M`,
+      explain: `The buffer keeps overwriting old data until the trigger arrives; with the trigger ${pct}% of the way in, ${pct}% of the buffer holds states from **before** the trigger: ${depth}M x ${pct / 100} = **${before}M**, and the remaining ${depth - before}M are recorded after it. (The lecture's example: a 16M buffer with the trigger in the middle records 8M before and 8M after.)`,
+    };
+  },
+  verify({ params: { depth, pct } }) { let n = 0; for (let k = 0; k < 100; k++) if (k < pct) n += depth / 100; return n; },
+};
+
+export const generators = { 'la.statesPerClock': statesPerClock, 'la.traceBuffer': traceBuffer, 'adc.stepSize': adcStep, 'trends.moore': moore, 'lab.waitStates': waitStates, 'lab.laResolution': laResolution };
