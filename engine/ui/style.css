@@ -95,3 +95,5 @@ textarea.answer { width: 100%; box-sizing: border-box; font: inherit; padding: .
 textarea.answer.code, pre.code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9rem; }
 pre.code { overflow-x: auto; padding: .6rem .8rem; border: 1px solid var(--rule-2); border-radius: 6px; }
 details.conv { margin: .5rem 0; } details.conv summary { cursor: pointer; color: var(--muted, inherit); font-size: .9rem; }
+
+.question .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }

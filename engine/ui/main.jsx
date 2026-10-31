@@ -200,10 +200,10 @@ function Results({ results, mode, back }) {
       <h2>Results</h2>
       <ul class="rows">
         {Object.entries(byConcept).map(([cid, rs]) => { const ok = rs.every((r) => r.ok); return (
-          <li><span><b>{C[cid].title}</b> <span class="meta">{rs.filter((r) => r.ok).length} of {rs.length} right</span></span><Level id={cid} /></li>); })}
+          <li><span><b>{C[cid].title}</b> <span class="meta">{rs.filter((r) => r.ok).length} of {rs.length} right{rs.some((r) => r.skipped) ? ', skipped ' + rs.filter((r) => r.skipped).length : ''}</span></span><Level id={cid} /></li>); })}
       </ul>
       {results.some((r) => !r.ok) && <><h3>What to fix</h3>
-        {results.filter((r) => !r.ok).map((r) => <div class="missed"><p class="meta">{C[r.conceptId].title}</p><p dangerouslySetInnerHTML={{ __html: fmt(r.q.prompt) }} /><Feedback q={r.q} ok={false} /></div>)}</>}
+        {results.filter((r) => !r.ok).map((r) => <div class="missed"><p class="meta">{C[r.conceptId].title}{r.skipped ? ' (skipped)' : ''}</p><p dangerouslySetInnerHTML={{ __html: fmt(r.q.prompt) }} /><Feedback q={r.q} ok={false} /></div>)}</>}
       <div class="cta">{back}</div>
     </>
   );

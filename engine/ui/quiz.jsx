@@ -22,7 +22,7 @@ export function instantiate(def, seed = newSeed()) {
 const Html = ({ s, tag: T = 'span' }) => <T dangerouslySetInnerHTML={{ __html: fmt(s) }} />;
 
 /* One question with an answer box. onSubmit(response). `locked` disables input; `verdict` is null | true | false. */
-export function Question({ q, onSubmit, locked = false, verdict = null, submitLabel = 'Check' }) {
+export function Question({ q, onSubmit, onSkip, locked = false, verdict = null, submitLabel = 'Check' }) {
   const [resp, setResp] = useState('');
   const submit = (e) => { e.preventDefault(); if (!locked && String(resp).trim() !== '') onSubmit(resp); };
   return (
@@ -41,7 +41,10 @@ export function Question({ q, onSubmit, locked = false, verdict = null, submitLa
         <input class="answer" type="text" autocomplete="off" autocapitalize="off" spellcheck={false} disabled={locked}
           value={resp} onInput={(e) => setResp(e.currentTarget.value)} placeholder="Your answer" aria-label="Your answer" />
       )}
-      {!locked && <button class="btn primary" type="submit" disabled={String(resp).trim() === ''}>{submitLabel}</button>}
+      {!locked && <div class="actions">
+        <button class="btn primary" type="submit" disabled={String(resp).trim() === ''}>{submitLabel}</button>
+        {onSkip && <button class="btn" type="button" onClick={onSkip}>I don't know</button>}
+      </div>}
     </form>
   );
 }
@@ -87,8 +90,8 @@ export function Runner({ items, onFinish }) {
   const [qs] = useState(() => items.map((it) => ({ conceptId: it.conceptId, q: instantiate(it.def) })));
   const [i, setI] = useState(0);
   const [results, setResults] = useState([]);
-  const answer = (resp) => {
-    const r = [...results, { conceptId: qs[i].conceptId, q: qs[i].q, ok: isCorrect(qs[i].q, resp) }];
+  const answer = (resp, skipped = false) => {
+    const r = [...results, { conceptId: qs[i].conceptId, q: qs[i].q, ok: !skipped && isCorrect(qs[i].q, resp), skipped }];
     setResults(r);
     if (i + 1 >= qs.length) onFinish(r); else setI(i + 1);
   };
@@ -96,7 +99,7 @@ export function Runner({ items, onFinish }) {
     <div>
       <p class="meta">Question {i + 1} of {qs.length}</p>
       <div class="bar"><span style={{ width: `${(i / qs.length) * 100}%` }} /></div>
-      <Question key={i} q={qs[i].q} onSubmit={answer} submitLabel={i + 1 >= qs.length ? 'Submit' : 'Next'} />
+      <Question key={i} q={qs[i].q} onSubmit={answer} onSkip={() => answer('', true)} submitLabel={i + 1 >= qs.length ? 'Submit' : 'Next'} />
     </div>
   );
 }
