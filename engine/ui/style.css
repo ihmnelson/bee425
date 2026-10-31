@@ -89,3 +89,9 @@ main.wide { max-width: 1180px; }
 .inline { display: flex; gap: .5rem; align-items: center; } .inline .answer { margin: 0; }
 .answer.small { max-width: 8rem; display: inline-block; margin: 0 .5rem; }
 select { font: inherit; padding: .45rem .6rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); color: var(--ink); }
+
+/* generated problems */
+textarea.answer { width: 100%; box-sizing: border-box; font: inherit; padding: .5rem; border: 1px solid var(--rule-2); border-radius: 6px; background: transparent; color: inherit; }
+textarea.answer.code, pre.code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9rem; }
+pre.code { overflow-x: auto; padding: .6rem .8rem; border: 1px solid var(--rule-2); border-radius: 6px; }
+details.conv { margin: .5rem 0; } details.conv summary { cursor: pointer; color: var(--muted, inherit); font-size: .9rem; }
