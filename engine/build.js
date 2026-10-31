@@ -58,7 +58,7 @@ fs.writeFileSync(path.join(dist, 'course.js'), 'window.COURSE=' + JSON.stringify
 await esbuild.build({
   entryPoints: [path.join(root, 'engine/ui/main.jsx')],
   bundle: true, minify: true, format: 'iife', target: 'es2020', outfile: path.join(dist, 'app.js'),
-  jsx: 'automatic', jsxImportSource: 'preact', alias: { '@course/generators': path.join(contentDir, 'generators/index.js') },
+  jsx: 'automatic', jsxImportSource: 'preact', alias: { '@course/generators': path.join(contentDir, 'generators/index.js'), '@course/problems/mock': path.join(contentDir, 'problems/mock.js'), '@course/problems/grade': path.join(contentDir, 'problems/grade.js'), '@course/problems': path.join(contentDir, 'problems/index.js') },
   logLevel: 'warning',
 });
 fs.copyFileSync(path.join(root, 'engine/ui/style.css'), path.join(dist, 'style.css'));

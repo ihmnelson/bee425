@@ -10,6 +10,7 @@ import { loadCourse } from './lib/load.js';
 import { validate } from './lib/schema.js';
 import { rng } from './lib/rng.js';
 import { parseNumber } from './lib/check.js';
+import { checkProblem } from './lib/problemcheck.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const contentDir = path.join(root, 'content');
@@ -39,6 +40,23 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
     }
     genStats.push(`${id}: ${seeds} seeds, ${kinds.size} distinct questions, ${bad} disagreements`);
   }
+
+  /* problem families: every auto-graded part is recomputed by an independent verify() */
+  const { families } = await import(pathToFileURL(path.join(contentDir, 'problems', 'index.js')).href);
+  const { makeMock } = await import(pathToFileURL(path.join(contentDir, 'problems', 'mock.js')).href);
+  const HEAVY = new Set(['pairing', 'write-program', 'stack-trace', 'flags-trace']);
+  const famStats = [];
+  for (const [id, fam] of Object.entries(families)) {
+    const n = HEAVY.has(id) ? Math.min(seeds, 150) : seeds * 5;
+    let bad = 0;
+    for (let s = 1; s <= n; s++) {
+      let p; try { p = fam.make(rng(s)); } catch (e) { bad++; if (bad <= 3) errors.push(`family ${id} seed ${s}: make() threw ${e.message.split('\n')[0]}`); continue; }
+      let es; try { es = checkProblem(fam, p); } catch (e) { es = [`verify() threw ${e.message.split('\n')[0]}`]; }
+      if (es.length) { bad++; if (bad <= 3) errors.push(`family ${id} seed ${s}: ${es[0]}`); }
+    }
+    famStats.push(`${id}: ${n} seeds, ${bad} disagreements`);
+  }
+  for (let s = 1; s <= 30; s++) { try { if (makeMock(s).length !== 7) errors.push(`mock exam seed ${s}: wrong number of problems`); } catch (e) { errors.push(`mock exam seed ${s}: ${e.message.split('\n')[0]}`); } }
 
   /* executable claims: encodings and programs in a concept are assembled and run on the course's oracle modules */
   const oracles = {};
@@ -157,6 +175,7 @@ export async function audit({ slides = true, seeds = 400 } = {}) {
   if (lines_h) lines.push(lines_h);
   lines.push(`Executable claims run on the cores: ${encChecked} encodings, ${progChecked} programs`);
   lines.push('Generators:', ...genStats.map((s) => '  ' + s));
+  lines.push('Problem families (independent verification):', ...famStats.map((s) => '  ' + s));
   lines.push(`Unverified concepts (no slide/manual/oracle evidence): ${unverified.length}`);
   return { errors, warnings, lines, data };
 }

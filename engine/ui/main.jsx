@@ -10,6 +10,8 @@ import { answerText } from '../lib/check.js';
 import { fmt } from './format.js';
 import { Sandbox, SIM_IDS, simTitle, sendToSim } from './sandbox.jsx';
 import { Tracer, Drill, DrillList } from './games.jsx';
+import { Mock, PracticeList, Practice } from './mock.jsx';
+import { newSeed } from './quiz.jsx';
 
 const COURSE = window.COURSE;
 const C = COURSE.concepts;
@@ -272,7 +274,12 @@ function ExamList() {
         {EXAMS.map((e) => { const done = e.problems.filter((p) => store.examStatus(e.id, p.n)).length; return (
           <li><Link to={'/exam/' + e.id}><span><b>{e.title}</b><br /><span class="meta">{e.source}</span></span><span class="meta">{done} of {e.problems.length} done</span></Link></li>); })}
       </ul>
-      <p class="meta">More sets (homework, labs, mock exams) are still to come.</p>
+      <h2>Generated problems</h2>
+      <ul class="rows">
+        <li><Link to={'/mock/' + newSeed()}><span><b>Full mock exam</b><br /><span class="meta">Seven problems shaped like the instructor's practice midterm, fresh numbers every time</span></span></Link></li>
+        <li><Link to="/practice"><span><b>Problem practice</b><br /><span class="meta">Hand assembly, memory design, write a program, pairing, tracing and more, one family at a time</span></span></Link></li>
+      </ul>
+      <p class="meta">More sets (homework, labs) are still to come.</p>
     </main>
   );
 }
@@ -382,6 +389,9 @@ function App() {
   else if (a === 'games' && b === 'drill' && hash.split('/')[3]) view = <Drill key={hash} gens={COURSE.gens} id={hash.split('/')[3]} />;
   else if (a === 'games' && b === 'drill') view = <DrillList gens={COURSE.gens} concepts={C} />;
   else if (a === 'games') view = <GamesIndex />;
+  else if (a === 'mock') view = <Mock key={b} seed={Number(b) || newSeed()} Link={Link} rec={rec} />;
+  else if (a === 'practice' && b) view = <Practice key={hash} id={b} seed={hash.split('/')[3]} Link={Link} />;
+  else if (a === 'practice') view = <PracticeList Link={Link} />;
   else if (a === 'exam' && EXAMS.find((e) => e.id === b)) view = <ExamSet key={b} id={b} />;
   else if (a === 'exam') view = <ExamList />;
   else if (a === 'progress') view = <Progress />;
