@@ -50,6 +50,12 @@ checks:
     options: ["N = 0 (top bit clear), Z = 0 (non-zero), V = 0, C = 0", "N = 1, since the result is positive", "Z = 1, since the AND found no common bits", "All four flags set"]
     answer: 0
     explain: "AND sets N and Z from the result and clears V and C; $4515 is positive and non-zero."
+  - type: choice
+    prompt: "Trace the program. What is the word value at $4000 when it is about to loop back? Use big-endian byte order."
+    code: "start   MOVE.W  #data2,D0     * D0 low word = $A7FF\n        MOVE.B  #data6,D1     * D1 low byte = %01001111 = $4F\n        MOVE.B  #data7,D2     * D2 low byte = %00010111 = $17\n        MOVE.W  #data3,D3     * D3 low word = $5555\n        MOVEA.W #addr1,A0     * A0 = $4000\n        MOVE.B  D1,(A0)+      * transfer byte to memory\n        MOVE.B  D2,(A0)+      * transfer byte to memory\n        MOVEA.W #addr1,A1     * A1 = $4000\n        AND.W   D3,(A1)       * Logical AND\n        BRA     start         * loop back"
+    options: ["$4515", "$4F17", "$5555", "$A7FF"]
+    answer: 0
+    explain: "The two byte moves leave $4F at $4000 and $17 at $4001, so the word at $4000 is $4F17 (high byte at the lower address). AND.W D3,(A1) with D3 = $5555 gives $4F17 AND $5555 = $4515. $4F17 is the value before the AND."
 card:
   front: "What does the HW2 program compute?"
   back: "It builds the word $4F17 at $4000 from two bytes (%01001111 and %00010111) using post-increment, then ANDs the word with $5555: result $4515 (hex), i.e. $45 at $4000 and $15 at $4001. Use bytes in memory, big endian."
