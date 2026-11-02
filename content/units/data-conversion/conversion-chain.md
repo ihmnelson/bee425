@@ -10,17 +10,17 @@ sources:
 checks:
   - type: choice
     prompt: "Put these in the order of a data-conversion chain."
-    options: ["Signal conditioning, analog multiplexer, sample and hold, A/D converter", "A/D converter, multiplexer, conditioning, sample and hold", "Sample and hold, conditioning, converter, multiplexer", "Multiplexer only"]
+    options: ["Signal conditioning, analog multiplexer, sample and hold, A/D converter", "A/D converter, multiplexer, conditioning, sample and hold", "Sample and hold, conditioning, converter, multiplexer", "Multiplexer, A/D converter, sample and hold, conditioning"]
     answer: 0
     explain: "Step 1 signal conditioning; step 2 analog multiplexing (several sources, such as an engine controller); step 3 sample and hold (freeze the changing input); then the actual conversion."
   - type: choice
-    prompt: "What does a **programmable-gain amplifier** do?"
-    options: ["Extends the range of a sensor to maximise the full-scale resolution of the ADC", "Converts to digital", "Selects channels", "Samples the input"]
+    prompt: "What does a programmable-gain amplifier do?"
+    options: ["Extends the sensor's range so it uses the ADC's full-scale resolution", "Converts the analog input to a digital code", "Selects which channel is connected to the ADC", "Samples the input and holds it during conversion"]
     answer: 0
     explain: "It is signal conditioning: scale the signal to fill the converter's range (the lecture cites the TI PGA103)."
   - type: choice
     prompt: "The input changes at 1,000 V/s and a conversion takes 1 ms. How much can the input change during the conversion?"
-    options: ["1 V (1,000 V/s x 0.001 s), so the result is uncertain to about 1 V without a sample-and-hold", "1 mV", "1,000 V", "0 V"]
+    options: ["1 V (1,000 V/s x 0.001 s), so without a sample-and-hold the result is uncertain by about 1 V", "1 mV, since the conversion is too short for any change", "1,000 V, the full rate regardless of the time", "0 V, because the converter latches the input at the start"]
     answer: 0
     explain: "1,000 V/s x 1 ms = 1 V of change during the conversion. A sample-and-hold freezes the input at a fixed value during digitisation to remove this error."
 card:

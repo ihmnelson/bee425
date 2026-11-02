@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L2 s72", quote: "Characterizing the clock should be the first thing done after the board passes the smoke test" }
 checks:
   - type: choice
-    prompt: "What is **clock skew**?"
-    options: ["Differences in when the same clock edge arrives at different components, caused by path lengths and propagation delays", "A clock that runs slower over time", "A clock with unequal high and low times", "Noise riding on the clock"]
+    prompt: "What is clock skew?"
+    options: ["The same clock edge reaching different components at different times", "A clock whose frequency slowly drifts lower over time", "A clock whose high and low times are not equal", "High-frequency noise riding on the clock line"]
     answer: 0
     explain: "Skew is the time difference in arrival of clock edges due to different path lengths and propagation delays through the circuitry. It is not duty cycle (unequal high/low) and not noise."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "Skew means parts do not see the edge at the same moment, so some of the time that was supposed to be spare is lost: it reduces the timing margins."
   - type: choice
-    prompt: "Why must the designer worry about skew when clocks are **buffered**?"
-    options: ["Each buffer adds propagation delay, so branches can differ", "Buffers stop the clock", "Buffers double the frequency", "Buffers remove ringing"]
+    prompt: "Why must the designer worry about skew when clocks are buffered?"
+    options: ["Each buffer adds its own propagation delay, so branches can differ", "Buffers cut the clock frequency in proportion to the load", "Buffers add ringing that must be damped by terminations", "Buffers reduce the supply voltage seen at each chip"]
     answer: 0
     explain: "The designer must be concerned with the skew associated with the propagation delay through the buffering device. The slide contrasts a skewed distribution with a non-skewed one."
 card:

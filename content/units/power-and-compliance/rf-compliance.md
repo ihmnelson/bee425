@@ -15,13 +15,13 @@ checks:
     answer: 0
     explain: "The lecture: RF emission limits are among the hardest hurdles; RF suppression should be designed in rather than fixed later."
   - type: choice
-    prompt: "Which of these reduces emissions, according to the lecture?"
-    options: ["Spread-spectrum clocks, avoiding current loops, shielding or guarding clock lines, short clock and bus runs, slower logic families, ferrite cores, slowest acceptable clock, sleep modes", "Faster edges and longer clock lines", "Switching power supplies everywhere", "A single large ground loop"]
+    prompt: "Which of these reduces emissions?"
+    options: ["Short clock and bus runs, slower logic families and the slowest acceptable clock", "Faster edges and longer clock lines, to cut the time spent switching", "Switching power supplies on every board", "One large ground loop to collect all the return currents"]
     answer: 0
     explain: "Also: microcontrollers and ASICs where possible, shield locally rather than the whole chassis, avoid switching supplies, terminate long traces in their characteristic impedance, and reverse-engineer products that have solved the problem."
   - type: choice
     prompt: "Why do slower logic families (ALS rather than FCT) help emissions?"
-    options: ["Faster logic edges put more energy at high frequencies; use the slowest edge rate the timing allows", "They use more power", "They are more accurate", "They have more pins"]
+    options: ["Faster edges put more energy at high frequencies, so use the slowest edge allowed", "They use more power, which damps the radiation", "They are more accurate, so they emit less noise", "They have more pins, so currents spread out"]
     answer: 0
     explain: "Avoid logic with fast edges: ALS is preferable to FCT if the propagation delays are acceptable."
 card:

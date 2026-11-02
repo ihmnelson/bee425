@@ -34,18 +34,18 @@ programs:
       regs: { D3: 10, D1: 99, A7: 0x100000 }
 checks:
   - type: choice
-    prompt: "What does **JSR** do?"
-    options: ["Pushes the long word address of the next instruction on the stack, then jumps to the subroutine", "Jumps without saving anything", "Pops the stack", "Stops the program"]
+    prompt: "What does JSR do?"
+    options: ["Pushes the 32-bit return address on the stack, then jumps to the subroutine", "Jumps to the subroutine without saving a return address", "Pops the return address and resumes the caller", "Stops the program until an interrupt arrives"]
     answer: 0
     explain: "JSR saves the return address on the stack and then jumps. RTS at the end of the subroutine pops the address back into the PC, so execution continues after the JSR."
   - type: choice
     prompt: "Where should the stack pointer be initialised, and why must it be set?"
-    options: ["To the highest RAM address, because the stack grows downward and, without it, the program will crash", "To 0", "To the start of the program", "It needs no setting on any processor"]
+    options: ["To the top of RAM, since the stack grows downward and an unset SP crashes the program", "To address 0, since the stack must start at the bottom of memory", "To the start of the program, so code and stack stay together", "Nowhere: the stack pointer needs no setting on any processor"]
     answer: 0
     explain: "The stack normally starts at the top of RAM and grows toward lower memory. The 68K sets SP on power-up from the vector table, but you must make sure your environment gives it a valid value: without SP pointing at the top of a stack, the program will crash."
   - type: choice
     prompt: "A subroutine uses D1 internally. How does it avoid disturbing the caller?"
-    options: ["Save D1 on entry with MOVEM.L D1,-(SP) and restore it on exit with MOVEM.L (SP)+,D1", "Never use registers", "Use JMP instead of JSR", "Clear the stack"]
+    options: ["Save D1 on entry with MOVEM.L D1,-(SP) and restore it on exit with MOVEM.L (SP)+,D1", "Save D1 on entry with MOVEM.L (SP)+,D1 and restore it with MOVEM.L D1,-(SP)", "Call it with JMP instead of JSR so the caller's registers stay put", "Clear D1 with CLR.L on exit, which restores the old value"]
     answer: 0
     explain: "The subroutine must save the resources it uses (registers and memory) and restore them before returning. MOVEM pushes or pops a list of registers in one instruction."
   - type: choice

@@ -19,7 +19,7 @@ const squash = (s) => String(s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 export async function audit({ slides = true, seeds = 400 } = {}) {
   const { generators } = await import(pathToFileURL(path.join(contentDir, 'generators', 'index.js')).href);
   const data = loadCourse(contentDir);
-  const { errors, warnings } = validate(data, generators);
+  const { errors, warnings } = validate(data, generators, path.join(contentDir, 'media'));
   const lines = [];
   let lines_h = '';
 

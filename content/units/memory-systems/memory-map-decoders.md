@@ -10,18 +10,18 @@ sources:
   - { type: slide, ref: "L7 s335", quote: "Three ENABLE inputs, EN1, ~EN2, ~EN3 must all be true for outputs" }
 checks:
   - type: choice
-    prompt: "How does a **74x138** decoder split a 24-bit, 16 MB address space into regions?"
-    options: ["Three address bits (A21-A23) select one of 8 regions of 2 MB each", "Four bits select 16 regions", "Two bits select 4 regions", "It does not split memory"]
+    prompt: "How does a 74x138 decoder split a 24-bit, 16 MB address space into regions?"
+    options: ["Three address bits (A21-A23) select one of 8 regions of 2 MB each", "Four address bits select one of 16 regions of 1 MB each", "Two address bits select one of 4 regions of 4 MB each", "Three address bits select one of 8 regions of 4 MB each"]
     answer: 0
     explain: "A 3:8 decoder decodes three address lines: A23-A21 choose one of 8 regions, each 2^21 bytes = 2 MB."
   - type: choice
-    prompt: "The lecture asks: with only a **second 74x138**, how do you decode **16 regions**?"
-    options: ["Use one more address bit (A20) to choose which decoder is enabled, giving 16 outputs of 1 MB each", "Connect the outputs in series", "Use two bits more and a gate", "It cannot be done"]
+    prompt: "One 74x138 splits a 16 MB map into 8 regions. With only a second 74x138 available, how do you decode 16 regions?"
+    options: ["Use A20 to enable one decoder or the other, giving 16 outputs of 1 MB", "Chain the outputs of the first decoder into the second one's inputs", "Feed A20 and A21 into the data inputs and add an AND gate", "It cannot be done with two 3-to-8 decoders"]
     answer: 0
     explain: "Each 138 provides 8 outputs. Use another address bit to enable one decoder or the other through the enable inputs; with 4 bits (A20-A23) in total, you get 16 regions of 1 MB."
   - type: choice
-    prompt: "Where does the 68000 get its **starting program address and stack address** on reset?"
-    options: ["From the exception vector table at the bottom of memory", "From the keyboard", "From a fixed ROM at the top", "From the stack"]
+    prompt: "Where does the 68000 get its starting program address and stack address on reset?"
+    options: ["From the exception vector table at the bottom of memory", "From a fixed ROM at the very top of memory", "From the keyboard or console at power-up", "From the previous contents of the stack"]
     answer: 0
     explain: "The processor begins execution from an address stored in the exception vector table, and the stack address is also assigned there (first two long words, as in the 68008 listing's two ORG statements)."
   - type: choice

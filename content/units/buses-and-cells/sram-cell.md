@@ -10,12 +10,12 @@ sources:
 checks:
   - type: choice
     prompt: "How many transistors are in a real **SRAM 6T cell**, and where do they come from?"
-    options: ["6: two inverters (two transistors each) plus two switch transistors", "1 transistor and a capacitor", "2: one per inverter", "8: two inverters and four switches"]
+    options: ["6: two inverters (2 each) plus two switch transistors", "1 transistor and a capacitor, as in a DRAM cell", "2: one transistor for each inverter in the loop", "8: two inverters plus four switch transistors"]
     answer: 0
     explain: "Each inverter is two transistors, and each of the two switches is one transistor: 2 + 2 + 1 + 1 = 6 transistors per cell."
   - type: choice
-    prompt: "Why is the cross-coupled inverter pair a **memory**?"
-    options: ["Feedback holds it in a stable 0 or 1 state until something temporarily grounds one input", "It stores charge on a capacitor", "It uses a magnetic core", "It is clocked by the CPU"]
+    prompt: "Why is the cross-coupled inverter pair a memory?"
+    options: ["Feedback holds it in a stable 0 or 1 until something temporarily grounds an input", "It stores charge on a capacitor that leaks away slowly", "It uses a magnetic core that keeps its polarity", "The CPU clock rewrites it every cycle"]
     answer: 0
     explain: "The two-gate configuration is stable; temporarily grounding the input of one gate flips the state, and grounding the other flips it back. The switches (BIT and ~BIT) provide that access."
   - type: choice

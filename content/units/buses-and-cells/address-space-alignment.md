@@ -11,14 +11,14 @@ sources:
 checks:
   - type: choice
     prompt: "A 68000 has 24 address lines. What does that say about its installed memory?"
-    options: ["Only its capability: it can address 16,777,216 locations, but that much memory need not be fitted", "It always has 16 MB installed", "It has 24 MB", "It has 24 chips"]
+    options: ["Only its capability; that much memory need not be fitted", "It always has 16 MB installed on the board", "It has 24 MB, one megabyte per line", "It has 24 memory chips, one per line"]
     answer: 0
     explain: "The size of the address space does not mean you have that much memory; it only means the capability exists to access it directly."
   - type: choice
-    prompt: "Which of these is a valid **long word** address in the lecture's convention?"
+    prompt: "In a 32-bit memory design where long words must start on a multiple of 4, which is a valid long word address?"
     options: ["$0008", "$0006", "$0001", "$0002"]
     answer: 0
-    explain: "Long words (32 bits, four bytes) usually sit on boundaries divisible by 4: $0000, $0004, $0008... Words sit on even addresses ($0000, $0002...), and 64-bit doubles on multiples of 8."
+    explain: "Long words must start at an address divisible by 4. $0008 is; $0006 and $0002 are only word-aligned and $0001 is odd."
   - type: choice
     prompt: "The 68000 has a 32-bit internal and a **16-bit external** data path. What is the benefit of the narrower external bus?"
     options: ["Narrower memory is more economical", "It makes the processor faster", "It doubles the address space", "It removes alignment rules"]

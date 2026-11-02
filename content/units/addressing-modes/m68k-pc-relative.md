@@ -30,12 +30,12 @@ checks:
     explain: "Subclass 2 adds a signed 16-bit displacement to the program counter. Subclass 3 (PC with index) is (PC) + (Xn) + d8."
   - type: choice
     prompt: "Why is PC-relative addressing important?"
-    options: ["It makes relocatable code: you need not load an address register with a fixed address each time", "It is the fastest mode", "It works with absolute addresses", "It replaces the stack"]
+    options: ["It makes relocatable code: no register has to be loaded with a fixed address", "It is the fastest 68000 addressing mode in every case", "It works only with absolute addresses held in memory", "It replaces the stack for subroutine return addresses"]
     answer: 0
     explain: "The operand's address is relative to where the instruction is, so the code works wherever it is loaded. Branches are PC-relative for the same reason."
   - type: choice
-    prompt: "PC-relative addressing is the same family as which type of instruction?"
-    options: ["Branches (the destination is the PC plus a signed displacement)", "Moves to the stack", "Interrupts only", "Immediate arithmetic"]
+    prompt: "PC-relative addressing belongs to the same family as which type of instruction?"
+    options: ["Branches, whose target is the PC plus a signed displacement", "Pushes to the stack, which use the SP plus an offset", "Interrupt entries, which jump through a fixed vector", "Immediate arithmetic, which embeds a constant"]
     answer: 0
     explain: "A branch adds a two's complement displacement (sign-extended) to the current PC, independent of where the code sits in memory."
 card:

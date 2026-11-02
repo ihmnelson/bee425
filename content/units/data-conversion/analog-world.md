@@ -10,7 +10,7 @@ sources:
 checks:
   - type: choice
     prompt: "What does 'analog' mean for an electrical signal?"
-    options: ["The signal provides an 'analogy' (a continuous copy) of the physical phenomenon", "The signal is a stream of bits", "The signal is always AC", "The signal is a clock"]
+    options: ["A continuous 'analogy' of the physical quantity", "A stream of binary digits sampled at a fixed rate", "A signal that always alternates in polarity", "A signal that toggles at a fixed clock rate"]
     answer: 0
     explain: "An analog signal is an analogy of the physical quantity: its voltage, resistance or current varies continuously with it."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "The lecture lists thermocouple (temperature), resistance thermometer (temperature), strain gauge (displacement or pressure), microphone (sound), magnetic pickup (disk data) and photocell (light)."
   - type: choice
-    prompt: "Why must a sensor's signal usually be **conditioned** before an A/D converter?"
-    options: ["The converter expects a fixed voltage range, but the sensor may give another range, a current or a resistance", "Converters only accept digital input", "To make it faster", "To remove the sensor"]
+    prompt: "Why must a sensor's signal usually be conditioned before an A/D converter?"
+    options: ["The converter expects a fixed voltage range; the sensor may give a current or resistance", "A/D converters accept only signals that are already digital", "Conditioning is the step that makes the conversion run faster", "Sensors always output pulses that must be counted first"]
     answer: 0
     explain: "Signal conditioning converts the sensor's output to the proper voltage range (0-5 V, 0-10 V, +/-10 V and so on) for digitising."
 card:

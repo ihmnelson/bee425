@@ -9,18 +9,18 @@ sources:
   - { type: slide, ref: "L7 s327", quote: "Works well for fast, local storage ( cache )" }
 checks:
   - type: choice
-    prompt: "Which statement correctly contrasts **SRAM and DRAM**?"
-    options: ["SRAM uses 5-6 transistors per bit and holds its state by feedback; DRAM uses 1 transistor and a capacitor and must be refreshed", "DRAM uses more transistors than SRAM", "SRAM must be refreshed; DRAM need not be", "Both are identical"]
+    prompt: "Which statement correctly contrasts SRAM and DRAM?"
+    options: ["SRAM: 5-6 transistors, feedback. DRAM: 1 transistor and a capacitor, needs refresh", "DRAM uses more transistors per bit and holds state by feedback", "SRAM must be refreshed regularly; DRAM never needs refresh", "Both store each bit on a capacitor and both need refresh"]
     answer: 0
     explain: "SRAM is derived from the D flip-flop (feedback), needs 5 or 6 transistors per bit, and has a simple interface. DRAM stores charge in a small capacitor with 1 transistor per cell, so it is denser, but the charge leaks and must be periodically rewritten."
   - type: choice
-    prompt: "Where is **SRAM** typically used, and where is **DRAM**?"
-    options: ["SRAM for fast local storage such as cache; DRAM for high-density main memory", "DRAM for cache, SRAM for main memory", "Both only for cache", "Both only for main memory"]
+    prompt: "Where is SRAM typically used, and where is DRAM?"
+    options: ["SRAM for fast local storage such as cache; DRAM for high-density main memory", "DRAM for cache because it is faster; SRAM for main memory", "Both are used only for cache", "Both are used only for main memory"]
     answer: 0
     explain: "SRAM works well for fast local storage (cache). Today's high-density memory is DRAM-based."
   - type: choice
-    prompt: "In a DRAM cell, what does the stored **charge** represent?"
-    options: ["The amount of charge in the capacitor determines whether the bit is 1 or 0", "The address", "The refresh count", "The chip select"]
+    prompt: "In a DRAM cell, what does the stored charge represent?"
+    options: ["The amount of charge in the capacitor decides whether the bit is a 1 or a 0", "The address of the row the cell belongs to", "How many refreshes the cell has received", "Whether the chip is currently selected"]
     answer: 0
     explain: "The amount of charge stored in the capacitor determines whether the output is a 1 or a 0. It leaks out, which is why refresh is needed."
 card:

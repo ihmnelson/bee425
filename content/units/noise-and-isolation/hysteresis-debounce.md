@@ -10,8 +10,8 @@ sources:
   - { type: slide, ref: "L10 s471", quote: "The RC circuit acts as a low-pass filter to provide the debouncing" }
 checks:
   - type: choice
-    prompt: "What does **hysteresis** do in a comparator or Schmitt trigger?"
-    options: ["Uses two different thresholds (a deadband) so noise near the switching point does not cause spurious toggling", "Speeds up the output", "Adds gain", "Removes the reference"]
+    prompt: "What does hysteresis do in a comparator or Schmitt trigger?"
+    options: ["Two thresholds, so noise near the switching point does not toggle the output", "It speeds up the output edge by adding positive gain", "It adds gain so small inputs reach the logic thresholds", "It removes the reference so the comparator free-runs"]
     answer: 0
     explain: "When the two inputs are nearly identical the output is unstable. With hysteresis the voltage must pass the reference by the deadband before the output switches back, so noise close to the switching point is ignored."
   - type: choice
@@ -21,12 +21,12 @@ checks:
     explain: "Deadband = V_high - V_low = 3.0 - 1.8 = 1.2 V. It sets the noise margin but also limits the accuracy of the circuit."
   - type: choice
     prompt: "Why does a mechanical switch need debouncing?"
-    options: ["The contacts open and close electrically many times before settling, and the circuit sees each bounce as a separate input", "It is too slow", "It has no contacts", "It produces analog levels"]
+    options: ["The contacts bounce, and the circuit sees each bounce as a separate input", "The contacts are too slow to ever reach a logic threshold", "A mechanical switch has no contacts to hold a level", "A mechanical switch produces analog levels between 0 and 5 V"]
     answer: 0
     explain: "Switch bounce causes unpredictable behaviour. An RC low-pass filter smooths it, and a NAND gate with Schmitt-trigger inputs converts the slow RC ramp into a clean logic edge (without hysteresis a slow ramp would make the output oscillate near the threshold)."
   - type: choice
-    prompt: "In the lecture's RESET circuit, what part does the **Schmitt-trigger NAND** play?"
-    options: ["It turns the slowly rising RC voltage into a clean logic transition; without hysteresis the output would oscillate near the threshold", "It stores the reset", "It filters the supply", "It generates the clock"]
+    prompt: "A RESET circuit charges an RC network that feeds a Schmitt-trigger NAND. What does the Schmitt NAND do?"
+    options: ["It turns the slow RC ramp into a clean edge; without hysteresis it could oscillate", "It stores the reset state until the next power cycle", "It filters noise from the supply before the RC network", "It generates the processor clock once reset ends"]
     answer: 0
     explain: "The RC acts as the debouncing low-pass filter; the Schmitt input then gives a fast, single transition to the processor's reset."
 card:

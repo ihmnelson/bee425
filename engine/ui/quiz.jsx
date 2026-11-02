@@ -28,6 +28,13 @@ export function Question({ q, onSubmit, onSkip, locked = false, verdict = null, 
   return (
     <form class="question" onSubmit={submit}>
       <p class="prompt"><Html s={q.prompt} /></p>
+      {q.code && <pre class="code qcode" aria-label="Example">{q.code}</pre>}
+      {q.figure && (
+        <figure class="qfigure">
+          <img src={'media/' + q.figure.src} alt={q.figure.alt} loading="lazy" />
+          {q.figure.caption && <figcaption>{q.figure.caption}</figcaption>}
+        </figure>
+      )}
       {q.type === 'choice' ? (
         <div class="options" role="radiogroup">
           {q.options.map((o, i) => (

@@ -11,18 +11,18 @@ sources:
 checks:
   - gen: lab.laResolution
   - type: choice
-    prompt: "How do you measure the **propagation delay** from the clock to the data?"
-    options: ["Place cursor A on a rising clock edge and cursor B on the first point where the data is stable, then read the interval", "Count the states", "Use the state list", "Measure the clock period"]
+    prompt: "How do you measure the propagation delay from the clock to the data?"
+    options: ["Put cursor A on a rising clock edge and B where the data settles, then read the interval", "Count the states between the two edges in the state list", "Read the clock period from the timing display", "Measure the delay with a multimeter on the data line"]
     answer: 0
     explain: "In timing mode at 500 MHz, right-click the trace to place cursors A and B and read the time between them from the measurement bar."
   - type: choice
-    prompt: "The delay you measure includes which parts?"
-    options: ["Flip-flop clock-to-output delay plus the XOR gates in the path; compare with the 74LS175 and 74LS86 data sheet values", "Only the clock", "Only the cable", "The USB delay"]
+    prompt: "Which parts does the measured clock-to-data delay include?"
+    options: ["The flip-flop clock-to-output delay plus the XOR gates in the path", "Only the delay of the clock source feeding the flip-flops", "Only the delay of the probe cable to the analyzer", "The USB link delay between the analyzer and the PC"]
     answer: 0
     explain: "The lab has you compare the measured clock-to-data-out delay with the data-sheet propagation delays of the D flip-flop (74LS175) and the XOR gate (74LS86), which may be min/max or typical."
   - type: choice
-    prompt: "What limits the **maximum clock frequency** of the circuit?"
-    options: ["The critical path: the longest delay from a clock edge through flip-flop and XOR gates to the next flip-flop's input (plus set-up time)", "The crystal", "The USB cable", "The number of states"]
+    prompt: "What limits the maximum clock frequency of the circuit?"
+    options: ["The critical path: flip-flop plus XOR delays plus set-up time", "The crystal frequency chosen for the system clock", "The USB cable length between the analyzer and the PC", "The number of states in the pseudorandom sequence"]
     answer: 0
     explain: "The clock period must be longer than the slowest path (clock-to-output + gate delays + set-up). The lab asks you to find that critical path and the maximum and minimum clock frequencies without violating timing."
 card:

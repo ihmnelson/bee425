@@ -21,7 +21,7 @@ checks:
     explain: "Operands are separated by a comma and no spaces are allowed (a space would start the comment field)."
   - type: choice
     prompt: "What does a label give you, besides readability?"
-    options: ["The assembler calculates branch and jump addresses for you, avoiding addressing errors", "Faster execution", "More memory", "Automatic comments"]
+    options: ["The assembler works out branch and jump addresses for you", "Faster execution, because labelled code skips decoding", "Extra memory reserved at the label's address", "Automatic comments added to the listing"]
     answer: 0
     explain: "Labels make code readable and cause the assembler to calculate branch and jump addresses automatically."
   - type: choice

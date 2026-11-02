@@ -13,17 +13,17 @@ checks:
   - gen: dram.refreshInterval
   - type: choice
     prompt: "In what order are the two halves of a DRAM address sent?"
-    options: ["The row address first (with ~RAS), then the column address (with ~CAS)", "Column first, then row", "Both together", "Row address only"]
+    options: ["Row address first (with ~RAS), then column address (with ~CAS)", "Column address first (with ~CAS), then row address (with ~RAS)", "Both halves together, on separate pins", "Only the row address; the column comes from the data bus"]
     answer: 0
     explain: "The row address is clocked in first with the Row Address Strobe (RAS), followed by the column address and the Column Address Strobe (CAS). The same pins carry both halves, so a DRAM has half as many address pins."
   - type: choice
-    prompt: "How is a DRAM **refreshed**?"
-    options: ["By doing a RAS cycle, which refreshes a whole row at a time (8,192 cells in the lecture's example)", "By turning the power off and on", "By reading each bit with CAS", "By rewriting from the CPU"]
+    prompt: "How is a DRAM refreshed?"
+    options: ["By a RAS cycle, which refreshes a whole row at a time", "By switching the power off and on once a second", "By reading each bit individually with ~CAS", "By the CPU rewriting every address from software"]
     answer: 0
     explain: "A RAS cycle refreshes one whole row (8,192 cells in the 64-Mbit example). Those cells cannot be accessed for data during the refresh."
   - type: choice
-    prompt: "Why is DRAM refresh a 'significant perturbation' to memory access?"
-    options: ["A refresh cycle is needed about every 2 µs for the lecture's 8,192 rows in 16.384 ms, and the refreshed row cannot be used for data", "It happens once an hour", "It never interrupts the processor", "It is only done at power-up"]
+    prompt: "Why is DRAM refresh a 'significant perturbation' to memory access, for a DRAM with 8,192 rows that must all be refreshed within 16.384 ms?"
+    options: ["A row must be refreshed about every 2 microseconds, and it is busy meanwhile", "Refresh is needed only once per second but locks the chip for that time", "Refresh never interrupts the processor, so it is harmless", "Refresh is done once, at power-up, and never again"]
     answer: 0
     explain: "8,192 rows every 16.384 ms means a refresh cycle about every 2 µs, which interferes with normal memory access."
 card:

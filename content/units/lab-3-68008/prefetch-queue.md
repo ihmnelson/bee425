@@ -32,18 +32,18 @@ programs:
       mem: { 35498: [0x66, 0x66, 0x66, 0x66] }
 checks:
   - type: choice
-    prompt: "In the lab's trace, `MOVE.B D0,$00008020` is at $102E, yet the next instruction's op-code ($45F9) is fetched **before** the byte is written. Why?"
-    options: ["The 68008 prefetches the next instruction while decoding the current one, and a write usually happens after the next prefetch", "The write is slow", "The trace is wrong", "The ROM is out of order"]
+    prompt: "In a trace, MOVE.B D0,$00008020 sits at $102E, yet the next instruction's op-code ($45F9) is fetched before the byte is written. Why?"
+    options: ["The 68008 prefetches the next op-code while decoding, and the write comes after", "The write is slow, so it finishes after the clock stops", "The trace is wrong because the analyzer reorders states", "The ROM returns its op-codes out of order"]
     answer: 0
     explain: "The prefetch queue holds two words. When an instruction writes to memory, the write usually occurs after the next instruction has been prefetched, so the trace shows the next op-code before the write."
   - type: choice
-    prompt: "A `BRA` is executed. What appears in the bus trace right after it?"
-    options: ["The instruction that follows the BRA in memory is prefetched (but never executed) before the branch is taken", "Only the branch target", "Nothing", "A reset"]
+    prompt: "A BRA is executed. What appears in the bus trace right after it?"
+    options: ["The instruction after the BRA is prefetched, never executed, before the branch", "Only the branch target, since the CPU knows it already", "Nothing: the bus idles until the target is worked out", "A reset cycle that flushes the prefetch queue"]
     answer: 0
     explain: "On a branch, the next instruction after the branch is prefetched before the branch is taken. If the branch is taken, that prefetched instruction is never executed, which is confusing when you read the trace as a program listing."
   - type: choice
-    prompt: "How does the **Z80** differ?"
-    options: ["It fetches the next instruction only when it knows where it is, and writes occur in the same cycle as the instruction", "It prefetches two words", "It cannot fetch", "It writes before fetching"]
+    prompt: "How does the Z80 differ from the 68008 in fetching?"
+    options: ["It fetches the next instruction only once it knows where it is", "It prefetches two words ahead of the current instruction", "It cannot fetch while it is writing to memory", "It writes before it fetches the next op-code"]
     answer: 0
     explain: "On the Z80 there is no ambiguity between the trace and what the processor is doing: the sequence in the trace matches the program. On the 68008, address, data and status buses alone can mislead you."
   - type: choice

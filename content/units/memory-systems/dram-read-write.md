@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L7 s332", quote: "~WE must be set low for a certain time for a write" }
 checks:
   - type: choice
-    prompt: "Put the DRAM **read** steps in order."
-    options: ["Row address, ~RAS low, column address, ~WE high, ~CAS low, ~OE low, data appears, then ~CAS and ~RAS return high", "~CAS low, ~RAS low, row address, column address", "Data first, then addresses", "~WE low, ~RAS low, data"]
+    prompt: "Put the DRAM read steps in order."
+    options: ["Row address, ~RAS low, column address, ~WE high, ~CAS low, ~OE low, data appears", "~CAS low, ~RAS low, row address, column address, then data", "Data first, then both addresses, then ~RAS and ~CAS together", "~WE low, ~RAS low, data, then the column address"]
     answer: 0
     explain: "Simplified read: apply the row address, take ~RAS low, apply the column address, keep ~WE high before ~CAS falls, take ~CAS low, ~OE low within its window, data appears at the outputs, then return ~CAS and ~RAS to their inactive states."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "~WE must be high before and after ~CAS goes low for a read; it must be low for a certain time (tWP) for a write, with the data applied before ~CAS goes low and held after."
   - type: choice
-    prompt: "Which transition makes the data **appear** on a read?"
-    options: ["It depends on when ~RAS, ~CAS and ~OE went low and when the address was supplied (tRAC, tCAC, tOEA, tAA)", "The CPU clock edge", "Refresh", "Only ~OE"]
+    prompt: "What decides when the data appears on a DRAM read?"
+    options: ["When ~RAS, ~CAS and ~OE went low and when the address was supplied (tRAC, tCAC, tOEA, tAA)", "Only the CPU clock edge that started the cycle", "Only the refresh counter's current value", "Only when ~OE goes low, whatever the other signals do"]
     answer: 0
     explain: "The time at which data appears depends on when ~RAS (tRAC), ~CAS (tCAC) and ~OE (tOEA) went low, and when the address is supplied (tAA)."
 card:

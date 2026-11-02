@@ -12,13 +12,13 @@ checks:
   - gen: conv.costTotal
   - gen: conv.costTotal
   - type: choice
-    prompt: "In the lecture's example, an ASIC has $525,000 of development, foundry and tool costs and a unit cost of $14 at 1,000 units. What is the **cost per device**?"
-    options: ["$539 per device ($539,000 total)", "$14", "$525", "$300"]
+    prompt: "An ASIC has $525,000 of development, foundry and tool costs and a unit cost of $14 (at 1,000 units). What is the cost per device at 1,000 units?"
+    options: ["$539 per device ($539,000 total)", "$14, the unit cost alone", "$525, the fixed costs per device", "$300, the software development cost"]
     answer: 0
     explain: "Hardware at 1,000 units: $525,000 + $14,000 = $539,000, so $539 per device. At 500,000 units (unit cost $6): $525,000 + $3,000,000 = $3,525,000, or $7.05 per device (the slide prints the $525,000 as $1.05 per device, which is the NRE share alone)."
   - type: choice
-    prompt: "In the example the software solution costs $300,000 to develop. How do the totals compare at 1,000 and at 500,000 units?"
-    options: ["At both volumes software totals $300,000, while hardware is $539,000 at 1,000 and $3,525,000 at 500,000", "Hardware is cheaper at both", "They are equal", "Software costs more at high volume"]
+    prompt: "A software solution costs $300,000 to develop with no per-unit cost. The ASIC costs $525,000 fixed plus $14 per unit at 1,000 units and $6 per unit at 500,000 units. How do the totals compare?"
+    options: ["Software stays at $300,000; the ASIC is $539,000 at 1,000 units and $3,525,000 at 500,000", "The ASIC is cheaper than software at both volumes", "Both solutions have the same total at both volumes", "Software costs more than the ASIC at high volume"]
     answer: 0
     explain: "The software solution has no per-unit cost in the example, so total cost is flat; hardware's per-unit cost grows with volume. The decision also depends on performance and selling price."
 card:

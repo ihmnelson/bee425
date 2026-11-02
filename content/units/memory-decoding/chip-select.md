@@ -12,11 +12,12 @@ checks:
   - gen: memory.zerosInPage
   - type: choice
     prompt: "Why must the address-valid signal be one of the inputs to the page-select logic?"
-    options: ["So no chip is selected while the address lines are still settling", "To lower the power the chips use", "To give each chip a different clock", "To make the offset bits larger"]
+    options: ["So no chip is selected while the address is still settling", "To lower the power the chips use", "To give each chip its own clock", "To make the offset bits larger"]
     answer: 0
     explain: "Until the processor says the address is valid, the lines can hold garbage; without the qualifier a page could be selected, and read or written, at the wrong time. The lecture notes the chips are disabled until the address is valid."
   - type: choice
     prompt: "A NAND gate has these inputs: **A23, A22, /A21, A20, /A19, /A18, A17, /A16, /A15** (a slash means the line is inverted first), plus address-valid. Which page does it select?"
+    figure: {"src":"slides/L7-s4.png", "alt":"Slide: memory decoding logic example 3, a NAND gate whose inputs include A23, A22, inverted A21, A20, inverted A19, A18 and so on, with the page address bit pattern 1 1010 0100", "caption":"Lecture 7, slide 297: decoding the page at $1A4"}
     options: ["$1A4", "$1B4", "$0E5", "$14A"]
     answer: 0
     explain: "The NAND goes low when all inputs are 1. So A23, A22, A20, A17 must be 1 and A21, A19, A18, A16, A15 must be 0: 1 1 0 1 0 0 1 0 0 = 1 1010 0100 = $1A4."

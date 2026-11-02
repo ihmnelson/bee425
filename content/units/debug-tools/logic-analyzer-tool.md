@@ -13,18 +13,18 @@ checks:
   - gen: la.statesPerClock
   - gen: la.traceBuffer
   - type: choice
-    prompt: "What is the difference between **timing mode** and **state mode**?"
-    options: ["Timing mode samples with the analyzer's internal clock (waveform view, best for hardware); state mode samples with the processor's clock (a list of bus states, best for software)", "They are the same", "State mode uses an internal clock", "Timing mode shows instructions"]
+    prompt: "What is the difference between timing mode and state mode on a logic analyzer?"
+    options: ["Timing mode: analyzer clock, waveforms. State mode: processor clock, bus states", "They are the same; only the display colours differ", "State mode uses the analyzer's clock and timing mode the processor's", "Timing mode lists instructions and state mode shows waveforms"]
     answer: 0
     explain: "In timing mode the LA's own clock sets when channels are recorded, giving a waveform display useful to the hardware designer. In state mode data collection is synchronised to the processor clock, one snapshot per cycle, and post-processing can reduce bus-level data to instruction level."
   - type: choice
-    prompt: "How can a logic analyzer record events **before** the trigger?"
-    options: ["The trace memory is a circular buffer that always overwrites old data; the trigger point decides when to stop", "It predicts the future", "It uses a second analyzer", "It cannot"]
+    prompt: "How can a logic analyzer record events before the trigger?"
+    options: ["Trace memory is a circular buffer; the trigger point decides when it stops", "It predicts the future from the bus activity seen so far", "It uses a second analyzer that is armed a little earlier", "It cannot; only events after the trigger are ever stored"]
     answer: 0
     explain: "The trace runs continuously into a circular buffer; the trigger point sets how many states are kept before and after, so events can be seen in 'negative time'."
   - type: choice
-    prompt: "When does a logic analyzer's trace **lose relevance**?"
-    options: ["When what happens at the processor's pins does not reflect internal operation, such as with an instruction cache enabled", "When the clock is slow", "When the board is large", "When using state mode"]
+    prompt: "When does a logic analyzer's trace lose relevance?"
+    options: ["When the pins no longer reflect what the processor does inside, as with a cache on", "When the target clock is slower than about 1 MHz", "When the board has more than four copper layers", "When state mode is used instead of timing mode"]
     answer: 0
     explain: "The limit of usability is when both possible destinations of a branch lie entirely within the cache. Other cons: it needs many tiny probes on fine-pitch pins (0.005 in), so fragile adapters and boards designed for the analyzer help."
 card:

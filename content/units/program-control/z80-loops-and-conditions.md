@@ -52,7 +52,7 @@ checks:
     explain: "CP r subtracts r from A and sets the flags without storing the result, like the 68000's CMP. The accumulator is always the other operand."
   - type: choice
     prompt: "The 68000 tests bit 9 of D6 with a mask and AND. How does the Z80 test a single bit?"
-    options: ["With BIT n,r (sets Z to the complement of the bit), then JR NZ/Z", "With MASK", "It cannot test bits", "With CP only"]
+    options: ["With BIT n,r (Z is set when the bit is 0), then JR Z or JR NZ", "With a MASK instruction that ANDs and branches in one step", "It cannot test one bit; the whole byte must be compared", "With CP only, comparing against a one-bit constant"]
     answer: 0
     explain: "BIT n,r sets the Z flag to 1 if the bit is 0 and to 0 if the bit is 1, without changing the register, so `BIT 1,H` then `JR NZ,ONE` branches when the bit is 1. Bit 9 of a 16-bit word is bit 1 of the high byte."
   - type: choice

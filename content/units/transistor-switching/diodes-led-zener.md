@@ -17,13 +17,13 @@ checks:
     answer: 0
     explain: "The anode must be biased approximately 600 mV higher than the cathode for current to flow. Current flows only in the positive direction (anode to cathode)."
   - type: choice
-    prompt: "What property does a **Zener diode** use to make a stable reference voltage?"
-    options: ["Reverse breakdown (avalanche): at a certain reverse voltage it suddenly conducts", "Forward conduction at 0.6 V", "Light emission", "Its capacitance"]
+    prompt: "What property does a Zener diode use to make a stable reference voltage?"
+    options: ["Reverse breakdown: at a certain reverse voltage it suddenly conducts", "Forward conduction at 0.6 V, which is nearly constant", "Light emission, which varies with current", "Its junction capacitance, which varies with voltage"]
     answer: 0
     explain: "A Zener takes advantage of reverse breakdown; when the reverse voltage reaches a set value the diode conducts and holds that voltage. A series resistor (1 kΩ on the slide) is needed to limit the current."
   - type: choice
-    prompt: "Why must every diode and LED in these circuits have a **series resistor**?"
-    options: ["To limit the current, since a conducting diode's voltage is almost fixed", "To raise the voltage", "To make it emit more light", "To block DC"]
+    prompt: "Why must every diode and LED in these circuits have a series resistor?"
+    options: ["To limit the current, since a conducting diode's voltage is almost fixed", "To raise the voltage across the diode so it turns on", "To make the LED emit more light at the same current", "To block the DC component so only AC flows"]
     answer: 0
     explain: "Once a diode conducts, its voltage barely changes, so without a resistor the current is limited only by the source and the diode would be damaged. The resistor sets the current."
 card:

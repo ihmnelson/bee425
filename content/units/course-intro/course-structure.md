@@ -15,20 +15,15 @@ checks:
     answer: 0
     explain: "Homework is not graded. The three labs, the midterm, the final and the design project are each 25% of the grade, plus up to an additional 5% for class participation."
   - type: choice
-    prompt: "Why does the instructor say you should still **do the homework and labs**?"
-    options: ["The exams test what you did, or did not do, in them, and exam problems are not very different from homework problems", "They are collected for a bonus", "They replace the exams", "They are required for the project only"]
+    prompt: "Why does the instructor say you should still do the homework and labs?"
+    options: ["The exams test what you did or did not do in them, and exam problems resemble homework problems", "Homework and lab scores are averaged in and can replace a poor exam score", "The labs cover the only material that the exams are allowed to test", "The instructor curves exam scores by how many labs were handed in"]
     answer: 0
     explain: "Exams test your knowledge of what you did in the labs and on your homework, and the instructor asks lab questions on exams. Studying his solutions is not a substitute for solving the problems yourself."
   - type: choice
-    prompt: "What does the instructor say about **what can be on the test**?"
-    options: ["Everything is fair game: lectures, homework, labs and other assigned reading", "Only the slides", "Only the homework", "Only what was covered in the last lecture"]
+    prompt: "What does the instructor say about what can be on the test?"
+    options: ["Anything from the lectures, homework, labs or assigned reading", "Only material that was shown on the lecture slides", "Only problems that already appeared on the homework sets", "Only topics covered in the most recent lecture before the exam"]
     answer: 0
     explain: "The lecture material, homework, lab experiments and other assigned reading are the roadmap, and the answer to 'will it be on the test' is that everything is fair game."
-  - type: choice
-    prompt: "Which topic belongs to **Part 2** of the course structure?"
-    options: ["Assembly language: addressing modes, loop constructs and subroutines", "Transistors as switches", "Power management", "PCB design"]
-    answer: 0
-    explain: "Part 0 basics (including PCB design and clocks), Part 1 architecture, Part 2 assembly language, Part 3 memory design (introduction to I/O), Part 4 I/O design and control, Part 5 system design issues, Part 6 design tools (time permitting)."
 card:
   front: "What are the six parts of the course and how is it graded?"
   back: "Part 0 basics (PCB design, clocks, project), 1 architecture, 2 assembly language, 3 memory design, 4 I/O design and control, 5 system design issues, 6 design tools. Grading: homework not graded; 3 labs 25%, midterm 25%, final 25%, project 25%, participation +5%. Exams cover homework, labs and lectures; everything is fair game."

@@ -32,8 +32,8 @@ checks:
     answer: 0
     explain: "Mode 5 adds the sign-extended 16-bit displacement to the address register: $00BC9A00 + $3AE4 = $00BCD4E4."
   - type: choice
-    prompt: "In the lecture's array of 50 x 50 long words starting at $4000, which value goes in **D0** (the index register) to reach row 23?"
-    options: ["23 x 50 x 4 = 4600 = $11F8", "23 x 50 = 1150", "23 x 4 = 92", "11 x 4 = 44"]
+    prompt: "A 50 x 50 array of long words (4 bytes each) is stored row by row. What offset in the index register D0 reaches the first element of row 23, counting rows from 0?"
+    options: ["23 x 50 x 4 = 4600 bytes = $11F8", "23 x 50 = 1,150 bytes, forgetting 4 bytes per long word", "23 x 4 = 92 bytes, forgetting 50 elements per row", "50 x 4 = 200 bytes, the size of one row only"]
     answer: 0
     explain: "D0 = row number x columns per row x bytes per element = 23 x 50 x 4 = 4600 = $11F8. The column goes in the 8-bit displacement: 11 x 4 = 44 = $2C."
   - type: choice
@@ -42,8 +42,8 @@ checks:
     answer: 0
     explain: "Mode 5 (d16,An) uses a 16-bit two's complement displacement; mode 6 (d8,An,Xn) uses an 8-bit two's complement displacement plus an index register A0-A7 or D0-D7."
   - type: choice
-    prompt: "Why do compilers like **mode 5** (displacement)?"
-    options: ["Each variable is an offset from a pointer such as A5 that points at a data region", "It is the fastest mode", "It avoids needing registers", "It makes code position-dependent"]
+    prompt: "Why do compilers like mode 5 (address register with displacement)?"
+    options: ["Each variable is an offset from a pointer such as A5 that points at a data region", "It is the fastest addressing mode, so compilers prefer it", "It avoids needing any address register at all", "It makes the generated code position-dependent"]
     answer: 0
     explain: "Compilers reference variables relative to a pointer: A5 points to a data region and each variable's address is a displacement from <A5>."
 card:

@@ -12,23 +12,23 @@ checks:
   - gen: lab.laResolution
   - gen: lab.laResolution
   - type: choice
-    prompt: "Measured clock-high-to-address-valid is **28 ns**; the published maximum for an 8 MHz clock is **62 ns**. What do you conclude?"
-    options: ["It is within specification (28 ns is below the 62 ns maximum)", "The processor is faulty", "The analyzer is wrong", "It is out of specification"]
+    prompt: "The measured clock-high-to-address-valid time is 28 ns; the published maximum for an 8 MHz clock is 62 ns. What do you conclude?"
+    options: ["It is within specification: 28 ns is below the 62 ns maximum", "It fails: a maximum means the signal must take at least 62 ns", "It is inconclusive: the analyzer's resolution is too coarse to compare", "It is out of specification: a good part should be nearly equal to 62 ns"]
     answer: 0
     explain: "The lab's own example: measured 28 ns against a published maximum of 62 ns. Measured times can differ from published data; you are fine as long as the value is within the published limits."
   - type: choice
-    prompt: "Why does the handout warn about measuring signals that come from the **GAL22V10B**?"
-    options: ["The GAL can add up to 15 ns of delay, so the real time may be less than measured", "The GAL is faster than the processor", "The GAL has no outputs", "The GAL changes the clock"]
+    prompt: "Why does the handout warn about measuring signals that come from the GAL22V10B?"
+    options: ["The GAL can add up to 15 ns, so the true time at the processor may be less than measured", "The GAL is faster than the processor, so it hides the real delay", "The GAL has no outputs, so nothing can be measured", "The GAL changes the clock frequency while measuring"]
     answer: 0
     explain: "Function codes go into the GAL, which makes Pfetch and Dfetch. If a measurement involves a GAL output, report that the true total time could be up to 15 ns less."
   - type: choice
     prompt: "In what order should you power the analyzer and the experiment board?"
-    options: ["Analyzer first on, and off last; board powered after the analyzer is on and removed before it is off", "Board first", "Both at once", "Order does not matter"]
+    options: ["Analyzer on first and off last; the board is powered while it is on", "Board on first and off last; the analyzer follows it", "Both switched on and off together", "The order does not matter for either of them"]
     answer: 0
     explain: "Have the logic analyzer powered before powering the board, to prevent excessive current from being driven into the analyzer; remove power from the board before removing power from the analyzer."
   - type: choice
-    prompt: "To capture the fetch of the first op-code at address $1000, what should the **trigger pattern** be?"
-    options: ["Address $1000 with ~CSROM = 0, ~AS = 0, ~RD = 0 and Pfetch = 1, all other signals don't care", "Any signal toggling", "RESET high", "The clock only"]
+    prompt: "To capture the fetch of the first op-code at address $1000, what should the trigger pattern be?"
+    options: ["Address $1000 with ~CSROM, ~AS, ~RD low and Pfetch high; others don't care", "Any signal toggling, with no address condition", "RESET high with every other signal don't care", "The clock only, on its rising edge"]
     answer: 0
     explain: "Qualify the address pattern with the chip select, address strobe, read and program-fetch signals so you trigger on exactly the op-code fetch from ROM."
 card:

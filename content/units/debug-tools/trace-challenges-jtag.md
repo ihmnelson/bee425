@@ -15,18 +15,18 @@ checks:
     answer: 0
     explain: "Instruction and data caches and prefetch queues make the bus activity differ from the program flow. The limit of usefulness is when both possible branch destinations are inside the cache."
   - type: choice
-    prompt: "What is a **bond-out chip**?"
-    options: ["A special version of a part that brings extra internal signals out to pins so external tools can see more of the processor", "A chip with no pins", "A faster version of the chip", "A chip with a heat sink"]
+    prompt: "What is a bond-out chip?"
+    options: ["A version of a part that brings internal signals out to extra pins", "A chip with no external pins that is tested by radio link", "A faster speed grade of a chip sold at a premium", "A chip packaged with a built-in heat sink for cooling"]
     answer: 0
     explain: "Examples of solutions: Intel's bond-out chips, Motorola's instruction-flow status bits, AMD's traceable cache (a lockstep slave outputs the program counter, bypassing the cache), National's program-counter bond-out. They are costly in small volumes and can lock out competing tools."
   - type: choice
-    prompt: "What was **JTAG** originally for, and how has it become a debug interface?"
-    options: ["A board test method linking all device outputs into one serial bit chain (replacing bed-of-nails testers); adding internal debug registers makes a standard N-wire on-chip debug interface", "A power supply standard", "A bus standard", "A compiler"]
+    prompt: "What was JTAG originally for, and how has it become a debug interface?"
+    options: ["Board test: one serial chain through the outputs; debug registers turned it into a debug port", "A power-supply standard for sequencing the core and I/O rails", "A parallel bus standard for connecting memory to processors", "A compiler option that adds symbol tables for the debugger"]
     answer: 0
     explain: "JTAG (IEEE 1149.1) strings every device's boundary cells into a long shift register so outputs can be observed or driven. By linking internal registers into the loop and adding debug registers it became the de facto on-chip debug standard: one low-cost tool supports any JTAG-compatible device."
   - type: choice
-    prompt: "What is a **drawback** of JTAG debugging?"
-    options: ["It can be slow: bus cycles must be built by shifting every bit, and loops can be about 10,000 bits long", "It is expensive (> $20K)", "It needs a chassis", "It works only for CISC"]
+    prompt: "What is a drawback of JTAG debugging?"
+    options: ["It can be slow: bus cycles are built by shifting bits", "It costs more than $20K per processor to use", "It needs a full emulator chassis on the bench", "It works only with CISC processors"]
     answer: 0
     explain: "Debug capability depends on the debug core's features; JTAG loops are hand crafted for each core (a re-spin creates new loops). It lends itself to RISC processors and ASIC cores, and typical tools cost under $1,000."
 card:

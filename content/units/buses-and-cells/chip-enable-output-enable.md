@@ -9,18 +9,18 @@ sources:
   - { type: slide, ref: "L6 s267", quote: "~CS must be low for Clock input to be active" }
 checks:
   - type: choice
-    prompt: "If **~CE is high**, what is the state of the chip?"
-    options: ["Turned off: all outputs are Hi-Z and clocked inputs are inactive", "Reading only", "Writing only", "Outputs drive 0"]
+    prompt: "If ~CE is high, what is the state of the chip?"
+    options: ["Off: all outputs are Hi-Z and clocked inputs are ignored", "Reading only: outputs drive the bus but writes are ignored", "Writing only: inputs are accepted but outputs stay Hi-Z", "Idle, but the outputs hold the last value they drove"]
     answer: 0
     explain: "If ~CE is not LOW (active), the entire chip is off: all outputs are tri-stated and clocked inputs are inactive."
   - type: choice
     prompt: "~CE is low and ~OE is high. What does the chip do?"
-    options: ["It accepts new data on a write, but its output stays Hi-Z", "It drives the bus", "It is off", "It resets"]
+    options: ["It accepts data on a write, but its outputs stay Hi-Z", "It drives the stored data onto the bus", "It is off and ignores both reads and writes", "It resets its contents to zero"]
     answer: 0
     explain: "~OE only controls whether the outputs are placed on the bus. With ~CE low and ~OE high the chip will accept data but not drive it."
   - type: choice
-    prompt: "Which signal selects **which of several chips** on a shared data bus is active?"
-    options: ["Chip select (~CS / ~CE), driven from the address decoder", "~OE alone", "The clock", "~WE"]
+    prompt: "Which signal selects which of several chips on a shared data bus is active?"
+    options: ["Chip select (~CS / ~CE), driven from the address decoder", "Output enable (~OE) alone, which is shared by every chip", "The clock, which is distributed to every chip", "Write enable (~WE), which is shared by every chip"]
     answer: 0
     explain: "With tri-state outputs wired directly to the bus, only the chip whose ~CS is low (chosen by decoding the address) is active; the others stay off."
 card:

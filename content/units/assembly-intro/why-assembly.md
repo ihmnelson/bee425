@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L4 s148", quote: "Code that must be absolutely, positively deterministic cannot be written in C" }
 checks:
   - type: choice
-    prompt: "Which is a reason the lecture gives for **still learning assembly language**?"
-    options: ["You can control the program down to a single clock cycle, so timing is deterministic", "It is portable between processors", "Compilers cannot generate code", "It is shorter to write than C"]
+    prompt: "Which is a reason for still learning assembly language?"
+    options: ["You control the program down to a single clock cycle, so timing is deterministic", "Assembly programs are portable between different processors", "Assembly is shorter to write than the same program in C", "Compilers cannot generate code for modern processors"]
     answer: 0
     explain: "Assembly lets you control a program at the level of a single clock cycle, so code that must be deterministic (interrupt handlers, DSP algorithms) can be written there. It is not portable and is not shorter."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "Assembly language is tightly coupled to the processor's design: there is a 1:1 match between the assembly instruction and the machine language instruction."
   - type: choice
-    prompt: "Who typically writes the first software on **new hardware**?"
-    options: ["The hardware designer, in assembly, as test drivers", "The marketing team", "A compiler", "The operating system"]
+    prompt: "Who typically writes the first software on new hardware?"
+    options: ["The hardware designer, in assembly, as test drivers", "The marketing team, using a high-level scripting tool", "The operating system vendor, as part of its install image", "A compiler, generating code from the schematic"]
     answer: 0
     explain: "Hardware designers are responsible for turning on new hardware; the most direct way to write test drivers is in assembly. Once the functionality is assured, coders write the applications in C, C++ or Java."
 card:

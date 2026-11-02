@@ -10,8 +10,8 @@ sources:
   - { type: slide, ref: "L10 s486", quote: "Compliance engineering" }
 checks:
   - type: choice
-    prompt: "What is the **design specification**?"
-    options: ["The formal roadmap for what you are to design, listing processor, speed, memory, I/O, environment, power, cooling and more; it can have hundreds of items and separate 'musts' from 'wants'", "A parts list only", "The schematic", "The test plan"]
+    prompt: "What is the design specification?"
+    options: ["The formal roadmap of what to design, separating musts from wants", "A parts list with prices and suppliers for each component", "The schematic and layout of the finished board", "The test plan used to check the first prototype"]
     answer: 0
     explain: "The spec generally lists processor type, speed, RAM quantity and memory map, ROM type and reprogrammability, upgrade plan, data bus width, user environment, temperature and humidity ranges, shock and vibration, power and cooling, I/O and connectors, custom ASICs, IP and CAD tools."
   - type: choice
@@ -21,7 +21,7 @@ checks:
     explain: "Marketing: cost goals, use models (customer advocate), competition, upgradability. Software: performance, tools, time, memory, legacy code. Mechanical: board space, connectors, mounting, cooling. Compliance: shielding, foreign regulations, temperature, mechanical environment. Component engineering: part qualification, availability, parts to avoid, obsolescence, preferred vendors."
   - type: choice
     prompt: "A customer needs the product to survive vibration in a car. Which spec item does that belong to, and who cares most?"
-    options: ["User environment and mechanical shock and vibration; mechanical and compliance engineering", "Data bus width; software", "ROM size; marketing", "CAD tools; component engineering"]
+    options: ["User environment and vibration; mechanical and compliance", "Data bus width; software engineering", "ROM size; marketing", "CAD tool choice; component engineering"]
     answer: 0
     explain: "Environment items (user environment, operating and storage temperature, humidity, mechanical shock and vibration) interact with mechanical engineering (mounting, connectors) and compliance engineering."
 card:

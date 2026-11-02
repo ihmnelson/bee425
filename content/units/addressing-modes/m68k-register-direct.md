@@ -36,8 +36,8 @@ checks:
     answer: 0
     explain: "The data is already inside the processor, so no memory access is needed; and it takes only three bits in the op-code word to name one of the eight registers."
   - type: choice
-    prompt: "After `ADD.B D3,D4` with D3 = $F0 and D4 = $20, what is the low byte of D4 and the carry flag?"
-    options: ["$10 with C = 1 (the 8-bit sum wraps past $FF)", "$110 with C = 0", "$10 with C = 0", "$F0 with C = 1"]
+    prompt: "After ADD.B D3,D4 with D3 = $F0 and D4 = $20, what are the low byte of D4 and the carry flag?"
+    options: ["$10 with C = 1: the 8-bit sum wraps past $FF", "$110 with C = 0, since the result is held in nine bits", "$10 with C = 0, since the carry out is ignored", "$F0 with C = 1, since the source is unchanged"]
     answer: 0
     explain: "$F0 + $20 = $110, which does not fit in a byte. The byte keeps $10 and the carry flag is set (the lecture asks 'what happens if the result is greater than 256?'). Verified by running it."
 card:

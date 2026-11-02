@@ -20,13 +20,13 @@ checks:
     answer: 0
     explain: "Multiple-slope converters are hybrids of the single ramp; they trade speed for accuracy (roughly 10 measurements per second for triple and quad slope)."
   - type: choice
-    prompt: "Which statement is true about **accuracy and resolution**?"
-    options: ["They are not synonymous: resolution is the smallest difference measurable, accuracy is how well the code represents the true input", "They mean the same thing", "Accuracy is always better than resolution", "Resolution is how fast the converter runs"]
+    prompt: "Which statement is true about accuracy and resolution?"
+    options: ["Resolution is the smallest measurable step; accuracy is how true the code is", "They mean the same thing: both simply count the number of bits", "Accuracy is always at least as good as the resolution", "Resolution describes how fast the converter produces its codes"]
     answer: 0
     explain: "Resolution determines the ability to measure small differences; accuracy is an absolute measure of how well the digitised code represents the analog input voltage."
   - type: choice
-    prompt: "Name the four trade-offs in picking a converter."
-    options: ["Accuracy and resolution (bits), conversion speed, overall cost and noise immunity", "Colour, size, weight, price", "Clock, reset, power, ground", "Source, sink, pull-up, pull-down"]
+    prompt: "Which four trade-offs matter when picking a converter?"
+    options: ["Accuracy and resolution, conversion speed, cost and noise immunity", "Package, pin count, supply voltage and temperature range", "Clock source, reset circuit, power pins and ground scheme", "Source, sink, pull-up and pull-down capability"]
     answer: 0
     explain: "The lecture: A/D conversion forces trade-offs among accuracy and resolution (bits), conversion speed, cost, and noise immunity."
 card:

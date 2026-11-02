@@ -38,8 +38,8 @@ programs:
       regs2: {}
 checks:
   - type: choice
-    prompt: "Which Z80 instruction is the equivalent of the 68000's `MOVE.B D0,$0000FF35` (register to absolute memory)?"
-    options: ["LD [0FF35H],A (only A can use absolute addressing)", "LD [0FF35H],B", "LD 0FF35H,A", "MOVE B,[0FF35H]"]
+    prompt: "Which Z80 instruction is the equivalent of the 68000's MOVE.B D0,$0000FF35 (register to absolute memory)?"
+    options: ["LD [0FF35H],A, since only A can use absolute addressing", "LD [0FF35H],B, which works for any register", "LD 0FF35H,A, which loads the number into A", "MOVE B,[0FF35H], using the 68000 mnemonic"]
     answer: 0
     explain: "Z80 restriction 1: only register A can be used with absolute addressing for 8-bit transfers. The brackets (or parentheses) are required to mean 'the memory at this address'."
   - type: choice
@@ -48,8 +48,8 @@ checks:
     answer: 0
     explain: "The Z80 stores 16-bit values little endian: the low byte first. The 68000 is big endian and would put $12 first. Verified by running it."
   - type: choice
-    prompt: "Which way do the operands of `LD A,B` go, compared with `MOVE.B D0,D1`?"
-    options: ["Z80: copy B into A (destination first). 68000: copy D0 into D1 (source first)", "Both copy the left register to the right", "Both copy the right register to the left", "Neither copies"]
+    prompt: "Which way do the operands of LD A,B go, compared with MOVE.B D0,D1?"
+    options: ["Z80: B into A. 68000: D0 into D1", "Both copy the left register into the right one", "Both copy the right register into the left one", "Z80: A into B. 68000: D1 into D0"]
     answer: 0
     explain: "The lecture stresses the direction: LD A,B copies B into A."
   - type: choice

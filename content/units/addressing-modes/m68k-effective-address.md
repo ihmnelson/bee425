@@ -14,18 +14,18 @@ encodings:
   - { cpu: m68k, asm: "MOVE.W D0,A1", hex: "3240" }
 checks:
   - type: choice
-    prompt: "Why does the 68000 have exactly **8 addressing modes** and **8 data registers**?"
-    options: ["The effective address field is two 3-bit fields: a mode (0-7) and a register (0-7)", "It was chosen for marketing", "The data bus is 8 bits", "There are 8 pins for addresses"]
+    prompt: "Why does the 68000 have exactly 8 addressing modes and 8 data registers?"
+    options: ["The effective address field is two 3-bit fields: a mode (0-7) and a register (0-7)", "The designers picked 8 to match the 8-bit data-bus width", "The processor has 8 address pins, one for each mode", "Eight was the most that fit on the 24-bit address bus"]
     answer: 0
     explain: "Bits 3-5 of the op-code word are the mode field and bits 0-2 the register field, each 3 bits wide. 3 bits give 8 values, which is why there are modes 0-7 and registers D0-D7 / A0-A7."
   - type: choice
-    prompt: "`ADD.B D0,(A0)` assembles to `$D110`. Which part of the op-code word says the destination is **(A0)**?"
-    options: ["The low six bits (010 000): mode 2, register A0", "The top four bits", "The size bits", "The D0 field only"]
+    prompt: "ADD.B D0,(A0) assembles to $D110. Which part of the op-code word says the destination is (A0)?"
+    options: ["The low six bits (010 000): mode 2, register 0", "The top four bits, which give the ADD operation", "The size bits, which give the .B operand size", "The D0 field only, in bits 11-9"]
     answer: 0
     explain: "$D110 = 1101 0001 0001 0000. The low six bits 010 000 are mode 2 (address register indirect), register 0 (A0). The 1101 at the top means ADD and bits 11-9 hold D0."
   - type: choice
-    prompt: "The lecture says `MOVE.W D0,A1` is **illegal** and `MOVEA.W D0,A1` is legal. Why?"
-    options: ["MOVE is not permitted to have an address register destination; that is the job of MOVEA", "A1 is read-only", "D0 cannot be a source", "Word size is not allowed"]
+    prompt: "On the 68000, MOVE.W D0,A1 is illegal but MOVEA.W D0,A1 is legal. Why?"
+    options: ["MOVE cannot have an address register as destination; MOVEA exists for that", "A1 is read-only, so only MOVEA is allowed to write it", "D0 cannot be a source for a MOVE.W", "Word size is not allowed with address registers"]
     answer: 0
     explain: "Each instruction has its own set of permissible addressing modes. The processor's MOVE does not allow an address register as the destination; MOVEA does. (EASy68K and this site's assembler quietly accept MOVE.W D0,A1 as MOVEA.W D0,A1, and both give $3240, but a different assembler may flag it.)"
   - type: choice

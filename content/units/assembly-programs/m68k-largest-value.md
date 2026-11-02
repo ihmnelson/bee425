@@ -68,8 +68,9 @@ programs:
       mem: { MAX_NUM: [0x42] }
 checks:
   - type: choice
-    prompt: "In the program, D0 holds the largest value found so far. After `CMP.B D1,D0`, what does `BGE NEXT1` mean?"
-    options: ["If D0 >= D1 (signed), keep D0 and skip the MOVE.B D1,D0", "If D0 < D1, branch", "Branch always", "Branch if equal only"]
+    prompt: "D0 holds the largest value found so far. After CMP.B D1,D0, what does BGE NEXT1 mean?"
+    code: "START   LEA     DATA,A0        * pointer to data\n        LEA     MAX_NUM,A1     * pointer to result\n        MOVE.B  (A0)+,D0       * first number\n        MOVE.B  (A0)+,D1       * second number\n        CMP.B   D1,D0          * D0 - D1, flags only\n        BGE     NEXT1          * keep D0 if D0 >= D1\n        MOVE.B  D1,D0          * else the second is bigger\nNEXT1   ...                    * repeat for the third and fourth\nDATA    DC.B    $05,$4C,$42,$7F\nMAX_NUM DS.B    1              * result goes here"
+    options: ["If D0 >= D1 (signed), keep D0 and skip the MOVE.B D1,D0", "If D0 < D1, branch and skip the MOVE", "Branch always, whatever the flags say", "Branch only if D0 equals D1"]
     answer: 0
     explain: "CMP.B D1,D0 computes D0 - D1. BGE (branch if greater or equal, signed) is taken when D0 >= D1, so the current maximum is kept; otherwise MOVE.B D1,D0 replaces it."
   - type: choice
@@ -78,7 +79,8 @@ checks:
     answer: 0
     explain: "Running it: the maximum is $7F (the last number beats $4C). This is verified by running the program on the 68000 core."
   - type: choice
-    prompt: "The data bytes are $05, $90, $42, $30. What does this **BGE** program store?"
+    prompt: "In the program below the data bytes are $05, $90, $42, $30. What does the BGE program store at MAX_NUM?"
+    code: "START   LEA     DATA,A0        * pointer to data\n        LEA     MAX_NUM,A1     * pointer to result\n        MOVE.B  (A0)+,D0       * first number\n        MOVE.B  (A0)+,D1       * second number\n        CMP.B   D1,D0          * D0 - D1, flags only\n        BGE     NEXT1          * keep D0 if D0 >= D1\n        MOVE.B  D1,D0          * else the second is bigger\nNEXT1   ...                    * repeat for the third and fourth\nDATA    DC.B    $05,$90,$42,$30\nMAX_NUM DS.B    1              * result goes here"
     options: ["$42, because BGE is signed and $90 is -112", "$90, the largest unsigned value", "$30", "$05"]
     answer: 0
     explain: "BGE compares as signed numbers: $90 = -112, so the signed maximum is $42. An unsigned comparison would give $90. This is verified by running the program on the 68000 core."

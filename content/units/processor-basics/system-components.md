@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L3 s123", quote: "Can be read-mostly memory (FLASH)" }
 checks:
   - type: choice
-    prompt: "What is **glue logic**?"
-    options: ["Random logic needed to interface the functional blocks and devices (NAND gates, PLDs, CPLDs, FPGAs)", "The firmware that boots the board", "The adhesive used on the PCB", "The clock distribution network"]
+    prompt: "What is glue logic?"
+    options: ["Random logic that interfaces the blocks and devices (NAND gates, PLDs, FPGAs)", "Firmware that configures the peripherals during board boot-up", "Adhesive that holds surface-mount parts on the PCB", "The buffered network that distributes the clock to each chip"]
     answer: 0
     explain: "Glue logic is the random logic necessary to interface the various blocks. It can be ordinary gates such as quad NAND or hex NOT, or programmable logic (PLDs, CPLDs and FPGAs)."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "The lecture lists RAM, ROM (read-only), flash (read-mostly) and synchronous burst-access dynamic RAM (SDRAM)."
   - type: choice
-    prompt: "The **control interface** of a microprocessor system provides..."
-    options: ["Clocks, RESET, the interrupt controller and other housekeeping", "The storage of programs", "The arithmetic", "Analog conversion"]
+    prompt: "What does the control interface of a microprocessor system provide?"
+    options: ["Clocks, RESET, the interrupt controller and other housekeeping", "Storage of the program and the data it works on", "The arithmetic and logic operations of the core", "Analog-to-digital conversion of external signals"]
     answer: 0
     explain: "The core does comparisons, arithmetic and logic; the memory interface reads and writes memory; the control interface handles clocks, RESET, interrupts and other housekeeping."
 card:

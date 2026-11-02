@@ -10,18 +10,18 @@ sources:
   - { type: slide, ref: "L8 s368", quote: "Maximum power dissipation" }
 checks:
   - type: choice
-    prompt: "A 100 V supply switches a load. Which collector-emitter voltage rating does the lecture suggest?"
-    options: ["About 200 V: when off, the collector sees the full supply, so pick twice the supply as a margin", "100 V exactly", "5 V", "Any rating"]
+    prompt: "A 100 V supply switches a load. Which collector-emitter voltage rating should the transistor have?"
+    options: ["About 200 V: twice the supply, as the collector sees it all when off", "Exactly 100 V, equal to the supply", "About 5 V, the logic level at the base", "Any rating, because only current matters"]
     answer: 0
     explain: "When the transistor is off the collector voltage equals the supply, so choose a high enough cut-off voltage; for a 100 V supply consider a 200 V maximum. Rule of thumb: a safe operating value is about half the maximum rating."
   - type: choice
-    prompt: "A load draws **10 A**. What transistor current rating and power capability does the lecture say you need?"
-    options: ["A 20 A transistor able to dissipate 4 W (0.4 V x 10 A)", "A 10 A transistor with no heat", "A 5 A transistor", "Only a 4 W rating"]
+    prompt: "A load draws 10 A through a transistor that drops 0.4 V when on. What current rating and power capability do you need?"
+    options: ["A 20 A transistor able to dissipate 4 W (0.4 V x 10 A)", "A 10 A transistor that needs no heat sinking", "A 5 A transistor, since it conducts only half the time", "A 20 A transistor with no power rating needed"]
     answer: 0
     explain: "Half-rating rule: a 20 A transistor for a 10 A load. On-state power = 0.4 V x 10 A = 4 W, which may need a heat sink (or fan)."
   - type: choice
-    prompt: "Which of these is **not** on the lecture's list of things to look for in a transistor?"
-    options: ["The colour of the package", "Linear or switching type", "Value of β (a range, depends on temperature and IC)", "Maximum collector voltage, current and power"]
+    prompt: "Which of these is not something to look for in a transistor?"
+    options: ["The colour of the package", "Linear or switching type", "Value of beta (a range, depends on temperature and IC)", "Maximum collector voltage, current and power"]
     answer: 0
     explain: "The list: type (linear or switching), β (range, temperature- and current-dependent), maximum collector voltage when off, maximum collector current, maximum power dissipation, and the packaging."
 card:

@@ -1,7 +1,7 @@
 id: bee425
 title: BEE 425 Quest
 subtitle: Microprocessor System Design, University of Washington Bothell
-note: "Rebuild in progress. Lessons 1 to 8, 10 and 11, Labs 1 to 3, Homework 1 to 3, the midterm practice problems, simulators and games are in. Lesson 9 is missing from the course folder."
+note: "Rebuild in progress. Lessons 1 to 8, 10 and 11, Labs 1 to 3, Homework 1 to 3, the midterm practice problems, simulators and games are in. Linked readings added: Chapters 6, 9 and 12 (DMA, logic and shift instructions, interrupts, I/O ports, converter resolution), the State Machines notes, the logic analyzer application note, the analog computer and transistor articles and the HP reliability page. Chapters 7 and 8 overlap Lessons 4 and 5 and were not added again. Lesson 9 is missing from the course folder."
 
 # Tracks share one learning model. A track with "follows" must give every concept a bridge back to the track it follows.
 tracks:
@@ -22,6 +22,14 @@ handouts:
   lab1: "../../lab1/Lab Experiment 1-Rev5.pdf"
   lab2: "../../lab2/BEE425 Lab Experiment 2 -Rev 10-remediated.pdf"
   lab3: "../../lab3/BEE425 Lab Experiment 3 -Rev 6-corrected.docx"
+  ch6: "../../LinkedReading/Chapter 6.pdf"
+  ch9: "../../LinkedReading/Chapter 9.pdf"
+  ch12: "../../LinkedReading/Chapter 12.pdf"
+  fsm: "../../LinkedReading/statemachines_chax.pdf"
+  tt60: "../../LinkedReading/Transistor_Turns_60_chax(1).pdf"
+  ttw: "../../LinkedReading/Transistor_Wars_chax(1).pdf"
+  tsividis: "../../LinkedReading/Not_Your_Father_s_Analog_Computer_chax.pdf"
+  laan: "../../LinkedReading/Logic_analyzerBasics-Agilent-corrected(1).docx"
 
 # Cores that run executable claims (encodings and programs in concept files). Each module exports encode(asm) and run(source, expect).
 oracles:
@@ -34,13 +42,13 @@ units:
     lesson: "Lesson 1"
     blurb: "How the course is organised and graded, analog computers, and Moore's law."
     concepts:
-      shared: [course-structure, analog-computers, moores-law]
+      shared: [course-structure, analog-computers, analog-computer-revival, moores-law, transistor-scaling-limits]
   - id: design-process
     title: The design process
     lesson: "Lesson 1"
     blurb: "From research to bring-up: design phases, software planning, design reviews, test plans and choosing parts."
     concepts:
-      shared: [design-phases, software-planning, design-review, test-plan, adc-resolution]
+      shared: [design-phases, software-planning, design-review, design-for-reliability, test-plan, adc-resolution]
   - id: pcb-design
     title: Designing a PCB
     lesson: "Lesson 2"
@@ -97,6 +105,12 @@ units:
       shared: []
       m68k: [m68k-compare-and-flags, m68k-signed-unsigned-branches, m68k-loops-and-ifs, m68k-stack-subroutines]
       z80: [z80-jumps-and-calls, z80-loops-and-conditions, z80-stack-subroutines]
+  - id: m68k-logic-shift
+    title: Logic and shift instructions
+    lesson: "Reading: Chapter 9"
+    blurb: "AND, OR, EOR and NOT with masks, ASL and the shift rules, and packing ASCII digits into a hex number."
+    concepts:
+      m68k: [m68k-logic-instructions, m68k-shift-ascii-hex]
   - id: buses-and-cells
     title: Buses and memory cells
     lesson: "Lesson 6"
@@ -116,7 +130,20 @@ units:
     lesson: "Lesson 7"
     blurb: "Designing a memory system, byte lanes and endianness, the memory map, timing, SRAM versus DRAM and DRAM operation."
     concepts:
-      shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write]
+      shared: [memory-design-steps, bus-width-endianness, memory-map-decoders, memory-timing, sram-vs-dram, dram-operation, dram-read-write, dma-bus-handshake]
+  - id: interrupts-and-io
+    title: Interrupts and I/O ports
+    lesson: "Reading: Chapter 12"
+    blurb: "Interrupts versus polling, priorities, NMI, RESET and exceptions, the 68000 vector table, I/O ports, the data direction register and a polled UART."
+    concepts:
+      shared: [interrupts-vs-polling, interrupt-priority-exceptions, io-ports-uart-polling]
+      m68k: [m68k-interrupt-vectors]
+  - id: state-machines
+    title: State machines
+    lesson: "Reading: State Machines"
+    blurb: "The S-R latch, characteristic tables and state diagrams, finite state acceptors, and Moore and Mealy machines."
+    concepts:
+      shared: [sr-latch-state-diagram, finite-state-acceptor, moore-mealy]
   - id: transistor-switching
     title: Diodes and transistors as switches
     lesson: "Lesson 8"
@@ -128,7 +155,7 @@ units:
     lesson: "Lesson 10"
     blurb: "Sensors, comparators, flash, ramp, successive-approximation and dual-slope converters, D/A converters, sample and hold, multiplexers and aliasing."
     concepts:
-      shared: [analog-world, comparators, flash-adc, dac, adc-methods, adc-resolution-step, ramp-and-sar, vf-dual-slope, conversion-chain, analog-mux, sample-hold-droop, aliasing-nyquist]
+      shared: [analog-world, comparators, flash-adc, dac, adc-methods, adc-resolution-step, ramp-and-sar, vf-dual-slope, conversion-chain, analog-mux, sample-hold-droop, aliasing-nyquist, adc-resolution-furnace]
   - id: noise-and-isolation
     title: Noise, isolation and watchdogs
     lesson: "Lesson 10"
@@ -152,7 +179,7 @@ units:
     lesson: "Lesson 11"
     blurb: "What makes embedded systems different, debug monitors, ROM emulators, logic analyzers, in-circuit emulators, prefetch and cache headaches, BDM and JTAG."
     concepts:
-      shared: [embedded-systems-and-process, debug-monitor-rom-emulator, logic-analyzer-tool, in-circuit-emulator, trace-challenges-jtag]
+      shared: [embedded-systems-and-process, debug-monitor-rom-emulator, logic-analyzer-tool, la-timing-sampling, la-triggering, la-sequence-selective-storage, in-circuit-emulator, trace-challenges-jtag]
   - id: lab-1-logic-analyzer
     title: "Lab 1: using the logic analyzer"
     lesson: "Lab 1"

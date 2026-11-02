@@ -11,14 +11,14 @@ sources:
 checks:
   - type: choice
     prompt: "Which are the deliverables of Lab 1?"
-    options: ["Logisim circuit screen capture and simulated listing with the number of states, the measured listing and cycle length, a timing discussion, and a bibliography", "Only a photo", "Only a spreadsheet", "Nothing"]
+    options: ["Logisim capture and listing, measured listing and cycle length, timing discussion, bibliography", "Only a photo of the breadboard and a signed lab sheet", "Only a spreadsheet of the measured propagation delays", "A fabricated PCB along with its Gerber files"]
     answer: 0
     explain: "The report should look like a research paper: an introduction, what you measured, what you observed and conclusions. Cite your sources (including classmates who helped), explain which clock edge you sampled and why, and include a paragraph on what you thought of the lab."
   - type: choice
-    prompt: "Which questions are worth **10% each** in the logic analyzer step?"
-    options: ["The number of states before the circuit cycles, the clock-to-data propagation delay, the data-sheet comparison and the max/min frequency and critical path", "The colour of the board", "The cable length", "The software version"]
+    prompt: "Your measured clock-to-data delay is smaller than the sum of the typical data-sheet delays for the flip-flop and XOR gates. How should the report treat this?"
+    options: ["Report both numbers, state the conditions, and explain the gap", "Discard the measurement, since only data-sheet values count", "Round the measurement up to the data-sheet value", "Leave the comparison out, because the numbers cannot differ"]
     answer: 0
-    explain: "Step 25 (how many states until the circuit cycles back), the measured propagation delay, the data-sheet comparison, and the maximum and minimum clock frequency with the critical path."
+    explain: "A data sheet gives typical and maximum values under stated conditions, and the analyzer has its own resolution. A good report shows both numbers and reasons about why they differ."
 card:
   front: "How is Lab 1 weighted?"
   back: "Step 1 simulation 40%; Step 2 logic analyzer 50% (including 10% questions on the cycle length, the measured propagation delay, the data-sheet comparison, and the frequency limits); deliverables/report 20% (as the handout states). Report like a research paper with citations and lab feedback."

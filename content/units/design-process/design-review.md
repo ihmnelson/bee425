@@ -9,7 +9,7 @@ sources:
   - { type: slide, ref: "L1 s55", quote: "Circulate all of the pertinent design document at least 3 or 4 days ahead of the review" }
 checks:
   - type: choice
-    prompt: "What return on investment can a design review have, according to the lecture?"
+    prompt: "What return on investment can a design review have?"
     options: ["More than 20 times", "About the same as the cost", "Twice the cost", "None; it is only a formality"]
     answer: 0
     explain: "Studies have shown that a design review can have a return on investment of more than 20 times, because fixing a hardware defect in a released product is a nightmare."
@@ -24,8 +24,8 @@ checks:
     answer: 0
     explain: "Circulate all the pertinent design documents at least 3 or 4 days ahead. Pick one to three reviewers and a moderator/recording secretary about a week before."
   - type: choice
-    prompt: "After the review, who writes the summary and who addresses the issues?"
-    options: ["The moderator writes the summary; the designer addresses each issue and writes a final report", "The designer writes both", "The lab manager does both", "Nobody"]
+    prompt: "After a design review, who writes the summary and who addresses the issues?"
+    options: ["The moderator writes the summary; the designer addresses each issue and writes a final report", "The designer writes the summary; the moderator fixes each issue found", "The whole team writes one summary and splits the fixes evenly", "The manager writes the summary; reviewers fix the issues they raised"]
     answer: 0
     explain: "The moderator writes the summary of the contents and the issues and sends it to the lab manager and the participants; the designer then addresses each issue and writes up how each was handled. A follow-up review may be scheduled if the design changed substantially; once everyone signs off, the design moves to PC board layout."
 card:

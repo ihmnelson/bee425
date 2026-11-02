@@ -34,11 +34,6 @@ checks:
     options: ["A period in front, for example .END", "A dollar sign in front", "Upper case only", "Nothing; it is the same as the 68000"]
     answer: 0
     explain: "The Oshonsoft assembler requires a period in front of the pseudo-op codes: END becomes .END."
-  - type: choice
-    prompt: "Which 68000 directive has **no Z80 counterpart** in the lecture's table?"
-    options: ["DS.W (define storage in words)", "ORG", "EQU", "END"]
-    answer: 0
-    explain: "The table lists the Z80 equivalent of DS.W as N/A, since the Z80 is byte oriented."
 card:
   front: "Map 68000 directives to the Z80's."
   back: "ORG = ORG, EQU = EQU, END = END, DC.B = DEFB, DC.W = DEFW, DS.B nn = DEFS nn, DS.W = N/A, DC.B 'string': the slide prints DEFII 's' (a typo; Oshonsoft style is .DB with the string in quotes). In the Oshonsoft assembler every pseudo-op begins with a period (.ORG, .EQU, .DB, .DS, .END)."

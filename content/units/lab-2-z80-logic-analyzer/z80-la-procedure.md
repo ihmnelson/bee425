@@ -12,17 +12,17 @@ checks:
   - gen: lab.laResolution
   - type: choice
     prompt: "How should the analyzer be set up to capture the program from power-up?"
-    options: ["State mode on the falling edge of CLK1; trigger on the first instruction fetch after ~RESET goes high, qualified by ~MREQ (and optionally ~M1); hold RESET, arm, release", "Timing mode only", "Trigger on any signal", "Hold RESET and never arm"]
+    options: ["State mode on CLK1; trigger on the first ~MREQ fetch after RESET; hold RESET, arm, release", "Timing mode only, triggering on any edge of any signal", "State mode on RESET's rising edge, armed after RESET is released", "Hold RESET low and never arm the analyzer at all"]
     answer: 0
     explain: "The Z80 comes out of RESET at address 0000H, so qualify the address with ~MREQ (and ~M1) and use ~RESET going high as the Edge A condition. Press single acquisition while holding the RESET button; when 'prefill complete' appears, release it."
   - type: choice
     prompt: "In the timing-mode measurements, what do you compare with the published Z80A data?"
-    options: ["The time from a clock edge to ~M1 and ~MREQ becoming active, and becoming inactive; check each lies between the published min and max", "The cable length", "The oscillator colour", "The EPROM label"]
+    options: ["Clock edge to ~M1 and ~MREQ active/inactive, within the published min and max", "The cable length against the length of the circuit board", "The crystal frequency against the clock the Z80A needs", "The EPROM access time against the clock period"]
     answer: 0
     explain: "Measure with the cursors at the 500 MHz setting, use a timing diagram from the web (or Appendix B), and answer whether each measured value falls in the allowed window. Resolution is limited to +/- 2 ns by the 500 MHz sample clock."
   - type: choice
     prompt: "The analyzer's state trace shows 'unadulterated bus cycle data'. What does that mean?"
-    options: ["Raw bus cycles, not a post-processed instruction listing: you must decode op-codes and operands yourself", "A disassembly", "Only the program counter", "The source code"]
+    options: ["Raw bus cycles, not a disassembled listing: you decode op-codes and operands yourself", "A disassembly that already names every instruction", "Only the program counter, sampled once per instruction", "The source code, read back from the EPROM"]
     answer: 0
     explain: "The lab expects you to do a bit of post-processing yourself (for example in Excel) to recognise instructions, operands and data cycles from the raw states."
 card:

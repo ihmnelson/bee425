@@ -32,28 +32,30 @@ programs:
       flags: { Z: 1 }
 checks:
   - type: choice
-    prompt: "In the loop `CLR.L (A0)+`, what does the **+** do?"
-    options: ["After the clear, A0 is advanced by 4 bytes (one long word)", "It adds 1 to the data", "It makes the address negative", "It is a comment"]
+    prompt: "In the loop CLR.L (A0)+, what does the + do?"
+    options: ["After the clear, A0 advances by 4 bytes (one long word)", "After the clear, A0 advances by 1 byte whatever the size", "Before the clear, A0 advances by 4 bytes", "It adds 1 to the data that was cleared"]
     answer: 0
     explain: "Auto-increment: the memory at the address in A0 is cleared, then A0 is advanced by the operand size. With .L that is 4 bytes."
   - type: choice
-    prompt: "How does the loop **decide to stop**?"
-    options: ["CMPA.L A1,A0 sets Z when the pointer A0 reaches the end address in A1, and BEQ done leaves the loop", "It counts down from 100", "It waits for a key", "SIMHALT stops it after one pass"]
+    prompt: "Study the program. How does the loop decide to stop?"
+    code: "st_addr   EQU   $00002000\nend_addr  EQU   $00003000\n          ORG   $1000\nSTART     LEA     st_addr,A0     * pointer to the start\n          LEA     end_addr,A1    * pointer to the end\nclr_loop  CMPA.L  A1,A0          * A0 - A1, result ignored\n          BEQ     done           * Z = 1 when A0 = A1\n          CLR.L   (A0)+          * clear a long word, advance 4\n          BRA     clr_loop       * end of the loop (a GOTO)\ndone      SIMHALT\n          END     START"
+    options: ["CMPA.L A1,A0 sets Z when A0 reaches the end address, and BEQ leaves the loop", "A counter in D0 counts down from 100 and BEQ leaves at zero", "It waits for a key press on the console and then exits", "SIMHALT stops the loop after a single pass"]
     answer: 0
     explain: "CMPA.L A1,A0 subtracts A1 from A0 and ignores the result; Z = 1 when A0 equals A1. BEQ done then branches out. The end address itself is never cleared."
   - type: choice
-    prompt: "Which loop type is this?"
+    prompt: "Study the program. Which loop type is it?"
+    code: "st_addr   EQU   $00002000\nend_addr  EQU   $00003000\n          ORG   $1000\nSTART     LEA     st_addr,A0     * pointer to the start\n          LEA     end_addr,A1    * pointer to the end\nclr_loop  CMPA.L  A1,A0          * A0 - A1, result ignored\n          BEQ     done           * Z = 1 when A0 = A1\n          CLR.L   (A0)+          * clear a long word, advance 4\n          BRA     clr_loop       * end of the loop (a GOTO)\ndone      SIMHALT\n          END     START"
     options: ["A WHILE loop (the test is at the top)", "A DO-WHILE loop (the test is at the bottom)", "A FOR loop with a counter", "No loop"]
     answer: 0
     explain: "The test (CMPA.L/BEQ) comes first, then the body (CLR.L), then BRA back to the top: a WHILE structure."
   - type: choice
-    prompt: "Why use `LEA st_addr,A0` instead of `MOVEA.L #st_addr,A0`?"
-    options: ["LEA is the preferred, flexible way to initialise an address register", "LEA is faster to type only", "MOVEA cannot take a number", "They are different operations"]
+    prompt: "Both LEA st_addr,A0 and MOVEA.L #st_addr,A0 can load A0 with an address. Which statement is right?"
+    options: ["Both give the same result; LEA is the preferred, more flexible form", "Only LEA works, because MOVEA cannot take a number", "They differ: LEA loads the data at st_addr, MOVEA the address", "Only MOVEA works, because LEA is a simulator pseudo-instruction"]
     answer: 0
     explain: "The lecture: LEA (Load Effective Address) is the preferred way to initialise an address register with a value."
   - type: choice
-    prompt: "What does `SIMHALT` do, and will it run on a real 68000?"
-    options: ["It stops the EASy68K simulator; it is a simulator pseudo-instruction, not a 68000 instruction", "It halts any 68000", "It resets the processor", "It is a directive"]
+    prompt: "What does SIMHALT do, and will it run on a real 68000?"
+    options: ["It stops the EASy68K simulator; it is not a real 68000 instruction", "It halts any 68000 and holds it in reset", "It resets the processor and restarts the program", "It is an assembler directive, so it produces no code"]
     answer: 0
     explain: "SIMHALT is unique to the EASy68K simulator. On real hardware you might loop forever with `done BRA done`."
 card:

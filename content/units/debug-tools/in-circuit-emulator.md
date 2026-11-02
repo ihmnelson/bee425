@@ -16,18 +16,18 @@ checks:
     answer: 0
     explain: "The ICE integrates run control (peek/poke, registers, single step, breakpoints, disassemble, download), overlay memory (substitute memory mapped anywhere), and real-time trace (a dedicated logic analyzer with symbolic triggers)."
   - type: choice
-    prompt: "What is **overlay memory** and what attributes can regions have?"
-    options: ["Emulator memory that replaces (overlays) target memory in mapped blocks; attributes include ROM (no writes), guarded (break on write), code or data space, shared (simulated I/O)", "Extra cache", "A copy of the ROM on disk", "Virtual memory"]
+    prompt: "What is overlay memory, and what attributes can its regions have?"
+    options: ["Emulator memory that replaces target memory in mapped blocks, each with attributes", "Extra cache added between the processor and the target memory", "A copy of the target ROM held on the host computer's disk", "Virtual memory swapped in from the host over the cable"]
     answer: 0
     explain: "Overlay memory saves programming ROMs. It can be mapped in blocks anywhere in the address space (for example in 16K blocks by a very-high-speed mapper RAM), interspersed with target memory, with attributes such as RAM, ROM, GUARDED, NO-MEMORY and coverage."
   - type: choice
-    prompt: "How does ICE **run control** stop the processor, and why does it work with unstable target hardware?"
-    options: ["A BREAK signal forces an NMI; target NMI and buffers are blocked, shadow ROM with the debug monitor is mapped in, and the processor runs the monitor from emulator memory", "It stops the clock", "It removes power", "It resets the target"]
+    prompt: "How does ICE run control stop the processor, and why does it work with unstable target hardware?"
+    options: ["A BREAK forces an NMI and a shadow ROM maps in the monitor, run from emulator memory", "It stops the target clock, which freezes the whole board", "It removes power from the target until the debugger resumes", "It resets the target so the debugger can restart the program"]
     answer: 0
     explain: "The processor is not stopped: it executes a debug monitor in emulation 'background' ROM, with the target NMI blocked and the target data buffers disabled, saves its context and waits for commands in a mailbox. The target's state does not matter, so control is guaranteed."
   - type: choice
-    prompt: "What are the **disadvantages** of an ICE?"
-    options: ["Expensive (about $20K), a new emulator for each new processor, fragile, hard to connect to surface-mount parts, and cached activity is hard or impossible to see", "It cannot trace", "It cannot single step", "It needs no maintenance"]
+    prompt: "What are the disadvantages of an ICE?"
+    options: ["Expensive, one emulator per processor, fragile, and cached activity is hidden", "It cannot trace bus activity at all, so it is only a loader", "It cannot single-step, so debugging is slow and tedious", "It needs no maintenance but works only with 8-bit processors"]
     answer: 0
     explain: "The ICE is not always cost-effective, is viewed as a complex and fragile instrument, lags early silicon, cannot easily track microcontroller variants, and is hard to connect to surface-mount packages (500-pin BGAs on 0.009 in centres); it is also not the tool of choice for high-level code design."
 card:

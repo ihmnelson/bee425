@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L2 s100", quote: "Internal gate delays are ~ 100 psec" }
 checks:
   - type: choice
-    prompt: "What is **propagation delay**?"
-    options: ["The time from an input change to the resulting output change", "The time a clock stays high", "The time between two boards", "The time to boot"]
+    prompt: "What is propagation delay?"
+    options: ["The time from an input change to the resulting output change", "The time a clock signal stays high in each period", "The time for the supply to settle after power-on", "The time between two boards exchanging a bus transaction"]
     answer: 0
     explain: "The slide defines it as the time delay from input change to output change. A gate needs a finite time to switch."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "The lecture's answer: gates require a finite amount of time to switch state, and everything the machine must do in one cycle has to fit inside the clock period."
   - type: choice
-    prompt: "A clock has a 0.3 ns period, and it takes about 0.16 ns for the clock to cross the chip. What does the lecture conclude?"
-    options: ["More than half of the available time is wasted just getting the clock there", "The clock is too slow", "Half the chip is unused", "Nothing; propagation is free"]
+    prompt: "A clock has a 0.3 ns period, and it takes about 0.16 ns for the clock to cross the chip. What does that imply?"
+    options: ["More than half the available time is spent just getting the clock across", "The clock is too slow to meet any timing", "Half the chip can simply be switched off", "Propagation time is negligible at that period"]
     answer: 0
     explain: "0.16 ns of 0.3 ns is about 53%, so more than half of the available time is spent distributing the clock."
 card:

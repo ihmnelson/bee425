@@ -12,13 +12,13 @@ checks:
   - gen: conv.dacOutput
   - gen: conv.dacOutput
   - type: choice
-    prompt: "In the lecture's 4-bit D/A (i = 0.1 mA, R = 1 kΩ), what are the maximum output and the step size?"
+    prompt: "A 4-bit D/A sums binary-weighted currents (LSB current i = 0.1 mA) into R = 1 kilohm. What are the maximum output and the step size?"
     options: ["Maximum 1.5 V, step 0.1 V", "Maximum 1.0 V, step 0.1 V", "Maximum 5 V, step 1 V", "Maximum 1.5 V, step 0.5 V"]
     answer: 0
     explain: "The currents i, 2i, 4i, 8i total 15i = 1.5 mA at code 15, so Vmax = 1.5 mA x 1 kΩ = 1.5 V. One step is i x R = 0.1 V."
   - type: choice
-    prompt: "Why is the D/A converter described as 'the heart of most A/D converters'?"
-    options: ["Ramp and successive-approximation converters use a D/A to make the reference voltage they test the unknown against", "A/D converters are made of D/A converters only", "D/A converters are faster", "They share a package"]
+    prompt: "Why is the D/A converter called 'the heart of most A/D converters'?"
+    options: ["Ramp and SAR converters use a D/A to make the voltage they compare the input against", "Every A/D converter is built from D/A converters and nothing else", "D/A converters are always faster than any A/D converter", "A/D and D/A converters share a package and a power pin"]
     answer: 0
     explain: "Other than flash, an A/D conversion needs a reference voltage, a comparator and a D/A converter: the D/A produces the trial voltage that is compared with the unknown input."
 card:

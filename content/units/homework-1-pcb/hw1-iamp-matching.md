@@ -11,22 +11,22 @@ sources:
   - { type: handout, ref: "hw1 III", quote: "as long as your current requirements are less than 100mA" }
 checks:
   - type: choice
-    prompt: "Two 1% resistors of 10 kΩ nominal can differ by at most how much?"
-    options: ["About 200 Ω in the extreme (each is within +/-100 Ω), so the handout's up-to-100 Ω trim pot in series with the smaller one is the match", "Exactly 0", "1 Ω", "1 kΩ"]
+    prompt: "Two 1% resistors of 10 kilohms nominal can differ by at most how much?"
+    options: ["About 200 ohms in the extreme (each is within +/-100 ohms)", "Exactly 0, since both are 10 kilohms nominal", "About 1 ohm, because 1% resistors are laser trimmed to match", "About 1 kilohm, which is the 10% tolerance range"]
     answer: 0
-    explain: "Each 10 kΩ 1% resistor is within +/-100 Ω of nominal. The handout suggests a 100 Ω trim pot in series with the smaller one, measured with a four-wire (Kelvin) multimeter measurement, to match them to better than 0.01%."
+    explain: "Each 1% resistor of 10 kilohms can be off by up to 100 ohms in either direction, so two of them can differ by about 200 ohms. A series trim pot of up to 100 ohms on the smaller one can bring them together."
   - type: choice
-    prompt: "Why do some resistors in the circuit have to be **matched**?"
-    options: ["A difference amplifier's common-mode rejection depends on matched resistor ratios (see the BEE 215 difference-amplifier material)", "To reduce cost", "To save board space", "To look neat"]
+    prompt: "Why do some resistors in the instrumentation amplifier have to be matched?"
+    options: ["A difference amplifier's common-mode rejection depends on matched resistor ratios", "Matched resistors reduce cost through bulk purchasing", "Matched resistors save board space under the op-amp", "Matched resistors only make the schematic look neat"]
     answer: 0
     explain: "The instrumentation amplifier makes low-level differential measurements (for example in medical equipment), so mismatched resistors would convert common-mode signals into errors."
   - type: choice
-    prompt: "How does the handout suggest getting **-5 V** on the board?"
-    options: ["Use a single +5 V supply and an ICL7660 converter, as long as the current is under 100 mA", "Use a battery", "It cannot", "Use a transformer"]
+    prompt: "How does the handout suggest getting -5 V on the board?"
+    options: ["Use a single +5 V supply and an ICL7660 converter, as long as the current is under 100 mA", "Use a second battery wired in series with reversed polarity", "It cannot be done from a single 5 V supply", "Use a transformer on the 5 V supply"]
     answer: 0
     explain: "A +5 V input and an ICL7660 voltage converter produce -5 V. The OP-07 works from +/-3 V to +/-18 V (at least 6 V total); low-voltage op-amps from Maxim or Analog Devices work at lower supplies."
   - type: choice
-    prompt: "What gain range is 'usual' for an instrumentation amplifier in the handout?"
+    prompt: "What gain range is usual for an instrumentation amplifier?"
     options: ["100 to 1,000", "1 to 2", "10,000 to 100,000", "0.1 to 1"]
     answer: 0
     explain: "The designer chooses; avoid resistors that are too big or too small ('Goldilocks'); don't forget filter capacitors and I/O connectors."

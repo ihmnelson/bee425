@@ -10,7 +10,7 @@ sources:
 checks:
   - type: choice
     prompt: "True or false: **only the address bus** of a microprocessor is bidirectional."
-    options: ["False. The address bus is unidirectional; the data bus is the bidirectional one", "True", "False. All three buses are unidirectional", "True, but only on the 68000"]
+    options: ["False: the address bus is one-way; the data bus is bidirectional", "True: only the address bus is bidirectional", "False: all three buses are one-way", "True, but only on the 68000"]
     answer: 0
     explain: "The address bus is unidirectional (every address signal goes from the processor to memory). The data bus is bidirectional because data travels both to and from memory. The control bus mixes outputs, inputs and bidirectional signals."
   - type: choice
@@ -25,7 +25,7 @@ checks:
     explain: "The slide lists RESET, INTERRUPT, READ, WRITE and ADDRESS VALID as examples of control and housekeeping signals. A0 is an address line and D7 a data line."
   - type: choice
     prompt: "Why is a **tri-state or bidirectional** data bus needed but not an address bus?"
-    options: ["Data flows both ways, while addresses only go out from the processor", "Addresses are longer", "Data is slower", "Addresses are only used in the 68000"]
+    options: ["Data flows both ways, but addresses only leave the processor", "Addresses are longer than data words", "Data is slower than addresses", "Addresses are used only in the 68000"]
     answer: 0
     explain: "A read brings data in and a write sends data out over the same lines; an address always comes from the processor."
 card:

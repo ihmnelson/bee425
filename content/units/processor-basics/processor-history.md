@@ -14,7 +14,7 @@ checks:
     answer: 0
     explain: "Federico Faggin and 11 other Intel employees left to found Zilog. The Z80 was a high-performance, code-compatible version of the Intel 8080: faster, cheaper and with more instructions."
   - type: choice
-    prompt: "Which processor did **IBM choose** for the IBM PC, according to the lecture?"
+    prompt: "Which processor did IBM choose for the original IBM PC?"
     options: ["The 8088 (16-bit)", "The 68000", "The Z80", "The 6809"]
     answer: 0
     explain: "IBM chose the 8088. The 68K was not ready, nor was the Z8000."

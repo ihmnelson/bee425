@@ -10,18 +10,18 @@ sources:
   - { type: slide, ref: "L10 s481", quote: "Adds to propagation delay of processor to memory transactions" }
 checks:
   - type: choice
-    prompt: "What is **fan-out**, and what is the standard-TTL figure in the lecture?"
-    options: ["How many inputs one output can reliably drive: about 10 for standard TTL", "How many outputs one input has", "The number of pins", "The clock speed"]
+    prompt: "What is fan-out, and what is the standard-TTL figure?"
+    options: ["How many inputs one output can reliably drive: about 10 for standard TTL", "How many outputs one input can drive: about 10 for standard TTL", "The number of pins on the package: about 10", "The maximum clock rate: about 10 MHz"]
     answer: 0
     explain: "The ability of a processor's output to drive a number of input loads is limited; for standard TTL, the average output can reliably drive 10 inputs (fan-out and fan-in)."
   - type: choice
-    prompt: "Which buffer would you use on the **data bus**, and which on the **address bus**?"
-    options: ["74xx245 (bidirectional transceiver) for data; 74xx244 (unidirectional buffer) for address", "74xx244 for data; 74xx245 for address", "Both 74xx245", "Neither"]
+    prompt: "Which buffer would you use on the data bus, and which on the address bus?"
+    options: ["Data: 74xx245 (bidirectional). Address: 74xx244 (one-way)", "Data: 74xx244. Address: 74xx245", "74xx245 for both data and address", "Neither: buses are never buffered"]
     answer: 0
     explain: "The data bus is bidirectional, so it needs a bus transceiver (74xx245); the address bus is one way, so a unidirectional buffer (74xx244) suffices."
   - type: choice
-    prompt: "What is the **cost** of buffering a memory bus?"
-    options: ["Extra propagation delay in every processor-to-memory transaction", "More wait states never matter", "Higher capacitance", "A slower clock is required"]
+    prompt: "What is the cost of buffering a memory bus?"
+    options: ["Extra propagation delay in every processor-to-memory transaction", "Extra supply current drawn by the processor itself", "A lower maximum number of memory chips on the bus", "Reduced noise margin on every data line"]
     answer: 0
     explain: "Buffers let a large memory system load the bus acceptably, but they add to the propagation delay, which eats into the memory timing margin (see the memory timing lesson)."
 card:

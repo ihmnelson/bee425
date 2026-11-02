@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L2 s86", quote: "Every board design should have multiple, independent reviews" }
 checks:
   - type: choice
-    prompt: "According to the lecture, what kind of error is **most likely** on a first PCB layout?"
-    options: ["Mechanical (holes, connectors, clearances, footprints)", "Electrical (wrong net connections)", "Software", "Component failure in manufacturing"]
+    prompt: "On a first PCB layout, which kind of error is most likely?"
+    options: ["Mechanical (holes, connectors, clearances, footprints)", "Electrical (wrong net connections)", "Software (firmware that will not load)", "Manufacturing (component failure at the fab)"]
     answer: 0
     explain: "The lecture's rule of thumb is that 75% to 90% of PCB layout errors are mechanical: hole alignment and size, connectors, interference and footprints."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "Error #4 in the case study: the pinout assumption was never checked against the data sheet. The fix was a kludge (rotating the part, cutting a trace and adding wires)."
   - type: choice
-    prompt: "What is the best defence against errors you cannot see yourself?"
-    options: ["Multiple, intensive, independent design reviews", "A faster CAD computer", "Fewer layers", "A bigger board"]
+    prompt: "What is the best defence against layout errors you cannot see yourself?"
+    options: ["Multiple, intensive, independent design reviews", "Re-running the design rule check until it passes twice", "Re-drawing the board in a second CAD package", "Asking the fabricator to inspect the Gerber files"]
     answer: 0
     explain: "Mechanical problems are hard for the designer to find. The lecture says every board needs multiple, independent reviews of the circuit and of the PCB, and that the reviews must be intensive, not cursory."
 card:

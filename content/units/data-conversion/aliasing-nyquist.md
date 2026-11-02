@@ -12,8 +12,8 @@ checks:
   - gen: conv.alias
   - gen: conv.alias
   - type: choice
-    prompt: "A 10 kHz sine wave is sampled once every 100 µs (10 kHz). What does the converter see?"
-    options: ["Essentially a constant voltage (one sample per cycle, so the apparent frequency is 0)", "A 10 kHz sine", "A 5 kHz sine", "Noise"]
+    prompt: "A 10 kHz sine wave is sampled once every 100 µs. What does the converter see?"
+    options: ["A constant voltage: one sample per cycle, so the apparent frequency is 0", "A 10 kHz sine, reproduced faithfully", "A 5 kHz sine, half the true frequency", "Random noise with no relation to the input"]
     answer: 0
     explain: "One sample per cycle lands at the same phase every time, so the output looks constant (its level depends on the phase). To avoid aliasing take at least two samples per cycle: a sample rate of at least twice the signal frequency (the Nyquist rate)."
   - type: choice
@@ -22,15 +22,10 @@ checks:
     answer: 0
     explain: "The Nyquist criterion: sample at at least 2x the highest frequency of interest. In practice, add an input low-pass filter to remove unwanted higher frequencies and noise first."
   - type: choice
-    prompt: "The lecture's 2-pole low-pass has R1 = R2 = 11.2 kΩ, C1 = 1000 pF and C2 = 2000 pF. What is it for?"
-    options: ["A 10 kHz cutoff (passing everything below 5 kHz suits voice) to limit the bandwidth before digitising", "A 1 MHz oscillator", "A power filter", "A debouncer"]
+    prompt: "A 2-pole low-pass filter with R1 = R2 = 11.2 kilohms, C1 = 1000 pF and C2 = 2000 pF sits ahead of an A/D converter. What is it for?"
+    options: ["About 10 kHz cutoff, to limit bandwidth before digitising", "About 1 MHz cutoff, removing only RF noise", "About 100 Hz cutoff, passing only slow drift", "No cutoff: it is a gain stage, not a filter"]
     answer: 0
     explain: "It limits the bandwidth of the AC signal so the sampling does not alias. Adding an input filter also removes unwanted high-frequency components and noise that would limit the digitisation accuracy."
-  - type: choice
-    prompt: "A 220 Hz square wave is built from odd harmonics (220, 660, 1100 ...). With 6 terms the highest frequency is 220 x 11 = 2,420 Hz. What does the slide say, and is the square wave perfect?"
-    options: ["It says 2,427 Hz (slightly different from 2,420) and the square wave is still not perfect", "Exactly 2,420 Hz and perfect", "1,320 Hz", "10 kHz"]
-    answer: 0
-    explain: "The k-th term of a square wave is the (2k - 1)th harmonic, so 6 terms reach 11 x 220 = 2,420 Hz. The slide quotes 2,427 Hz; either way, the waveform with six terms is not perfect."
 card:
   front: "What is aliasing and how do you avoid it?"
   back: "Sampling a signal at less than twice its frequency gives a false lower-frequency signal (one sample per cycle looks constant). Sample at at least 2x the highest frequency (Nyquist), and put a low-pass filter before the converter to limit the bandwidth. A square wave needs many odd harmonics."

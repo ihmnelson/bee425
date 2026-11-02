@@ -10,23 +10,23 @@ sources:
   - { type: handout, ref: "hw2 P1", quote: "Because if you cut and paste, you’ll also copy in all of the invisible formatting characters" }
 checks:
   - type: choice
-    prompt: "What do the **.X68, .L68 and .S68** files contain?"
-    options: ["X68: the assembly source. L68: the list file (addresses, machine code, errors). S68: the S-record of executable code used by the simulator", "All the same", "X68 is the listing", "S68 is the source"]
+    prompt: "What do the .X68, .L68 and .S68 files contain?"
+    options: ["X68 is the source, L68 the listing, S68 the S-record the simulator loads", "All three are the same source text under different extensions", "X68 is the listing, L68 the source and S68 the S-record", "S68 is the assembly source and X68 the executable image"]
     answer: 0
     explain: "Assembling creates two more files. If there are errors only the L68 list file is created (look in it for the offending lines). If it assembles, the S-record (a text version of the executable code you could burn into a programmable device) is produced and used by the simulator."
   - type: choice
-    prompt: "Why does the handout say **not to cut and paste** the program?"
-    options: ["Pasting copies hidden formatting characters that cause assembly errors; copy it into the editor by hand", "It is plagiarism", "It is slower", "The editor cannot paste"]
+    prompt: "Why does the handout say not to cut and paste the program?"
+    options: ["Pasting copies hidden formatting characters that cause assembly errors", "Pasting is plagiarism under the course rules", "Pasting is slower than typing the program by hand", "The editor cannot accept pasted text"]
     answer: 0
     explain: "Cut-and-paste may also bring invisible formatting characters that 'drive you nuts'. Labels (and the eight EQUs) start in column 1; instructions start one tab stop to the right."
   - type: choice
     prompt: "How should you run the program in the simulator?"
-    options: ["Single-step from the start and watch the registers; stop at the final BRA and open View > Memory to read the answer", "Run it at full speed and ignore it", "Print it", "Only look at the list file"]
+    options: ["Single-step from the start, then stop at the final BRA and read memory", "Run at full speed without watching any of the registers", "Print the listing and check the answer by hand instead", "Open the list file and read the answer straight from it"]
     answer: 0
     explain: "Single-step through the program watching the registers; the memory window shows bytes even if the program wrote words or long words."
   - type: choice
     prompt: "Where do the EQU statements go, and why?"
-    options: ["First, after the title block, because the assembler flags a label used before it is defined", "At the end", "Anywhere", "In the data section"]
+    options: ["First, after the title block, because the assembler flags a label used before it is defined", "At the end, so they do not shift the code addresses", "Anywhere, since the assembler reads the whole file first", "In the data section, next to the DC directives"]
     answer: 0
     explain: "Equates are like #define in C; they must come first because the assembler will flag an error if it finds a label used before it is defined. The default number system is decimal: %01001111 is binary, $72CF hex."
 card:

@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L1 s57", quote: "Apply power with current limit or series resistor" }
 checks:
   - type: choice
-    prompt: "Before powering a **raw board**, you measure the resistance between **Vcc and ground**. What do you expect, and what does a low value mean?"
-    options: ["Expected infinity (open); a low reading means a short circuit", "Expected 0; low is fine", "Expected 1 kΩ", "It does not matter"]
+    prompt: "Before powering a raw board, you measure the resistance between Vcc and ground. What do you expect, and what does a low value mean?"
+    options: ["Expect an open circuit (very high); a low reading means a short", "Expect 0 ohms; any low reading means the board is ready", "Expect about 1 kilohm; a higher reading means a short", "Expect the supply voltage; a lower reading means a short"]
     answer: 0
     explain: "The test plan's expected value is infinity. A short between Vcc and ground would destroy parts when power is applied, so find it first."
   - type: choice
@@ -19,13 +19,13 @@ checks:
     answer: 0
     explain: "Turn-on: measure Vcc-ground resistance, apply power with a current limit or series resistor, check for odors and heat, then measure the supply voltages."
   - type: choice
-    prompt: "Which item is on the **loaded board** inspection list?"
-    options: ["Are all IC pins in the sockets, ICs oriented correctly and leads soldered with no solder bridges?", "Is the logo centred?", "Is the firmware compiled?", "Is the schematic printed?"]
+    prompt: "Which item belongs on the loaded-board inspection list?"
+    options: ["All IC pins seated, ICs oriented correctly, no solder bridges", "Silkscreen logo centred and legible on the top layer", "Firmware compiled and ready to download to the board", "Schematic revision printed and pinned in the lab notebook"]
     answer: 0
     explain: "Loaded-board checks: parts located and aligned, IC pins in sockets and orientation, leads soldered, no solder bridges, no residual flux, components seated."
   - type: choice
-    prompt: "Why keep a **lab notebook** with the test plan?"
-    options: ["Turn-on and debug is the hardest phase for a new engineer; recording each step saves time and avoids repeating mistakes", "It is required by the vendor", "It replaces the schematic", "It is only for the instructor"]
+    prompt: "Why keep a lab notebook with the test plan?"
+    options: ["Turn-on and debug is the hardest phase; recording each step avoids repeating mistakes", "The vendor requires a notebook before it replaces damaged parts", "The notebook is graded in place of the schematic", "It lets a teammate skip the test steps already done once"]
     answer: 0
     explain: "The lecture: for a student or new engineer the most difficult phase is turn-on and debug; the best practice is to create a test plan and keep a lab notebook. It may seem a waste of time but is worth its weight in time saved."
 card:

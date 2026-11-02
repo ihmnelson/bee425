@@ -12,12 +12,12 @@ checks:
   - gen: memory.designPages
   - gen: memory.designPages
   - type: choice
-    prompt: "In the lecture's design example (32-bit data bus, 1M x 16 chips, 64 MB total), how many chips are in a page and how big is a page?"
+    prompt: "A system has a 32-bit data bus, uses 1M x 16 chips and has 64 MB in total. How many chips are in a page and how big is a page?"
     options: ["2 chips; 4 MB", "1 chip; 2 MB", "4 chips; 8 MB", "2 chips; 2 MB"]
     answer: 0
     explain: "A 32-bit bus with 16-bit chips needs 32/16 = 2 chips per page. Each 1M x 16 chip holds 2 MB, so a page is 4 MB. 64 MB / 4 MB = 16 pages."
   - type: choice
-    prompt: "The lecture places 8 of the 16 pages in low memory starting at $00000000. What is the address range of page 3?"
+    prompt: "A 64 MB memory is built from sixteen 4 MB pages, and the first 8 sit in low memory starting at $00000000. What is the address range of page 3 (counting from page 0)?"
     options: ["$00C00000 - $00FFFFFF", "$00300000 - $003FFFFF", "$00800000 - $00BFFFFF", "$01000000 - $013FFFFF"]
     answer: 0
     explain: "Each page is 4 MB = $400000. Page 3 starts at 3 x $400000 = $C00000 and ends at $FFFFFF (page 0 = $000000-$3FFFFF, page 1 = $400000-$7FFFFF, page 2 = $800000-$BFFFFF)."

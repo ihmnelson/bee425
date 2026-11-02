@@ -20,8 +20,8 @@ checks:
     answer: 0
     explain: "The operation (the verb) is also called the mnemonic: ADD. The operands are the data it works on (D0 and D3), and .W is the size."
   - type: choice
-    prompt: "Which three questions does an instruction's **operand** part answer?"
-    options: ["Where the data is, how to access it (addressing mode), and what to do with the result", "How fast, how long, how big", "Which clock, which supply, which pin", "Which compiler, which linker, which loader"]
+    prompt: "Which three questions does an instruction's operand part answer?"
+    options: ["Where the data is, how to access it, and what to do with the result", "How fast it runs, how long it takes, and how big the code is", "Which clock, supply and pin the instruction uses", "Which compiler, linker and loader built the instruction"]
     answer: 0
     explain: "Operands answer: where is the data (registers or memory, or a literal), how do we access it (addressing modes), and what do we do with the result."
 card:

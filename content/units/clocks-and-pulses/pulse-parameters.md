@@ -19,10 +19,10 @@ checks:
     answer: 0
     explain: "Pulse width is the width of the pulse at 50% of maximum voltage."
   - type: choice
-    prompt: "In the lecture's example of a real clock, which levels will be read correctly as logic 1 and logic 0?"
-    options: ["Above 2.5 V as 1 and below 1 V as 0", "Anything above 0 V as 1", "Exactly 5 V as 1 and 0 V as 0", "Above 1 V as 1 and below 0.1 V as 0"]
+    prompt: "A real clock output is judged against thresholds: logic 1 must be above 2.5 V and logic 0 below 1 V. Which reading of the clock is correct?"
+    options: ["Above 2.5 V reads as 1, below 1 V reads as 0, and in between is undefined", "Anything above 0 V reads as 1", "Only exactly 5 V reads as 1 and exactly 0 V as 0", "Above 1 V reads as 1 and below 0.1 V reads as 0"]
     answer: 0
-    explain: "The slide's real clock is judged against thresholds: as long as logic 1 is above 2.5 V and logic 0 below 1 V it is interpreted properly. In between is 'not defined'."
+    explain: "Thresholds define the logic levels: above the high threshold (2.5 V here) is read as 1, below the low threshold (1 V) as 0. Voltages in between are 'not defined' and must not be relied on."
 card:
   front: "How are pulse width, rise time and fall time defined?"
   back: "Pulse width: width at 50% of maximum voltage. Rise time: from 10% to 90% of pulse height. Fall time: from 90% to 10%."

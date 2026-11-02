@@ -25,8 +25,8 @@ checks:
     answer: 0
     explain: "The status register holds flags set by ALU results. If A = B, the result of A - B is zero, so the Zero flag is 1."
   - type: choice
-    prompt: "What does the **stack pointer** point to, and what is it used for?"
-    options: ["The current top of the stack (a LIFO block), for subroutine calls and interrupt service routines", "The next instruction", "The ALU result", "The cache"]
+    prompt: "What does the stack pointer point to, and what is it used for?"
+    options: ["The top of the stack, used for subroutine calls and interrupts", "The next instruction to be fetched from program memory", "The result of the last ALU operation", "The first entry of the instruction cache"]
     answer: 0
     explain: "The stack pointer points to the current location in the stack (LIFO) memory and manages stack-based operations such as subroutines and interrupt service routines."
 card:

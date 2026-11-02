@@ -21,12 +21,12 @@ checks:
     explain: "Addresses can only be words or long words; no byte addresses are allowed in address registers."
   - type: choice
     prompt: "What are **A7 and A7'** on the 68000?"
-    options: ["The user and supervisor stack pointers, banked so only one is active depending on the mode", "Two extra data registers", "The program counter and status register", "Read-only constants"]
+    options: ["The user and supervisor stack pointers; only one is active at a time", "Two extra data registers for supervisor mode", "The program counter and the status register", "Read-only constants for the stack limits"]
     answer: 0
     explain: "A7 is the user stack pointer and A7' the supervisor stack pointer. They are banked: one or the other acts as the stack pointer depending on whether the processor is in user or supervisor mode."
   - type: choice
     prompt: "Why does the 68000 have a **user mode** with fewer instructions?"
-    options: ["To prevent different applications from interfering with each other under an operating system", "To save power", "To make programs faster", "To allow byte addresses"]
+    options: ["So applications cannot interfere with each other under an OS", "To save power when the processor is idle", "To make user programs run faster", "To allow byte-sized address accesses"]
     answer: 0
     explain: "User mode can execute only a subset of the instructions. This stops applications from interfering with each other under an O/S."
 card:

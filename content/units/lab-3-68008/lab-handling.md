@@ -10,8 +10,8 @@ sources:
   - { type: handout, ref: "lab3 §VIII", quote: "DO NOT GRAB THE CABLE AND PULL" }
 checks:
   - type: choice
-    prompt: "Why are ROM chips kept in **conductive foam**?"
-    options: ["It keeps all the pins at the same voltage so static electricity cannot zap one pin", "To keep them cool", "To keep them dry", "To protect the foam"]
+    prompt: "Why are ROM chips kept in conductive foam?"
+    options: ["It keeps all pins at one voltage so static cannot zap a pin", "It keeps the chip cool during storage", "It keeps moisture out of the package", "It protects the foam from the chip's pins"]
     answer: 0
     explain: "The conductive foam makes sure all pins stay at the same voltage. Static electricity cannot zap a pin when the part is stored in foam. Integrated circuits are sensitive to static electricity."
   - type: choice
@@ -20,15 +20,15 @@ checks:
     answer: 0
     explain: "A bent pin will not insert into the ZIF socket: do not try to force it, notify the instructor. A bent pin in the analyzer's socket would destroy the analyzer."
   - type: choice
-    prompt: "How do you remove the **ribbon cable** or the **power plug**?"
-    options: ["Support the connector and work it straight out; for the power plug, gently lift the white tab and hold the plastic housing, never pull the wire", "Pull on the cable", "Twist one end out", "Cut it"]
+    prompt: "How do you remove the ribbon cable or the power plug?"
+    options: ["Support the connector and work it straight out; lift the power plug's tab", "Pull firmly on the cable itself to release it", "Twist one end until it comes free of the socket", "Cut the cable and re-terminate it with a new plug"]
     answer: 0
     explain: "Pulling the cable without supporting the connector, pulling one end out, or plugging into a socket with a bent pin are the three common ways to ruin it. For the power plug, pry the white tab away with a fingernail and lift by the housing."
   - type: choice
-    prompt: "What precaution applies to **power polarity**?"
-    options: ["Check the polarity before powering the board: students who blow up experiment boards do not, as a rule, receive good grades", "Polarity does not matter", "Use any plug", "Reverse it on purpose"]
+    prompt: "What precaution applies to power polarity?"
+    options: ["Check the polarity before powering the board", "Polarity does not matter with DC supplies", "Use any plug that physically fits", "Reverse it on purpose to test protection"]
     answer: 0
-    explain: "The 3-pin power plug is keyed so it only fits one way, but you must still pay attention to polarity before applying power."
+    explain: "Check the polarity before powering the board; the handout notes that students who blow up experiment boards do not, as a rule, receive good grades."
 card:
   front: "What are the lab handling rules?"
   back: "Ground yourself (wrist strap or touch the bench ground plate); keep ROMs in conductive foam; never force a bent pin (tell the instructor); remove cables by supporting the connector and working it straight out; never pull the power cable by the wire; check polarity; power the analyzer before the board."

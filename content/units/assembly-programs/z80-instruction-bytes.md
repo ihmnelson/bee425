@@ -25,8 +25,8 @@ checks:
     answer: 0
     explain: "A + n = 33H + 22H = 55H, and the encoding is the opcode C6 followed by the immediate byte 22 (the lecture's own example)."
   - type: choice
-    prompt: "Which way does the **operation direction** go on each processor?"
-    options: ["68000: source + destination goes to destination. Z80: destination = destination + source (written destination first)", "Both write the source first", "Both write the destination first", "The Z80 has no direction"]
+    prompt: "How do the two processors order the operands of an operation such as an addition?"
+    options: ["The 68000 writes the source first; the Z80 writes the destination first", "Both write the source first", "Both write the destination first", "The 68000 writes the destination first; the Z80 the source first"]
     answer: 0
     explain: "The lecture: the direction of the operation is opposite the 68K. In 68K assembly the source comes first (ADD.B D0,D1 adds D0 into D1). In Z80 assembly the destination comes first (ADD A,D, LD B,A)."
 card:

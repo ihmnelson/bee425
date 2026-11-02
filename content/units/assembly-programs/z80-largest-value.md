@@ -59,15 +59,15 @@ checks:
     answer: 0
     explain: "A borrow (carry) occurs when A is smaller than the byte, unsigned. `JR NC,NEXT` therefore keeps A when A >= (HL), and falls through to `LD A,[HL]` when the new byte is larger."
   - type: choice
-    prompt: "The data bytes are 05H, 90H, 42H, 30H. What does the Z80 program give, and why does it differ from the 68000 BGE program?"
-    options: ["90H: the carry test is unsigned, while BGE compared signed numbers (giving 42H)", "42H: both are signed", "30H: the last value", "05H: the first"]
+    prompt: "A Z80 program keeps the largest value using CP [HL] and the carry flag. For the bytes 05H, 90H, 42H, 30H what does it end with, and why does that differ from the signed 68000 BGE version?"
+    options: ["90H: the carry test is unsigned, while BGE is signed and gave 42H", "42H: both programs treat the bytes as signed", "30H: the last byte read is always kept", "05H: the first byte is never replaced"]
     answer: 0
     explain: "Z80 CP with the carry flag compares unsigned, so 90H (144) is the largest. The 68000 program used BGE, a signed branch, where 90H is -112 and the answer is 42H. Both results are verified by running the programs."
   - type: choice
-    prompt: "What does `DJNZ LOOP` do?"
-    options: ["Decrements B and jumps to LOOP unless B has reached zero", "Jumps when the zero flag is set", "Decrements A", "Halts"]
+    prompt: "In a Z80 loop that ends with DJNZ LOOP, what is B when the loop finally falls through?"
+    options: ["0: DJNZ falls through only when the decremented B reaches zero", "1: the last byte is still unprocessed", "FFH: the count wrapped below zero", "Unchanged: DJNZ never modifies B"]
     answer: 0
-    explain: "DJNZ is the Z80's built-in loop counter: it decrements B and branches back if the result is not zero. Here B = 3 gives three comparisons after the first value."
+    explain: "DJNZ decrements B and jumps back unless the result is zero, so the loop falls through exactly when B has reached 0."
 card:
   front: "Write the Z80 pattern that keeps the larger of two bytes, and say how it differs from the 68000."
   back: "LD A,[HL] (first) ... INC HL / CP [HL] / JR NC,NEXT (A >= byte) / LD A,[HL] / NEXT. The carry test is an unsigned compare; the 68000 program used BGE, a signed compare. A holds the running maximum, DJNZ counts the loop."

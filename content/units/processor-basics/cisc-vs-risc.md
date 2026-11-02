@@ -19,11 +19,6 @@ checks:
     options: ["Load them into registers, add, then store the result", "Add them directly in memory with one instruction", "Use an absolute-address ADD", "It cannot be done"]
     answer: 0
     explain: "RISC arithmetic is between registers only, and memory is accessed by LOAD and STORE. The lecture's ARM example takes six instructions, while the 68000 needs two after setting up pointers (MOVE.L (A0),D0 and ADD.L D0,(A1))."
-  - type: choice
-    prompt: "Which memory architecture does the lecture associate with **CISC** and which with **RISC**?"
-    options: ["CISC: von Neumann (one memory for instructions and data). RISC: Harvard (separate memories)", "CISC: Harvard. RISC: von Neumann", "Both von Neumann", "Both Harvard"]
-    answer: 0
-    explain: "The lecture pairs CISC with the von Neumann architecture (the same memory space serves instructions and data) and RISC with the Harvard architecture (separate memory spaces for instructions and data)."
 card:
   front: "Compare CISC and RISC."
   back: "CISC: many instructions and addressing modes, variable length, few special-purpose registers, memory-to-memory operations, von Neumann. RISC: few instructions, fixed length, many general registers, register-only arithmetic with LOAD/STORE, no absolute addressing, can be Harvard. DSP: special instructions for signal processing."

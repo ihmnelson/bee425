@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 /* Structural validation of a loaded course. Returns {errors, warnings}: errors fail the build, warnings are listed by the audit. */
 
 const CHECK_TYPES = ['choice', 'numeric', 'fill'];
@@ -10,7 +12,7 @@ export const conceptIds = (course, unit) => Object.values(unit.concepts).flat().
 const words = (s) => String(s).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(Boolean);
 const jaccard = (a, b) => { const A = new Set(a), B = new Set(b); let i = 0; for (const x of A) if (B.has(x)) i++; return i / (A.size + B.size - i || 1); };
 
-export function validate({ course, concepts, exams = {}, problems }, generators = {}) {
+export function validate({ course, concepts, exams = {}, problems }, generators = {}, mediaDir = null) {
   const errors = [...problems], warnings = [];
   const E = (id, msg) => errors.push(`${id}: ${msg}`);
   const W = (id, msg) => warnings.push(`${id}: ${msg}`);
@@ -65,11 +67,26 @@ export function validate({ course, concepts, exams = {}, problems }, generators 
       if (!chk.prompt) E(id, `${where}: no prompt`);
       if (chk.answer === undefined) E(id, `${where}: no answer`);
       if (!chk.explain) E(id, `${where}: no explain (shown after a miss)`);
+      if (chk.code !== undefined && (typeof chk.code !== 'string' || !chk.code.trim())) E(id, `${where}: code must be non-empty text`);
+      if (chk.figure !== undefined) {
+        if (!chk.figure?.src) E(id, `${where}: figure needs a src`);
+        else {
+          if (!chk.figure.alt) E(id, `${where}: figure needs alt text`);
+          if (mediaDir && !fs.existsSync(path.join(mediaDir, chk.figure.src))) E(id, `${where}: figure file media/${chk.figure.src} not found`);
+        }
+      }
       if (chk.type === 'choice') {
         if (!Array.isArray(chk.options) || chk.options.length < 2) E(id, `${where}: choice needs options`);
         else if (!Number.isInteger(chk.answer) || chk.answer < 0 || chk.answer >= chk.options.length) E(id, `${where}: answer must be the index of an option`);
         else if (new Set(chk.options.map(String)).size !== chk.options.length) E(id, `${where}: duplicate options`);
+        else if (Number.isInteger(chk.answer)) {
+          /* quality warnings: a question must stand on its own and must not give the answer away by length */
+          const len = chk.options.map((o) => String(o).length);
+          const right = len[chk.answer], longestOther = Math.max(...len.filter((_, j) => j !== chk.answer));
+          if (right > 60 && right > 1.8 * longestOther) W(id, `${where}: length tell (correct option is ${right} characters, longest other ${longestOther}): "${String(chk.prompt).slice(0, 50)}"`);
+        }
       }
+      if (chk.prompt && /\b(problem|step|slide|figure|fig\.)\s+(\d+|[a-d])\b|\b(this|the) (slide|figure|diagram)\b|according to the (lecture|slide)|\bthe lecture('s)?\b/i.test(chk.prompt)) W(id, `${where}: refers to material it does not state (a question should stand on its own): "${String(chk.prompt).slice(0, 60)}"`);
     });
 
     if (!c.card?.front || !c.card?.back) W(id, 'no flashcard');

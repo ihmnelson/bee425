@@ -38,13 +38,13 @@ programs:
       regs: { b: 10, c: 0, sp: 0xF000 }
 checks:
   - type: choice
-    prompt: "Which of these exists on the **Z80 but not on the 68000**?"
-    options: ["A conditional absolute jump (JP cc,nn), a conditional CALL and a conditional RET", "An unconditional jump", "A subroutine call", "A branch relative to the PC"]
+    prompt: "Which of these exists on the Z80 but not on the 68000?"
+    options: ["A conditional absolute jump (JP cc,nn), a conditional CALL and a conditional RET", "An unconditional absolute jump to any address", "A call to a subroutine that returns with RET", "A branch relative to the program counter"]
     answer: 0
     explain: "The 68000 has only conditional branches (Bcc); there is no conditional jump, conditional JSR or conditional RTS. The Z80 has JP cc,nn, CALL cc,nn and RET cc."
   - type: choice
-    prompt: "What is the range of the Z80's **JR** (jump relative) instruction?"
-    options: ["About +/-128 bytes (an 8-bit displacement)", "+/-32K bytes", "The whole 64K", "0 to 255 only"]
+    prompt: "What is the range of the Z80's JR (jump relative) instruction?"
+    options: ["About +/-128 bytes (an 8-bit signed displacement)", "About +/-32K bytes (a 16-bit signed displacement)", "The whole 64K address space", "0 to 255 bytes, forward only"]
     answer: 0
     explain: "JR nn uses an 8-bit signed offset (+/- 128 bytes) from the PC. The 68000's BRA nnnn has a 16-bit displacement and reaches +/- 32K. Both are relative to the PC, so they are independent of where the code sits in memory."
   - type: choice
@@ -54,7 +54,7 @@ checks:
     explain: "The lecture's table: JSR nnnn / CALL nn, RTS / RET, RTE / RETI. In both cases the return address goes on the stack."
   - type: choice
     prompt: "Which condition codes (cc) can follow JP on the Z80?"
-    options: ["NZ, Z, NC, C, P (sign positive), M (sign negative)", "EQ, NE, GT, LT", "X, N, Z, V, C", "Only Z"]
+    options: ["NZ, Z, NC, C, P (sign positive), M (sign negative)", "EQ, NE, GT, LT, the 68000 condition names", "X, N, Z, V, C, the flag names themselves", "Only Z and NZ, since JP tests just the zero flag"]
     answer: 0
     explain: "The lecture lists NZ (non-zero), Z (zero), NC (no carry), C (carry), P (sign positive) and M (sign negative); the Z80 has more (parity) in its full set."
 card:

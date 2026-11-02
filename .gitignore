@@ -1,3 +1,6 @@
 node_modules/
 dist/
 .DS_Store
+.claude/plan.md
+.claude/status.md
+.claude/history.md

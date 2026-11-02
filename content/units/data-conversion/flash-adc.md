@@ -13,13 +13,13 @@ checks:
   - gen: conv.flashComparators
   - gen: conv.flashRate
   - type: choice
-    prompt: "Which statement about **flash** converters is true?"
-    options: ["Fastest converter (up to about 1 GSPS), but it uses more power, is expensive and limited to 8-10 bits", "Slowest converter", "Highest resolution (24 bits)", "Uses one comparator and a counter"]
+    prompt: "Which statement about flash converters is true?"
+    options: ["Fastest type (up to about 1 GSPS), but power-hungry, expensive and limited to 8-10 bits", "Slowest type, but the cheapest and lowest power", "Highest resolution (up to 24 bits) at moderate speed", "Uses a single comparator and a counter to ramp up to the input"]
     answer: 0
     explain: "Flash converters are the fastest available (bandwidths around 1 GSPS), consume more power than other technologies, are expensive and are limited to 8 to 10 bits of resolution."
   - type: choice
-    prompt: "A 4-bit flash converter (reference 16 V) sees 9.87 V. How many comparators output 1, and what is the pattern called?"
-    options: ["9 of the 15 comparators (C1 to C9), a thermometer code", "16 comparators", "15 comparators", "Only one comparator"]
+    prompt: "A 4-bit flash converter with a 16 V reference sees 9.87 V. How many comparators output 1, and what is the pattern called?"
+    options: ["9 of the 15 comparators (C1 to C9): a thermometer code", "10 of the 15 comparators: a thermometer code", "9 of the 15 comparators: a one-hot code", "16 of 16 comparators: a binary code"]
     answer: 0
     explain: "Comparators C1 to C9 (thresholds 1 V to 9 V) output 1 and C10 to C15 output 0: a 'thermometer' or 'ladder' code that an encoder converts to binary 1001. (The lecture's figure labels C16 as an over-range comparator.)"
 card:

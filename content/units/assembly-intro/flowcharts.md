@@ -15,7 +15,7 @@ checks:
     explain: "A diamond is a decision point (program flow control); a rectangle is a distinct operation (one or many instructions); arrows show the direction of flow."
   - type: choice
     prompt: "A decision diamond in an assembly flow chart usually becomes which pair of instructions?"
-    options: ["A compare or test followed by a conditional branch", "Two MOVE instructions", "A label and a comment", "An ORG and an END"]
+    options: ["A compare or test, then a conditional branch", "Two MOVE instructions, one for each outcome", "A label and a comment marking the decision", "An ORG and an END around the test"]
     answer: 0
     explain: "A test (for example CMP) sets the flags, and a conditional branch (for example BEQ or BGE) chooses the next path."
   - type: choice

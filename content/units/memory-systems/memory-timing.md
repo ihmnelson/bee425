@@ -15,18 +15,18 @@ checks:
     answer: 0
     explain: "Synchronous timing needs no acknowledgement from memory; the ~WAIT output from the memory system extends the memory timing for slow devices."
   - type: choice
-    prompt: "Your calculation shows the SRAM is **not fast enough** for the processor's read cycle. What are the two fixes in the lecture?"
-    options: ["Add wait states, or use a faster part", "Increase the supply voltage or the clock", "Remove the decoder or the bus", "Add a cache or a fan"]
+    prompt: "Your calculation shows the SRAM is not fast enough for the processor's read cycle. What are two fixes?"
+    options: ["Add wait states, or use a faster part", "Increase the supply voltage or the clock", "Remove the decoder or the bus", "Add a fan or shorten the clock cable"]
     answer: 0
     explain: "Don't be surprised if the part you chose isn't fast enough: add WAIT states or use a faster part."
   - type: choice
-    prompt: "Why does **address decoding** matter for timing?"
-    options: ["Every gate delay in the decoder reduces the memory cycle time available (a 74ALS138 could cost as much as 36 ns)", "It increases the clock", "It has no effect on timing", "It only matters for ROM"]
+    prompt: "Why does address decoding matter for timing?"
+    options: ["Every gate delay in the decoder shortens the memory cycle time left over", "The decoder raises the clock frequency seen by the memory", "Decoding affects timing only for ROM, not for RAM", "The decoder has no effect on timing, only on cost"]
     answer: 0
     explain: "Any decoding reduces timing margins: the glue logic adds delay before ~CE reaches the memory, and the lecture's 74ALS138 data shows it could reduce the available cycle time by as much as 36 ns."
   - type: choice
-    prompt: "Which of these varies the real timing margins, according to the lecture?"
-    options: ["Temperature, processor design speed, manufacturing lot and process, and PCB path lengths", "Only the supply voltage", "The software", "Nothing; the data sheet numbers are exact"]
+    prompt: "Which of these changes the real timing margins?"
+    options: ["Temperature, processor speed grade, manufacturing lot and PCB path lengths", "Only the supply voltage, since the data sheet fixes everything else", "Only the software running on the processor", "Nothing: data sheet numbers are exact for every part"]
     answer: 0
     explain: "Minimum, typical and maximum intervals vary with temperature, design speed, manufacturing lot, process and path length, plus the delays of the glue logic (which depend on logic family and loading)."
 card:

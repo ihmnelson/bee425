@@ -10,18 +10,18 @@ sources:
   - { type: slide, ref: "L10 s472", quote: "Long cables can act like antennas" }
 checks:
   - type: choice
-    prompt: "How does an **optocoupler** pass a signal?"
-    options: ["An LED lights a phototransistor: the coupling is light, with no physical electrical connection", "With a transformer only", "Through a shared ground", "With a capacitor"]
+    prompt: "How does an optocoupler pass a signal?"
+    options: ["An LED lights a phototransistor, so the coupling is light with no electrical connection", "A small transformer couples the two sides magnetically", "A shared ground wire carries the signal across", "A capacitor passes the signal edges between the sides"]
     answer: 0
     explain: "Light couples the circuits together, so the two sides can sit at different ground references (up to about 1,000 V of isolation)."
   - type: choice
     prompt: "Why would you isolate a circuit from the outside world?"
-    options: ["Harsh environments (arc welders) make severe noise, long cables act as antennas, grounds may differ, and patient-contact medical instruments must be safe", "To make it slower", "To reduce cost", "To avoid using a power supply"]
+    options: ["To break ground loops and block noise, as with arc welders, long cables and patient contact", "To make the circuit run slower and so use less power", "To avoid needing a power supply on the output side", "To cut the cost of the circuit board"]
     answer: 0
     explain: "Optical isolation protects computer circuitry from electrical noise and allows systems at different ground references to talk; it is also useful in medical instruments in contact with the patient."
   - type: choice
-    prompt: "Gate A is a battery-powered thermostat biased at +1,000 V above ground; gate B, a heater switch, is ground referenced. How do you connect them?"
-    options: ["Through an optocoupler: A's current amplifier sets the LED's on-current; the phototransistor pulls B's input low through a pull-up", "Wire them directly", "With a resistor", "With a diode"]
+    prompt: "Gate A is a battery-powered thermostat at +1,000 V above ground and gate B is a ground-referenced heater switch. How do you connect them?"
+    options: ["An optocoupler: A drives the LED, the phototransistor pulls B's input low", "Wire them directly together, since both are logic gates", "Join them with a resistor to limit the current", "Join them with a diode so current flows one way"]
     answer: 0
     explain: "A direct connection would put 1,000 V on gate B. The LED side is referenced to A; the phototransistor side to earth ground with a pull-up resistor to Vcc."
 card:

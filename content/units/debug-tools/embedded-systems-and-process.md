@@ -10,18 +10,18 @@ sources:
   - { type: slide, ref: "L11 s499", quote: "Time sensitive failures: System works, but not" }
 checks:
   - type: choice
-    prompt: "A system works but misses its performance specification. What kind of failure is this, in the lecture's terms?"
+    prompt: "A system works but misses its performance specification. Which kind of failure is this?"
     options: ["A time-sensitive failure (it works, but not up to the requirements)", "A time-critical failure (it won't work at all)", "A power failure", "A compile error"]
     answer: 0
     explain: "Time-critical failures mean the system won't work at all; time-sensitive failures mean it works but not up to the requirements specification. Other failures include inadequate resources under full load, such as malloc errors, and rare low-duty-cycle failures (about once a week or less)."
   - type: choice
-    prompt: "Which of these is a characteristic of an **embedded** system compared with a desktop?"
-    options: ["Dedicated to a specific task, real-time constraints, cost sensitive, with fewer resources and often all code in ROM", "More memory than a desktop", "Always runs Windows", "No power limits"]
+    prompt: "Which of these is a characteristic of an embedded system compared with a desktop?"
+    options: ["One dedicated task, real-time limits, cost pressure and code often in ROM", "General purpose, with more memory than a desktop and an upgradable OS", "A full desktop operating system running from a large disk", "No limits on power or cost, with room for any software"]
     answer: 0
     explain: "From the lecture: dedicated tasks; over 300 processor types; cost-sensitive; real-time constraints; used with an RTOS; software failure can be life-threatening; power limits; wide environmental range; fewer resources; code possibly in ROM; specialized tools; possibly on-chip debug resources."
   - type: choice
-    prompt: "In the embedded software build flow, what does the **linker** produce from relocatable object modules?"
-    options: ["An absolute object module (plus a link map) that a device programmer or target loads", "A source listing", "A C file", "A library directory"]
+    prompt: "In the embedded software build flow, what does the linker produce from relocatable object modules?"
+    options: ["An absolute object module (plus a link map) that a device programmer or target can load", "A source listing that shows each line with its address", "A C file with the library functions pasted in", "A directory of all the relocatable modules"]
     answer: 0
     explain: "C/C++ sources go through the compiler and assembly through the assembler to relocatable object modules; the linker (with a linker command file and libraries) produces the absolute object module and the link map used by the target development system and device programmer."
 card:

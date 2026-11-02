@@ -20,13 +20,14 @@ checks:
     answer: 0
     explain: "~M1 goes low at the beginning of T1; at the falling edge in T1 the Z80 also asserts ~MREQ (a memory operation, not I/O) and ~RD (a read); the address is then stable."
   - type: choice
-    prompt: "When does the Z80 actually **read** the op-code from the data bus?"
+    prompt: "Study the op-code fetch timing diagram. At which clock edge does the Z80 actually read the op-code from the data bus?"
+    figure: {"src":"slides/lab2-fig1.png", "alt":"Timing diagram for a Z80 op-code fetch cycle, T1 to T4 with CLK, address, MREQ, RD, M1 and data", "caption":"Lab 2 handout, Figure 1: Z80 op-code fetch cycle"}
     options: ["On the rising edge of the clock in T3", "In T1", "In T4", "Never; the memory writes it"]
     answer: 0
     explain: "The memory places the data on the bus during T2 and the Z80 reads it at the rising edge in T3; T3 and T4 are used to decode and execute internally (and for the refresh address, which this lab ignores)."
   - type: choice
     prompt: "Why is the Z80 a good first microprocessor to look at with a logic analyzer?"
-    options: ["No ambiguity between what you see on the analyzer and what the processor is doing (no caches or prefetch queues)", "It is the fastest", "It has the most pins", "It is a RISC"]
+    options: ["No caches or prefetch queues, so what you see is what the processor does", "It is the fastest processor available for bus analysis", "It has the most pins, so more signals can be probed at once", "It is a RISC design, so every bus cycle is the same length"]
     answer: 0
     explain: "More complex processors have caches and prefetch queues that make real-time analysis hard. The 68008 in Lab 3 has a two-word prefetch queue that reorders fetch and execution."
 card:

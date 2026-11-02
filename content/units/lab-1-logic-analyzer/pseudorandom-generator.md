@@ -12,18 +12,18 @@ checks:
   - gen: lab.xorOdd
   - gen: lab.xorOdd
   - type: choice
-    prompt: "Why is the generator called **pseudo**random?"
-    options: ["Its sequence of numbers eventually begins to repeat itself", "It uses a clock", "It has 8 outputs", "It uses XOR gates"]
+    prompt: "Why is the lab's generator called pseudorandom?"
+    options: ["Its sequence of numbers eventually begins to repeat itself", "It is clocked by a random noise source", "Its 8-bit output is too narrow to look random", "XOR gates cannot produce true random bits"]
     answer: 0
     explain: "A hardware shift register with XOR feedback is a state machine with a finite number of states, so its output sequence must eventually repeat. (Truly random sequences need a physical noise source.)"
   - type: choice
-    prompt: "The lab's design specification says..."
-    options: ["Twelve D flip-flops and eight XOR gates, with the XOR outputs fed back into the flip-flop inputs", "Eight flip-flops and twelve gates", "One flip-flop and one gate", "A counter and a ROM"]
+    prompt: "In Lab 1's pseudorandom generator, what are the parts and the feedback?"
+    options: ["Twelve D flip-flops and eight XOR gates, with the XOR outputs feeding the flip-flop inputs", "Eight D flip-flops and twelve XOR gates, with only the flip-flop outputs feeding the XORs", "One D flip-flop and one XOR gate, repeated eight times", "A binary counter and a ROM lookup table"]
     answer: 0
     explain: "The simulation step: use twelve D-type flip-flop stages, eight XOR gates (two-input to match the hardware), feed one XOR output back to the first flip-flop and connect the others randomly to the other flip-flops."
   - type: choice
-    prompt: "The logic analyzer sees an **8-bit** data output from the circuit. How many different values can it take?"
-    options: ["256 (00h to FFh), so the sequence can have at most 256 states in the observed byte", "65,536", "8", "4,096"]
+    prompt: "The logic analyzer sees an 8-bit data output from the circuit. How many different values can it take?"
+    options: ["256 (00h to FFh), so at most 256 states in the observed byte", "65,536, the number of values of a 16-bit word", "8, one per output bit", "4,096, one per 12-bit flip-flop state"]
     answer: 0
     explain: "Eight bits give 2^8 = 256 values. (With 12 flip-flops the full state could have 4,096 combinations, but only 8 bits are observed.)"
 card:

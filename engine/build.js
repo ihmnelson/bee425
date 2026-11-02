@@ -13,7 +13,7 @@ const dist = path.join(root, 'dist');
 
 const { generators } = await import(pathToFileURL(path.join(contentDir, 'generators', 'index.js')).href);
 const data = loadCourse(contentDir);
-const { errors, warnings } = validate(data, generators);
+const { errors, warnings } = validate(data, generators, path.join(contentDir, 'media'));
 if (errors.length) { console.error('Content errors:\n' + errors.map((e) => '  ' + e).join('\n')); process.exit(1); }
 
 /* what the browser needs: no raw Markdown, needs expanded to full ids */
@@ -63,6 +63,8 @@ await esbuild.build({
 });
 fs.copyFileSync(path.join(root, 'engine/ui/style.css'), path.join(dist, 'style.css'));
 fs.cpSync(path.join(root, 'engine/assets/fonts'), path.join(dist, 'fonts'), { recursive: true });
+/* images and other media that questions point at with figure.src (relative to content/media) */
+if (fs.existsSync(path.join(contentDir, 'media'))) fs.cpSync(path.join(contentDir, 'media'), path.join(dist, 'media'), { recursive: true });
 fs.writeFileSync(path.join(dist, 'index.html'), `<!doctype html>
 <html lang="en">
 <head>

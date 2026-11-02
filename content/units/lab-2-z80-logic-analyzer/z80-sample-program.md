@@ -14,23 +14,23 @@ encodings:
   - { cpu: z80, asm: "LD HL,9A7CH", hex: "21 7C 9A" }
 checks:
   - type: choice
-    prompt: "The first instruction in the sample ROM has op-code 09H. What does it do and how long is it?"
-    options: ["ADD HL,BC: adds the 16-bit pairs and puts the sum in HL; one byte", "LD A,55H; two bytes", "LD HL,nn; three bytes", "NOP"]
+    prompt: "The first instruction in a sample ROM has op-code 09H. What does it do and how long is it?"
+    options: ["ADD HL,BC: adds the 16-bit pairs and puts the sum in HL; one byte", "LD A,55H: loads 55H into A; two bytes", "LD HL,nn: loads a 16-bit value into HL; three bytes", "NOP: does nothing; one byte"]
     answer: 0
     explain: "The op-code at 0000H is 09H: add register pair BC to HL, result in HL. It needs no operand, so it is a single byte; the next instruction starts at 0001H."
   - type: choice
-    prompt: "The bytes 3EH 55H are fetched. Which instruction is it, and where does the next instruction start if this one is at 0001H?"
-    options: ["LD A,55H (op-code 3EH plus operand 55H); the next instruction is at 0003H", "LD A,3EH; 0002H", "ADD A,55H; 0002H", "NOP"]
+    prompt: "The bytes 3EH 55H are fetched from address 0001H. Which instruction is it, and where does the next instruction start?"
+    options: ["LD A,55H (op-code 3EH plus operand 55H); the next instruction is at 0003H", "LD A,3EH; the next instruction is at 0002H", "ADD A,55H; the next instruction is at 0002H", "NOP, then LD A,55H; the next instruction is at 0002H"]
     answer: 0
     explain: "3EH is LD A,n; the operand 55H is the second byte, so the instruction occupies 0001H and 0002H and the next begins at 0003H."
   - type: choice
-    prompt: "`LD HL,9A7CH` appears on the bus as which byte sequence?"
-    options: ["21H, 7CH, 9AH (low byte first: little endian)", "21H, 9AH, 7CH", "7CH, 9AH, 21H", "9AH, 7CH"]
+    prompt: "LD HL,9A7CH appears on the bus as which byte sequence?"
+    options: ["21H, 7CH, 9AH (low byte first: little endian)", "21H, 9AH, 7CH (high byte first)", "7CH, 9AH, 21H (operands before the op-code)", "9AH, 7CH (no op-code needed)"]
     answer: 0
     explain: "The op-code is 21H, then the 16-bit operand is sent with the low byte first (7CH then 9AH). The Z80 stores 16-bit values little endian, as you saw in the memory lessons."
   - type: choice
-    prompt: "How many bus cycles does an instruction like `LD HL,9A7CH` (3 bytes) use for fetching?"
-    options: ["Four T-state M1 cycle for the op-code plus two 3-T-state memory reads for the operand bytes", "One 4-T cycle only", "Three M1 cycles", "Two cycles"]
+    prompt: "How many bus cycles does an instruction like LD HL,9A7CH (3 bytes) use for fetching?"
+    options: ["A 4-T-state M1 cycle, then two 3-T-state memory reads for the operands", "One 4-T-state cycle that covers all three bytes", "Three 4-T-state M1 cycles, one for each byte", "Two cycles of five T-states each"]
     answer: 0
     explain: "The op-code is fetched in an M1 cycle (4 T states); each operand byte is a plain memory read of 3 T states. Total fetch time 10 T states = 2.5 µs at 4 MHz."
 card:

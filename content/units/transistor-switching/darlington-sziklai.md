@@ -18,12 +18,12 @@ checks:
     explain: "The collector current is multiplied by the product of the betas: β = β1 x β2 = 200 x 50 = 10,000."
   - type: choice
     prompt: "Why does a Darlington pair need **1.2 V** at its base while a single transistor needs 0.6 V?"
-    options: ["Two base-emitter junctions are in series, each dropping about 0.6 V", "It has a bigger resistor", "Because β is larger", "It is a rule of thumb with no cause"]
+    options: ["Two base-emitter junctions in series, each dropping about 0.6 V", "It has a bigger base resistor built in", "Its beta is larger, so more voltage is needed", "It is a rule of thumb with no physical cause"]
     answer: 0
     explain: "The first transistor's emitter drives the second's base, so two Vbe drops (2 x 0.6 V = 1.2 V) are in series between the base and ground."
   - type: choice
-    prompt: "What is the **advantage of the compound feedback (Sziklai) pair** over a Darlington?"
-    options: ["It uses one NPN and one PNP and turns on at only 0.6 V instead of 1.2 V", "It has a larger beta", "It needs no base resistor", "It works only on AC"]
+    prompt: "What is the advantage of the compound feedback (Sziklai) pair over a Darlington?"
+    options: ["It uses one NPN and one PNP and turns on at about 0.6 V instead of 1.2 V", "It has a larger overall beta than the Darlington", "It needs no base resistor at all", "It works only with AC signals"]
     answer: 0
     explain: "The compound pair has current gain similar to a Darlington, but the turn-on voltage is only about 0.6 V. Its total emitter current is about IB x βQ1 x βQ2."
 card:

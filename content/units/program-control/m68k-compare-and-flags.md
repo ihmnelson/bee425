@@ -46,23 +46,23 @@ programs:
       regs: { D7: 1 }
 checks:
   - type: choice
-    prompt: "What is the difference between **CMP** and **SUB**?"
-    options: ["Both subtract the source from the destination; SUB stores the result, CMP only sets the flags", "CMP adds", "SUB sets no flags", "They are identical"]
+    prompt: "What is the difference between CMP and SUB?"
+    options: ["SUB stores the result; CMP only sets the flags", "CMP adds the operands while SUB subtracts them", "SUB leaves the flags alone while CMP sets them", "They are the same instruction under two names"]
     answer: 0
     explain: "CMP tests for equality by subtraction without changing the operands; its sole purpose is to set the condition code flags. SUB places the result in the destination."
   - type: choice
-    prompt: "`LOOP MOVEA.W #$0000,A3` is followed by `BNE LOOP`. Will the branch be taken, according to the lecture's trick question?"
-    options: ["It depends on the flags left by earlier instructions: MOVEA does not affect any condition codes", "Never, because the value is zero", "Always", "It is an assembler error"]
+    prompt: "LOOP MOVEA.W #$0000,A3 is followed by BNE LOOP. Will the branch be taken?"
+    options: ["It depends on the flags left by earlier instructions; MOVEA changes no condition codes", "Never: the value moved is zero, so Z is set", "Always: loading a constant forces the flags to not-zero", "It cannot be assembled; MOVEA may not precede a branch"]
     answer: 0
     explain: "MOVEA does not change the condition codes, so BNE tests whatever Z was before. In the program above Z = 0 after MOVE.W #1,D0, so the branch is taken, even though a zero was loaded."
   - type: choice
-    prompt: "Which pair tests the **N flag**?"
-    options: ["BMI (branch if N = 1) and BPL (branch if N = 0)", "BEQ and BNE", "BCS and BCC", "BRA and BSR"]
+    prompt: "Which pair of branches tests the N flag?"
+    options: ["BMI (branch if N = 1) and BPL (branch if N = 0)", "BEQ (branch if Z = 1) and BNE (branch if Z = 0)", "BCS (branch if C = 1) and BCC (branch if C = 0)", "BVS (branch if V = 1) and BVC (branch if V = 0)"]
     answer: 0
     explain: "BMI (Branch MInus) branches if N = 1; BPL (Branch PLus) branches if N = 0. BEQ/BNE test Z."
   - type: choice
     prompt: "To find out whether bit 9 of D6 is 1, you AND D6 with a mask. What is the mask, and which branch tests the result?"
-    options: ["%0000001000000000 ($0200); BNE (non-zero means the bit was 1)", "$0100; BEQ", "$FFFF; BMI", "$0200; BCS"]
+    options: ["$0200 (%0000001000000000); BNE", "$0100 (that is bit 8); BNE", "$0200; BCS, testing the carry flag", "$FFFF; BMI, testing the sign bit"]
     answer: 0
     explain: "The mask isolates bit 9 and zeroes everything else. If the AND result is non-zero the bit was 1 (BNE); zero means it was 0 (BEQ). The slide writes `ANDI.W D0,D6`, but ANDI needs an immediate operand; with a register mask the instruction is `AND.W D0,D6` (ANDI.W D0,D6 does not assemble)."
 card:

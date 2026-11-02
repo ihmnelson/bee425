@@ -13,7 +13,7 @@ encodings:
 checks:
   - type: choice
     prompt: "After a hard RESET, what does the 68008 read first?"
-    options: ["The long word at addresses 0000-0003, which goes into the stack pointer A7", "The first instruction at $1000", "The PC from $1000", "The last address of RAM"]
+    options: ["The long word at addresses 0-3, which goes into the stack pointer", "The first instruction, taken from address $1000", "The program counter value stored at address $1000", "The top-of-RAM address, taken from the last RAM location"]
     answer: 0
     explain: "It fetches the long word at byte addresses 0000..0003 into the stack pointer, then reads the next long word at 0004..0007 into the program counter, and begins executing there."
   - type: choice
@@ -22,8 +22,8 @@ checks:
     answer: 0
     explain: "The second long word (at 0004-0007) is loaded into the PC: $00001000. That is why the code has a second ORG at $1000."
   - type: choice
-    prompt: "Why does the listing begin with **two ORG statements**?"
-    options: ["The first places the reset vectors at address 0; the second places the program at the address the vectors name", "To make the file longer", "One for ROM and one for the simulator", "They are comments"]
+    prompt: "Why does the lab's program listing begin with two ORG statements?"
+    options: ["One places the reset vectors at address 0; the other places the program", "One ORG is for the ROM and the other is for the simulator", "The second repeats the first to catch assembler errors", "Both are comments that the assembler ignores"]
     answer: 0
     explain: "ORG 0000 is needed because of how the processor starts after RESET: it reads the stack pointer and the PC from the first eight bytes. ORG $1000 then places the program where the vector says execution begins."
   - type: choice

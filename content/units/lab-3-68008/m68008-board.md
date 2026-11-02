@@ -16,8 +16,8 @@ checks:
     answer: 0
     explain: "ROM (27C256, 32K x 8) is at 0000H-7FFFH and RAM (62256, 32K x 8) at 8000H-FFFFH. A15 chooses between them when A16-A19 are 0."
   - type: choice
-    prompt: "How is the **68008** different from the 68000?"
-    options: ["8-bit data bus D0-D7 with one ~DS strobe instead of ~UDS/~LDS, and address lines A0-A19 instead of A1-A23", "A 32-bit data bus", "It has no address strobe", "It runs a different instruction set"]
+    prompt: "How is the 68008 different from the 68000?"
+    options: ["8-bit data bus D0-D7 with one ~DS strobe instead of ~UDS/~LDS, and address lines A0-A19", "A 32-bit data bus with four data strobes", "No address strobe, so it needs an external decoder", "A different instruction set from the 68000"]
     answer: 0
     explain: "The 68008 has D0-D7, ~DS in place of ~UDS and ~LDS, and A0-A19 (1 MB) versus the 68000's A1-A23. Internally it is a full 32-bit processor with the same instruction set and the same timing relationships at a given clock frequency."
   - type: choice
@@ -26,8 +26,8 @@ checks:
     answer: 0
     explain: "20 address lines reach 2^20 = 1,048,576 bytes. The handout compares it with the Z80 (its 16 address lines reach 64 KB; the handout's wording of '16 Kbyte' is a slip)."
   - type: choice
-    prompt: "What does the **DS1232 supervisor chip** do on the board?"
-    options: ["Generates a clean RESET to the processor (and both reset polarities)", "Holds the program", "Decodes the addresses", "Generates the clock"]
+    prompt: "What does the DS1232 supervisor chip do on the 68008 board?"
+    options: ["Generates a clean RESET for the processor, in both polarities", "Holds the program the processor runs", "Decodes the addresses for ROM and RAM", "Generates the processor clock"]
     answer: 0
     explain: "The DS1232 uP system supervisor gives a clean reset. It provides both polarities of RESET: the 68008 needs ~RESET and the GAL22V10 and logic analyzer use the positive RESET."
 card:

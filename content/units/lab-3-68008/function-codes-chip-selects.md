@@ -10,23 +10,23 @@ sources:
   - { type: handout, ref: "lab3 Appendix C", quote: "OpFetch = !FC0 & FC1" }
 checks:
   - type: choice
-    prompt: "The GAL equation is `~CSRAM = ASTR # !A15 # A16 # A17 # A18 # A19` (# is OR, ! is NOT, ASTR is the active-low address strobe). When is ~CSRAM **low** (RAM selected)?"
-    options: ["When ASTR is low (address valid), A15 = 1 and A16-A19 = 0", "When A15 = 0", "Whenever A19 = 1", "Always"]
+    prompt: "The GAL equation is ~CSRAM = ASTR # !A15 # A16 # A17 # A18 # A19 (# is OR, ! is NOT, ASTR is the active-low address strobe). When is ~CSRAM low (RAM selected)?"
+    options: ["When ASTR is low (address valid), A15 = 1 and A16-A19 are all 0", "When A15 = 0, whatever the other lines are", "Whenever A19 = 1", "Always, since the strobe is not part of the equation"]
     answer: 0
     explain: "An OR of terms is low only when every term is low: ASTR = 0, !A15 = 0 so A15 = 1, and A16-A19 = 0. That is the 8000H-FFFFH range. It is the negative-logic OR you studied: an OR of the *deasserting* conditions."
   - type: choice
-    prompt: "Why are the **function codes** FC0 and FC1 useful?"
-    options: ["They tell external logic what kind of cycle this is (program fetch versus data read or write)", "They set the clock", "They are the address", "They control the reset"]
+    prompt: "Why are the function codes FC0 and FC1 useful?"
+    options: ["They tell external logic the cycle type, such as fetch or data", "They set the processor clock frequency", "They carry the low address bits", "They control the reset sequence"]
     answer: 0
     explain: "The processor outputs a function code on every cycle. FC0 and FC1 distinguish fetches from program memory (ROM) and reads or writes to data memory (RAM). The GAL turns them into the positive-true signals Pfetch/OpFetch and DatFetch. FC2 (supervisor versus user) is not needed."
   - type: choice
-    prompt: "How are **~RD and ~WR** produced?"
-    options: ["From the processor's R/~W signal and ~AS: ~RD is low when ~AS is low and R/~W is high, ~WR when ~AS is low and R/~W is low", "Directly from the data bus", "From the clock", "From the supervisor"]
+    prompt: "How are ~RD and ~WR produced on the board?"
+    options: ["From R/~W and ~AS: ~RD when R/~W is high, ~WR when it is low, both while ~AS is low", "Directly from two spare bits of the data bus", "From the clock, low during each half cycle", "From the supervisor chip, which decodes them for the GAL"]
     answer: 0
     explain: "In the GAL: ~RD = ASTR # !RW and ~WR = ASTR # RW, so each is low only while the address strobe is asserted and the R/~W line has the matching level."
   - type: choice
-    prompt: "A 20-bit address of $12345 is presented with ~AS asserted. Which chip select goes low?"
-    options: ["Neither ~CSROM nor ~CSRAM: A16 = 1, so both equations stay high", "~CSROM", "~CSRAM", "Both"]
+    prompt: "On the lab board, ROM is selected for 0000H-7FFFH and RAM for 8000H-FFFFH, in the low 64K only (A16-A19 must be 0). With ~AS asserted and address $12345, which chip select goes low?"
+    options: ["Neither: A16 = 1, so both stay high", "~CSROM, since the low 16 bits fall in the ROM range", "~CSRAM, since bit 15 of the address is set", "Both, since the ranges overlap"]
     answer: 0
     explain: "Both ROM and RAM equations include the terms A16-A19 as high-forcing terms, so any address with A16-A19 not all 0 selects neither ($12345 has A16 = 1). The ROM and RAM occupy only the first 64K."
 card:

@@ -10,23 +10,23 @@ sources:
   - { type: slide, ref: "L11 s506", quote: "Can set breakpoints in “ROM”" }
 checks:
   - type: choice
-    prompt: "Which is a **disadvantage of a debug monitor**?"
-    options: ["It needs stable target memory and a communications link, runs code slower than real time, and cannot set breakpoints in ROM", "It is expensive", "It cannot single step", "It needs an emulator chassis"]
+    prompt: "Which is a disadvantage of a debug monitor?"
+    options: ["It needs stable target memory, runs slower than real time and cannot break in ROM", "It is expensive, because it needs a full emulator chassis and probe", "It cannot single-step, so the program must run at full speed", "It needs the target processor replaced by a special probe"]
     answer: 0
     explain: "A monitor is simple and low cost ($0 to under $1K) and gives most of what software designers need, but it requires stable memory (so it is not suitable for hardware turn-on), a serial link, is not real time, will not run in ROM, and may lose control if the code is not well behaved."
   - type: choice
-    prompt: "How does a debugger set a **breakpoint** in RAM code?"
-    options: ["It replaces the instruction with a trap to the debugger entry point and saves the original instruction in its database", "It stops the clock", "It removes the instruction", "It copies the program to ROM"]
+    prompt: "How does a debugger set a breakpoint in RAM code?"
+    options: ["It swaps the instruction for a trap and saves the original", "It stops the target clock when the address matches", "It deletes the instruction until the program resumes", "It copies the whole program into ROM and runs it there"]
     answer: 0
     explain: "The debugger inserts a trap vector in place of the instruction at the breakpoint and moves the original instruction to the debugger's database for safe keeping."
   - type: choice
-    prompt: "What advantage does a **ROM emulator** have over a monitor?"
-    options: ["It plugs into the ROM socket, downloads code quickly, can trace ROM activity in real time, set breakpoints in 'ROM' and provide a virtual UART", "It is free", "It needs no target", "It replaces the processor"]
+    prompt: "What advantage does a ROM emulator have over a monitor?"
+    options: ["It plugs into the ROM socket, loads fast and can trace and break in 'ROM'", "It is free and needs no cable between the host and the target", "It works with no target board attached at all", "It replaces the processor and runs the code from inside it"]
     answer: 0
     explain: "A ROM emulator is cost-effective ($1K-$5K), generic across memory configurations, supports large overlay memory, traces ROM code in real time and gives a virtual UART so the target needs no serial port."
   - type: choice
-    prompt: "What are the **limits** of ROM emulation?"
-    options: ["The target memory must be stable; it only works for code in standard ROMs (not ASICs or on-chip ROM microcontrollers); real-time trace needs code executing from ROM, not copied to RAM", "It works on any chip", "It needs a monitor", "It has no limits"]
+    prompt: "What are the limits of ROM emulation?"
+    options: ["Target memory must be stable, and it needs standard ROM that runs in place", "It works on any chip, including parts with on-chip ROM", "It needs a monitor program loaded into the target first", "It has no limits once the board is working correctly"]
     answer: 0
     explain: "ROM emulation requires stable target memory and only works where the code is in standard ROM memories; special ASICs and microcontrollers with on-chip ROM (like the 8751) are out, and many targets copy code to RAM for speed, which defeats the real-time trace."
 card:

@@ -23,9 +23,9 @@ checks:
     explain: "B, C, D, E, H and L are 8-bit, but they pair as BC, DE and HL for 16-bit operations. A pair such as HL can also be a pointer to memory."
   - type: choice
     prompt: "What is the purpose of the Z80's **alternate register set** (B', C', D', E', H', L', A', F')?"
-    options: ["It can be swapped with the main set by a single instruction, for fast interrupt handling", "It holds the stack", "It stores the program", "It doubles the address bus"]
+    options: ["A second set, swapped in by one instruction", "It holds the stack for the processor", "It stores the program being run", "It doubles the address bus width"]
     answer: 0
-    explain: "A single instruction (EXX for BC, DE, HL; EX AF,AF' for A and F) swaps main and alternate registers, which improves real-time performance for interrupts."
+    explain: "The alternate set (B', C', D', E', H', L', A', F') can be swapped with the main set by a single instruction, which makes interrupt handling fast: there is no need to save registers on the stack."
   - type: choice
     prompt: "Which direction does the Z80 stack grow?"
     options: ["Toward lower memory addresses", "Toward higher memory addresses", "It does not move", "Into the I/O space"]

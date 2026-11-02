@@ -13,12 +13,12 @@ checks:
   - gen: conv.droop
   - type: choice
     prompt: "A 10-bit converter spans 0 to 10.23 V and the S/H droops 1 V/ms. How long can the conversion take (error under half an LSB)?"
-    options: ["5 µs: one LSB is 10 mV, half is 5 mV, and 5 mV / (1 V/ms) = 5 µs", "5 ms", "50 µs", "0.5 µs"]
+    options: ["5 µs: one LSB is 10 mV, half is 5 mV, and 5 mV / (1 V/ms) = 5 µs", "10 µs, allowing a full LSB of droop", "50 µs, allowing five LSBs of droop", "0.5 µs, allowing a twentieth of an LSB"]
     answer: 0
     explain: "1023 counts over 10.23 V means 10 mV per count; half is 5 mV; at 1 V per millisecond the droop reaches 5 mV in 5 microseconds."
   - type: choice
-    prompt: "The lecture then substitutes a typical droop rate of 50 mV/s. What is the allowed conversion time, and is the slide's '100 microseconds' right?"
-    options: ["5 mV / (50 mV/s) = 0.1 s = 100 ms; the slide's 'microseconds' is a unit slip", "100 µs, as the slide says", "1 µs", "10 ms"]
+    prompt: "An allowed droop error of 5 mV at a droop rate of 50 mV/s gives what conversion time? A slide quotes 100 microseconds."
+    options: ["0.1 s = 100 ms; the slide's 'microseconds' is a unit slip", "100 µs, exactly as the slide says", "10 ms, one hundredth of a second", "1 µs, a thousandth of the slide's figure"]
     answer: 0
     explain: "5 mV / 50 mV per second = 0.1 second, which is 100 milliseconds (100,000 µs). The slide prints 100 microseconds, which would be a thousand times too short; the arithmetic gives 100 ms."
 card:

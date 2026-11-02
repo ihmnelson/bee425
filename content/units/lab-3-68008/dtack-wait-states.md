@@ -12,13 +12,13 @@ checks:
   - gen: lab.waitStates
   - gen: lab.waitStates
   - type: choice
-    prompt: "At which point does the 68008 look at **~DTACK**?"
-    options: ["On the falling clock edge in state S4: low completes the cycle through S7; high repeats S4 and S5", "At reset only", "On the rising edge of S0", "After S7"]
+    prompt: "At which point does the 68008 look at ~DTACK?"
+    options: ["On the falling edge in S4: low completes the cycle, high repeats S4 and S5", "At reset only, to learn how fast the memory is", "On the rising edge of S0, before the address is valid", "After S7, once the data has already been transferred"]
     answer: 0
     explain: "The state of ~DTACK is sampled on the falling edge of the clock in state S4. If ~DTACK is low the bus cycle completes through S7; if high, S4 and S5 repeat until it goes low."
   - type: choice
-    prompt: "What does moving the **jumper from position A to position D** do on the lab board?"
-    options: ["Delays ~DTACK so the bus cycle gets 3 extra wait states", "Changes the clock frequency", "Swaps ROM and RAM", "Disables the processor"]
+    prompt: "What does moving the jumper from position A to position D do on the lab board?"
+    options: ["Delays ~DTACK so each bus cycle gets 3 extra wait states", "Changes the clock frequency from 8 MHz to 1 MHz", "Swaps the ROM and RAM address ranges", "Disables the processor until the jumper is moved back"]
     answer: 0
     explain: "The GAL contains a shift register of three D flip-flops that delays ~DTACK. Position A connects ~AS directly to ~DTACK (0 wait states); each position outward adds one more S4-S5 cycle, up to three."
   - type: choice

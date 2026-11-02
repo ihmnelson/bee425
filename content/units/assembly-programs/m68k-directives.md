@@ -33,10 +33,10 @@ checks:
     answer: 0
     explain: "ORG sets the origin: it instructs the assembler where the code will execute in memory, which resolves address references. END (with an address) instructs the loader where to put the code; the two are complementary."
   - type: choice
-    prompt: "Which directive allocates **uninitialised** storage, `DC`, `DCB` or `DS`?"
-    options: ["DS (Define Storage): reserves space without a value", "DC", "DCB", "EQU"]
+    prompt: "Which directive reserves memory without giving it a value?"
+    options: ["DS (Define Storage)", "DC (Define Constant)", "DCB (Define Constant Block)", "EQU (Equate)"]
     answer: 0
-    explain: "DS generates an uninitialised block (DS.L 200 reserves 200 long words = 800 bytes). DC defines constants, and DCB fills a block with the same value (DCB.B 100,$AA fills 100 bytes with $AA)."
+    explain: "DS reserves space only. DC and DCB store values, and EQU defines a symbol without reserving memory."
   - type: choice
     prompt: "`DS.L 200` reserves how many bytes?"
     options: ["800", "200", "400", "100"]
@@ -48,8 +48,8 @@ checks:
     answer: 0
     explain: "The MACRO pseudo-op can generate executable code (it groups instructions under a name); all other pseudo-ops do not generate executable instructions."
   - type: choice
-    prompt: "What is the difference between **EQU** and **SET**?"
-    options: ["SET can redefine the symbol to another value later; EQU defines it once", "EQU can be redefined; SET cannot", "They are identical", "SET reserves memory"]
+    prompt: "What is the difference between EQU and SET?"
+    options: ["SET can be redefined to another value later; EQU defines the symbol once", "EQU can be redefined later; SET defines the symbol once", "They are identical except for the column they start in", "SET reserves memory for the symbol; EQU does not"]
     answer: 0
     explain: "SET is like EQU except that a SET symbol may be redefined later on; compilers make use of it. EQU is like #define in C."
 card:

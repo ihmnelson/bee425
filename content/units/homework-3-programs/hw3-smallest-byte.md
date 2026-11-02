@@ -65,13 +65,13 @@ checks:
     answer: 0
     explain: "For unsigned bytes the largest is $FF, and the unsigned 'higher' branch is BHI. (The handout says: 'I used BHI, branch if higher, which is the unsigned number test.')"
   - type: choice
-    prompt: "The same data run through both programs gives $80 (signed) and the smallest unsigned value. Why are the answers different?"
-    options: ["$80 is -128 as signed (the smallest) but 128 as unsigned (large); the branches interpret the same bits differently", "One program is wrong", "The CPU changes mode", "The data differ"]
+    prompt: "The signed search and the unsigned search of the same bytes give different answers ($80 for the signed one). Why?"
+    options: ["$80 is -128 signed (smallest) but 128 unsigned (large); the branches read the same bits differently", "One of the two programs has a bug in its branch instruction", "The CPU switches modes between the two programs it runs", "The two programs are in fact reading different sets of data"]
     answer: 0
     explain: "The handout's key point: the 68K 'pretty much assumes you are always working with signed numbers'. In the unsigned reading the data byte $00 (or the smallest value present) wins."
   - type: choice
-    prompt: "According to the table, which unsigned branch is the counterpart of BLT, and of BGE?"
-    options: ["BCS for BLT and BCC for BGE (not BLO/BHS names)", "BHI and BLS", "BEQ and BNE", "BGT and BLE"]
+    prompt: "Which unsigned branches are the counterparts of the signed BLT and BGE?"
+    options: ["BCS for BLT and BCC for BGE (also written BLO and BHS)", "BHI for BLT and BLS for BGE", "BEQ for BLT and BNE for BGE", "BGT for BLT and BLE for BGE"]
     answer: 0
     explain: "After CMP D0,D1: D1 < D0 is BLT (signed) or BCS (unsigned); D1 >= D0 is BGE (signed) or BCC (unsigned). The asymmetry of the names is the confusing part."
 card:

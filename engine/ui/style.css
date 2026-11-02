@@ -97,3 +97,6 @@ pre.code { overflow-x: auto; padding: .6rem .8rem; border: 1px solid var(--rule-
 details.conv { margin: .5rem 0; } details.conv summary { cursor: pointer; color: var(--muted, inherit); font-size: .9rem; }
 
 .question .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+
+.qcode { margin: .6rem 0 .9rem; white-space: pre; }
+.qfigure { margin: .6rem 0 .9rem; } .qfigure img { max-width: 100%; height: auto; border: 1px solid var(--rule-2); border-radius: 6px; background: #fff; } .qfigure figcaption { font-size: .85rem; color: var(--muted, inherit); margin-top: .3rem; }

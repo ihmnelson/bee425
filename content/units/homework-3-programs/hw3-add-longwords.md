@@ -23,18 +23,18 @@ programs:
     expect: {"mem": {"41736": [0, 6, 102, 102]}}
 checks:
   - type: choice
-    prompt: "Which instruction sequence solves problem 1?"
-    options: ["MOVE.L $A300,D0 / ADD.L $A304,D0 / MOVE.L D0,$A308", "MOVE.W $A300,D0 / ADD.W $A304,D0 / MOVE.W D0,$A308", "MOVE.B ... ADD.B ...", "ADD.L $A300,$A308"]
+    prompt: "Which instruction sequence adds the long word at $A300 to the long word at $A304 and stores the sum at $A308?"
+    options: ["MOVE.L $A300,D0 / ADD.L $A304,D0 / MOVE.L D0,$A308", "MOVE.W $A300,D0 / ADD.W $A304,D0 / MOVE.W D0,$A308", "MOVE.B $A300,D0 / ADD.B $A304,D0 / MOVE.B D0,$A308", "ADD.L $A300,$A308"]
     answer: 0
     explain: "The operands are long words, so every instruction must be .L: load the first, add the second and store the sum at $A308. Using .W would add only the low words (the lecture's checker rejects ADD.W)."
   - type: choice
-    prompt: "With $00012345 at $A300 and $00054321 at $A304, what is stored at $A308?"
+    prompt: "With $00012345 at $A300 and $00054321 at $A304, what is stored at $A308 after adding the two long words?"
     options: ["$00066666", "$00054321", "$00012345", "$00066664"]
     answer: 0
     explain: "$00012345 + $00054321 = $00066666. Verified by running the program."
   - type: choice
-    prompt: "A handout typo: the statement writes the first address as `$000A300`. What is the intended address?"
-    options: ["$0000A300 (a long word address; the second is $0000A304 and the result $0000A308)", "$000A3000", "$00A300", "It is correct as printed"]
+    prompt: "A handout writes the first address as $000A300 (seven digits). What is the intended address?"
+    options: ["$0000A300, with the others at $0000A304 and $0000A308", "$000A3000, shifted one hex digit left", "$00A300, with the leading zeros dropped", "It is correct as printed; a 7-digit address is valid"]
     answer: 0
     explain: "The handout writes $000A300 (seven digits) for the first operand but $0000A304 and $0000A308 for the others, so $0000A300 is meant."
 card:

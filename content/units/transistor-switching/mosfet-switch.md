@@ -11,22 +11,22 @@ sources:
 checks:
   - type: choice
     prompt: "What controls a MOSFET, compared with a BJT?"
-    options: ["The gate voltage (VGS) controls the channel resistance; a BJT is controlled by base current", "The gate current", "The drain voltage", "The clock"]
+    options: ["The gate voltage (VGS) sets the channel resistance; a BJT is controlled by base current", "Gate current sets the channel resistance, like a BJT's base current", "The drain voltage sets the channel resistance", "The clock frequency sets how fast the channel switches"]
     answer: 0
     explain: "A MOSFET is a voltage-controlled resistor with almost infinite input resistance (but significant input capacitance); the channel resistance can vary over 10 orders of magnitude from fully on to fully off."
   - type: choice
-    prompt: "With an **N-type MOSFET** driven from an I/O pin, where is the load connected?"
-    options: ["Between the positive rail and the drain (the load is referenced to Vcc, not ground)", "From the drain to ground", "In the gate", "Across the pin"]
+    prompt: "With an N-type MOSFET driven from an I/O pin, where is the load connected?"
+    options: ["Between the positive rail and the drain", "Between the source and the positive rail", "Between the drain and ground", "In series with the gate"]
     answer: 0
     explain: "As long as the MOSFET is fully turned on at the pin's high level (5 V or 3.3 V), the circuit works, with the load referenced to the positive rail."
   - type: choice
-    prompt: "Why is driving a **P-type MOSFET** from a 3.3 V pin harder?"
-    options: ["Its gate voltage is referenced to the positive rail, so with a high rail the pin cannot pull the gate low enough; a transistor (and Zener) level-shifts the gate", "It needs a negative supply", "It has no gate", "It only works at 0 V"]
+    prompt: "Why is driving a P-type MOSFET from a 3.3 V pin harder?"
+    options: ["Its gate is referenced to the positive rail, so the pin cannot pull it low enough", "It needs a negative supply voltage to conduct at all", "Its gate draws large DC current from the pin", "It only works when its source is at 0 V"]
     answer: 0
     explain: "The P-type MOSFET turns on when VGS is negative relative to the source (the rail). The lecture's circuit uses an NPN transistor, rated for the rail voltage, with a 5 V Zener so VGS = -5 V when the NPN conducts."
   - type: choice
-    prompt: "Which is a **disadvantage** of power MOSFETs, according to the lecture?"
-    options: ["Static sensitive (needs careful handling), possibly more expensive, and gate capacitance may limit speed", "They need large base resistors", "Low current rating", "They cannot be driven from logic"]
+    prompt: "Which is a disadvantage of power MOSFETs?"
+    options: ["Static sensitive, possibly more expensive, and gate capacitance may limit speed", "They need large base resistors to limit current", "They have a lower current rating than BJTs of the same size", "They cannot be driven from logic-level signals"]
     answer: 0
     explain: "The logic-level power MOSFET shown has 6 mΩ minimum resistance, 100 A and 100 W, and connects directly to a microcontroller pin with no bias resistors, but it is static sensitive, possibly more expensive than an NPN power transistor, and its gate capacitance may limit speed."
 card:

@@ -10,13 +10,13 @@ sources:
   - { type: own, ref: "the base-resistor sizing for the PNP/7406 example (the lecture poses it as a question)" }
 checks:
   - type: choice
-    prompt: "Which loads do **PNP and P-type** devices switch, compared with NPN and N-type?"
-    options: ["PNP/P-type switch a ground-referenced load (but need a more complex drive circuit); NPN/N-type switch a load referenced to the supply rail", "The same loads", "Only AC loads", "PNP switches nothing"]
+    prompt: "Which loads do PNP and P-type devices switch, compared with NPN and N-type?"
+    options: ["PNP/P-type switch a ground-referenced load; NPN/N-type a supply-referenced one", "PNP/P-type switch a supply-referenced load; NPN/N-type a ground-referenced one", "Both switch the same loads; only the polarity differs", "PNP/P-type devices switch only AC loads"]
     answer: 0
     explain: "NPN and N-type devices switch a load referenced to the power supply rail; PNP and P-type devices switch a load that is ground referenced, but require a more complex circuit to drive the base or gate."
   - type: choice
-    prompt: "How do you turn a **PNP transistor** on from a 5 V microcontroller whose rail is 30 V?"
-    options: ["Sink current from its base to ground with an open-collector gate or an NPN transistor (through a base resistor)", "Apply 5 V to the base directly", "Connect the base to 30 V", "Use a capacitor"]
+    prompt: "How do you turn a PNP transistor on from a 5 V microcontroller whose load rail is 30 V?"
+    options: ["Sink base current to ground with an open-collector gate or an NPN", "Apply 5 V to the base directly from the pin", "Connect the base to the 30 V rail through a resistor", "Put a capacitor between the pin and the base"]
     answer: 0
     explain: "A PNP turns on when current leaves its base. The pin cannot pull the base to within 0.6 V of a 30 V emitter on its own, so an open-collector gate (such as a 7406) or an NPN, which can hold off the high voltage, sinks the base current."
   - type: choice

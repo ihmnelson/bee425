@@ -13,17 +13,18 @@ checks:
   - gen: bus.ocRise
   - type: choice
     prompt: "Two ordinary gate outputs drive the same wire, one high and one low. What happens?"
+    figure: {"src":"slides/L6-s4.png", "alt":"Slide: two AND gates driving the same bus wire to different levels, a short circuit called bus contention", "caption":"Lecture 6, slide 259: bus contention"}
     options: ["Bus contention: a short circuit, with an indeterminate logic level", "The wire goes high", "The wire averages to 2.5 V and works fine", "The lower output wins safely"]
     answer: 0
     explain: "A high output (5 V) and a low output (0 V) connected together form a short circuit, and the actual level is indeterminate."
   - type: choice
-    prompt: "Which statement about an **open-collector** bus is correct?"
-    options: ["Outputs can only pull the wire low; a pull-up resistor makes it high, so falling edges are fast and rising edges are slow", "Outputs can drive both high and low quickly", "No pull-up is needed", "Multiple low outputs cause a conflict"]
+    prompt: "Which statement about an open-collector bus is correct?"
+    options: ["Outputs only pull the line low; a pull-up makes it high, so rising edges are slow", "Outputs drive the line both high and low quickly, so edges are symmetric", "No pull-up is needed, because the line floats up to the supply", "Two outputs pulling low at once cause a damaging conflict"]
     answer: 0
     explain: "OC outputs can only pull low, so several lows cannot conflict. The resistor pulls the line high, but the RC time constant makes low-to-high transitions slow and limits system speed."
   - type: choice
-    prompt: "A **tri-state** output with Output Enable = 1 (disabled) is in which state?"
-    options: ["High impedance (Hi-Z): disconnected from the bus", "Logic 0", "Logic 1", "Undefined short circuit"]
+    prompt: "A tri-state output with Output Enable = 1 (disabled) is in which state?"
+    options: ["High impedance (Hi-Z): effectively disconnected from the bus", "Logic 0, driving the bus low", "Logic 1, driving the bus high", "Undefined, shorting the bus to ground"]
     answer: 0
     explain: "The truth table: with OE = 0 the output follows the input (1 or 0); with OE = 1 the output is Hi-Z regardless of the input. The lecture's bus interface closes a switch to connect and opens it to isolate."
 card:

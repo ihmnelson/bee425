@@ -33,18 +33,18 @@ programs:
       regs: { hl: 0x2010 }
 checks:
   - type: choice
-    prompt: "Why does the Z80 loop compare **H with D, then L with E**, instead of one `CMP`?"
-    options: ["The Z80's CP works on the 8-bit accumulator, so a 16-bit pointer has to be compared a byte at a time", "H and D are special", "CP is slow", "The Z80 cannot compare"]
+    prompt: "Why does the Z80 loop compare H with D, then L with E, instead of using one compare?"
+    options: ["CP works on the 8-bit accumulator, so a 16-bit pointer is compared a byte at a time", "H and D are special registers the Z80 can compare directly", "CP is much slower than comparing the two halves separately", "The Z80 has no compare instruction at all, only subtraction"]
     answer: 0
     explain: "CP compares an 8-bit register or memory byte with A. There is no 16-bit address compare like the 68000's CMPA.L A1,A0, so HL is compared with DE high byte then low byte."
   - type: choice
-    prompt: "What replaces the 68000's `CLR.L (A0)+` in the Z80 loop?"
-    options: ["`LD [HL],0` then `INC HL` (store, then advance the pointer by hand)", "`CLR (HL)+`", "`LD (HL)+,0`", "`DEC HL`"]
+    prompt: "What replaces the 68000's CLR.L (A0)+ in the Z80 loop?"
+    options: ["LD [HL],0 then INC HL: store, then advance the pointer by hand", "CLR [HL]+, which clears and advances in one step", "LD [HL]+,0, which stores and post-increments", "DEC HL then LD [HL],0, which works backwards"]
     answer: 0
     explain: "The Z80 has no auto-increment addressing mode: store the byte with LD (HL),0, then INC HL. It also clears one byte per pass, not four."
   - type: choice
-    prompt: "Is the byte at the **end address** (2010H) cleared?"
-    options: ["No. The loop stops when HL = DE, before clearing it", "Yes", "Only if it is zero", "Only the first time"]
+    prompt: "A Z80 loop clears memory from HL up to the end address 2010H in DE and stops when HL = DE. Is the byte at 2010H cleared?"
+    options: ["No: the loop stops when HL = DE, before clearing that byte", "Yes: the compare happens after the byte is cleared", "Only on the first pass through the loop", "Only if the byte was already zero"]
     answer: 0
     explain: "Like the 68000 version, the test is at the top of the loop, so the end address is never cleared."
 card:

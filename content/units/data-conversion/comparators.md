@@ -15,7 +15,7 @@ checks:
     explain: "The output is TRUE (1) if the voltage on the + input is more positive than the - input, and FALSE (0) if it is less positive."
   - type: choice
     prompt: "What is a comparator, electrically?"
-    options: ["An op-amp running open-loop, with output conditioning so it matches logic levels", "A resistor network", "A flip-flop", "A digital counter"]
+    options: ["An op-amp running open loop, with output conditioning to match logic levels", "A resistor network that divides the input in steps", "A flip-flop that samples the input on each clock edge", "A digital counter that counts input pulses"]
     answer: 0
     explain: "The comparator is a combination of an analog and a digital circuit: basically an op-amp with no feedback, with signal conditioning on the output to be logic compatible."
   - type: choice

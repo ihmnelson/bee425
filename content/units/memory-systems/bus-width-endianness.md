@@ -11,25 +11,25 @@ sources:
   - { type: slide, ref: "L7 s322", quote: "All 16-bit wide reads and writes appear on even address boundaries" }
 checks:
   - type: choice
-    prompt: "In the lecture's 16-bit bus design, how is a **byte write** done?"
-    options: ["Only one of WR0 or WR1 is asserted; for a word write both are asserted together", "Both strobes always", "A0 selects the byte on the chip", "There are no byte writes"]
+    prompt: "A 16-bit memory has two write strobes, WR0 and WR1, one per byte lane. How is a byte write done?"
+    options: ["Only one of WR0 or WR1 is asserted; for a word write both are asserted together", "Both strobes are always asserted, and A0 masks the unused byte", "A0 selects the byte inside each chip, so the strobes are not needed", "The memory has no byte writes, so the CPU does a read-modify-write"]
     answer: 0
     explain: "A0 is implied and synthesised from WR0 and WR1: byte writes assert WR0 and WR1 independently, word writes assert them together."
   - type: choice
-    prompt: "In the lecture's 16-bit big-endian design, which data lines carry the **even-addressed byte**?"
-    options: ["D8-D15 (controlled by WR0)", "D0-D7 (controlled by WR0)", "D0-D7 (controlled by WR1)", "All 16 lines"]
+    prompt: "In a 16-bit big-endian bus, which data lines carry the even-addressed byte?"
+    options: ["D8-D15, the high byte of the word", "D0-D7, the low byte of the word", "D0-D7 for reads and D8-D15 for writes", "All 16 lines at once"]
     answer: 0
-    explain: "Even-numbered bytes go to D8-D15 (WR0) and odd-numbered bytes to D0-D7 (WR1). That is big endian: the most significant byte of a word is at the lower address."
+    explain: "Big endian puts the most significant byte at the lowest (even) address, so the even byte travels on the upper lines D8-D15."
   - type: choice
-    prompt: "In the lecture's 32-bit design, what are the alignment rules for byte, word and long word operations?"
-    options: ["Byte: any address. Word: addresses divisible by 2. Long word: addresses divisible by 4", "All any address", "All divisible by 4", "Word: any. Long: divisible by 2"]
+    prompt: "In a 32-bit memory design, what are the alignment rules for byte, word and long word operations?"
+    options: ["Byte: any address. Word: divisible by 2. Long word: divisible by 4", "All sizes: any address", "All sizes: divisible by 4", "Word: any address. Long word: divisible by 2"]
     answer: 0
     explain: "Byte operations may take place on any address boundary; words on addresses divisible by 2; long words on addresses divisible by 4. All reads are 32 bits wide and the processor selects the operand internally."
   - type: choice
-    prompt: "The lecture's 32-bit bus design routes WR0 to D0-D7, WR1 to D8-D15, WR2 to D16-D23 and WR3 to D24-D31. Which endianness is that?"
-    options: ["Little endian", "Big endian", "Neither", "It depends on the clock"]
+    prompt: "In a 32-bit memory, the byte at offset 0 of each long word travels on D0-D7, offset 1 on D8-D15, offset 2 on D16-D23 and offset 3 on D24-D31. Which endianness is that?"
+    options: ["Little endian: the least significant byte is at the lowest address", "Big endian: the most significant byte is at the lowest address", "Mixed endian: it depends on the access size", "Neither: endianness applies only to 16-bit buses"]
     answer: 0
-    explain: "The lowest address byte lane (WR0, D0-D7) is the least significant: little endian. The 16-bit example earlier sends even bytes to the upper lines, which is big endian."
+    explain: "D0-D7 is the least significant byte of the 32-bit word. Putting it at the lowest address is little endian."
 card:
   front: "How do wider buses and byte strobes work, and what fixes the endianness?"
   back: "A page of N-bit data uses one chip per byte lane. Separate write strobes (WR0, WR1, ...) select which lanes are written: byte write = one strobe, word = a pair, long = all four. The low address bits (A0, A1) are implied by the strobes. Which byte lane gets which address decides big or little endian. Alignment: words on even addresses, longs on multiples of 4."

@@ -48,23 +48,23 @@ programs:
       regs: { D0: 13 }
 checks:
   - type: choice
-    prompt: "Which test is at the **top** of a FOR or WHILE loop but at the **bottom** of a DO/WHILE loop?"
-    options: ["The compare and conditional branch that decides whether to continue", "The label", "The SIMHALT", "The counter initialisation"]
+    prompt: "Which part sits at the top of a FOR or WHILE loop but at the bottom of a DO/WHILE loop?"
+    options: ["The compare and conditional branch that decides whether to continue", "The label that marks the start of the loop body", "The SIMHALT that ends the program", "The counter initialisation before the loop starts"]
     answer: 0
     explain: "A FOR/WHILE tests first, so the body may run zero times. A DO/WHILE runs the body first, so it always executes at least once; the lecture's example shows the JSR subroutine call happening at least once."
   - type: choice
-    prompt: "In the lecture's FOR loop (D0 counts from 1, D1 = 10, test `CMP.B D0,D1` then `BEQ next_code`), how many times does the body run?"
-    options: ["9 times: it stops when D0 reaches 10 before running the body", "10 times", "1 time", "11 times"]
+    prompt: "A FOR loop starts with D0 = 1 and D1 = 10, and at the top tests CMP.B D0,D1 then BEQ next_code; D0 is incremented at the bottom. How many times does the body run?"
+    options: ["9 times: it exits when D0 reaches 10, before the body runs", "10 times, once for each value 1 to 10", "1 time, because the test runs first", "11 times, once more than the limit"]
     answer: 0
     explain: "The loop ends when D0 = 10, so the body runs for D0 = 1 to 9: nine passes. The core confirms D2 = 9."
   - type: choice
-    prompt: "What does a **null byte** ($00) do in the array-maximum program?"
-    options: ["It ends the array: MOVE.B sets Z, so BEQ exit leaves the loop", "It is the largest value", "It is skipped", "It causes an error"]
+    prompt: "In an array-maximum loop, a null byte ($00) ends the array. How does it do that?"
+    options: ["MOVE.B sets Z on the null, so BEQ exit leaves the loop", "It is treated as the smallest value and skipped", "It causes an address error that stops the program", "It is the largest value, so it is stored as the maximum"]
     answer: 0
     explain: "MOVE.B (A0)+,D1 sets the flags from the byte read; a zero sets Z, and `BEQ exit` leaves the loop."
   - type: choice
-    prompt: "Which general rule does the lecture give for building loops and ifs?"
-    options: ["Pair an instruction that tests a condition or changes a variable with the proper branch instruction", "Always use JSR", "Avoid labels", "Use as few registers as possible"]
+    prompt: "Which general rule helps when building loops and ifs?"
+    options: ["Pair an instruction that tests a condition or changes a variable with the proper branch", "Always use JSR so each loop body is a subroutine", "Avoid labels so branch offsets stay small", "Use as few registers as possible to keep the flags clean"]
     answer: 0
     explain: "Assembly has no built-in if/while/for; you build them from a flag-setting instruction (CMP, or any instruction that changes a variable) and a branch (Bcc, BRA, JSR)."
 card:

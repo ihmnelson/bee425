@@ -11,23 +11,23 @@ sources:
   - { type: slide, ref: "L8 s375", quote: "The external load resistor is called a pull-up" }
 checks:
   - type: choice
-    prompt: "What is the difference between a **source** and a **sink** output?"
-    options: ["Source: current flows out of the output through the load to ground. Sink: current flows into the output from the load and goes to ground inside the output", "They are identical", "Source is for AC", "Sink is only for LEDs"]
+    prompt: "What is the difference between a source and a sink output?"
+    options: ["Source: current flows out through the load. Sink: current flows in from the load", "Source: current flows into the output. Sink: current flows out of it", "They are two names for the same output stage", "Source outputs are for AC loads and sink outputs for DC loads"]
     answer: 0
     explain: "An output can supply current to a load (source) or receive it from the load (sink). The capabilities usually differ: an output can typically sink more current than it can source."
   - type: choice
-    prompt: "An open-collector output must have a **pull-up resistor**. Why?"
-    options: ["When the output transistor is off the output floats; the resistor pulls it up to the supply (it may be a different voltage than the gate's Vcc)", "To protect the gate", "To speed up the falling edge", "To reduce power"]
+    prompt: "An open-collector output must have a pull-up resistor. Why?"
+    options: ["When the output transistor is off the output floats; the resistor pulls it up to the supply", "To protect the gate from over-current when it switches low", "To speed up the falling edge of the output", "To reduce the power drawn from the supply when high"]
     answer: 0
     explain: "The output can only pull low. The external load resistor pulls the output up to the power supply voltage when the transistor is off; its value forms the Thévenin series resistance of the off state, and the supply need not equal the gate's Vcc."
   - type: choice
-    prompt: "What is a **snubber diode** for?"
-    options: ["It is placed across an inductive load (solenoid or relay) to limit the voltage spike when the current is switched off", "It speeds the transistor", "It lowers the supply voltage", "It indicates power"]
+    prompt: "What is a snubber diode for?"
+    options: ["It clamps the spike when an inductive load (relay, solenoid) is switched off", "It speeds up turn-on by sitting across the transistor base", "It lowers the supply voltage by sitting in series with it", "It acts as a power indicator by sitting across the load"]
     answer: 0
     explain: "A diode in parallel with an inductance limits the swing of voltage spikes. The ULN2003's seven power drivers include them."
   - type: choice
-    prompt: "A **ULN2003** provides 500 mA per output and holds off 50 V. How do you drive a **1 A** load with it?"
-    options: ["Connect several outputs in parallel (and their inputs together) for more current capability", "It cannot", "Use a bigger resistor", "Raise the input voltage"]
+    prompt: "A ULN2003 provides 500 mA per output and holds off 50 V. How do you drive a 1 A load with it?"
+    options: ["Connect several outputs in parallel (and their inputs together) for more current", "It cannot; a ULN2003 is limited to 500 mA in total", "Use a bigger input resistor to raise the output current", "Raise the input voltage above 5 V to raise the current"]
     answer: 0
     explain: "The lecture notes that you can parallel several outputs for more current capability (the question: a 1 A load would use at least two, and preferably more for margin)."
 card:

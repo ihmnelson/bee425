@@ -10,8 +10,8 @@ sources:
   - { type: own, ref: "truth tables of OR, NOR and AND under swapped polarity (standard De Morgan reasoning)" }
 checks:
   - type: choice
-    prompt: "What does the tilde in a signal name such as **~CS** or **~OE** mean?"
-    options: ["The signal is active low: it is asserted (true) when it is low", "The signal is inverted twice", "The signal is analog", "The signal is a clock"]
+    prompt: "What does the tilde in a signal name such as ~CS or ~OE mean?"
+    options: ["The signal is active low: it is asserted (true) when it is low", "The signal is inverted twice before it reaches the chip", "The signal is analog rather than digital", "The signal is a clock that toggles on its own"]
     answer: 0
     explain: "A leading ~ (or an overbar) marks an active-low signal: the chip is selected, or the output enabled, when the pin is at logic 0."
   - type: choice
@@ -20,8 +20,8 @@ checks:
     answer: 0
     explain: "Swapping which voltage means true swaps OR and AND (De Morgan): OR gates become AND gates in negative logic, as in the lecture's 512K x 2 memory diagram where an OR gate decodes an active-low chip select."
   - type: choice
-    prompt: "True or false: the **NOR** gate is the negative-logic equivalent of the positive-logic **OR** gate."
-    options: ["False. NOR is an OR followed by an inversion; the negative-logic equivalent of OR is AND", "True", "True only for two inputs", "False. It is XOR"]
+    prompt: "True or false: the NOR gate is the negative-logic equivalent of the positive-logic OR gate."
+    options: ["False. NOR is an OR followed by an inversion; the negative-logic equivalent of OR is AND", "True. NOR and negative-logic OR are the same gate", "True, but only for two-input gates", "False. The negative-logic equivalent of OR is XOR"]
     answer: 0
     explain: "NOR = NOT(OR) inverts the output; that is a different function in the same logic polarity. Changing polarity (negative logic) turns the OR function into AND, not NOR."
   - type: choice

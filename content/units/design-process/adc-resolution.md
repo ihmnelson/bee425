@@ -8,16 +8,16 @@ sources:
   - { type: slide, ref: "L1 s49", quote: "Resolution of the Arduino A/D is 1 part in 1023, or about 5 mV per step" }
   - { type: slide, ref: "L1 s49", quote: "Can use an external A/D converter that is far more accurate" }
 checks:
-  - gen: adc.stepSize
-  - gen: adc.stepSize
+  - gen: "adc.stepSize"
+  - gen: "adc.stepSize"
   - type: choice
-    prompt: "Which options does the lecture list when the on-board A/D is **not accurate enough or the signal is too small**?"
-    options: ["Use a more accurate external A/D converter, or an op-amp for more gain", "Lower the clock", "Use a bigger battery", "Remove the A/D"]
+    prompt: "The on-board A/D is not accurate enough, or the signal is too small. What are two fixes?"
+    options: ["Add a more accurate external A/D, or an op-amp to give the signal more gain", "Lower the A/D clock, or add a bigger battery", "Raise the reference voltage so each step gets smaller", "Add a second on-board A/D and discard the first result"]
     answer: 0
     explain: "Use an external A/D converter that is far more accurate, or an op-amp for greater gain if the voltage signal is too low. Others have 12-bit A/Ds but less support than the Arduino."
   - type: choice
-    prompt: "The lecture says the Arduino A/D accuracy is +/- 2 LSB, 'or +/- 15 mV'. Check it: with a 4.89 mV step, what is 2 LSB?"
-    options: ["About 9.8 mV, so the slide's 15 mV does not match 2 LSB (it is closer to 3 LSB)", "Exactly 15 mV", "About 2 mV", "About 100 mV"]
+    prompt: "An Arduino A/D is specified as +/- 2 LSB 'or +/- 15 mV'. With a 4.89 mV step, is that consistent?"
+    options: ["No: 2 LSB is about 9.8 mV, and 15 mV is closer to 3 LSB", "Yes: 2 LSB is exactly 15 mV", "No: 2 LSB is about 2 mV, so 15 mV is far too large", "No: 2 LSB is about 100 mV at a 5 V reference"]
     answer: 0
     explain: "2 x 4.887 mV = 9.77 mV. 15 mV is about 3 LSB, so the slide's two figures are not consistent; know the idea (accuracy is a few LSB, worse than the resolution) rather than the exact number."
 card:

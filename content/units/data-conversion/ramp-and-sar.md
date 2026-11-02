@@ -11,20 +11,15 @@ sources:
 checks:
   - gen: conv.rampTime
   - type: choice
-    prompt: "What is the **problem with a single-ramp** A/D converter?"
-    options: ["The conversion time depends on the input voltage and is long for large inputs (it counts from zero each time)", "It cannot digitise voltages", "It needs a flash encoder", "It uses no counter"]
+    prompt: "What is the problem with a single-ramp A/D converter?"
+    options: ["Conversion time depends on the input, and is long for large inputs", "It cannot digitise voltages above a few volts at all", "It needs a flash encoder to turn the count into a code", "It has no counter, so the code must come from a table"]
     answer: 0
     explain: "The counter runs from 0 until the D/A output passes the unknown voltage, so the conversion time is non-deterministic (the count = the digitised voltage), up to 2^N counts."
   - type: choice
-    prompt: "How many comparisons does a **successive-approximation** converter make for an N-bit result?"
-    options: ["N (it decides one bit per step, MSB first)", "2^N", "1", "2N"]
+    prompt: "How many comparisons does a successive-approximation converter make for an N-bit result?"
+    options: ["N: one bit per step, most significant bit first", "2^N: one for each possible code", "1: a bank of comparators decides at once", "2N: one up and one down for each bit"]
     answer: 0
     explain: "It tests the most significant bit first with a D/A trial voltage, keeps or clears it depending on the comparator, then moves to the next bit: N steps for N bits (a binary search), far fewer than a ramp's up to 2^N."
-  - type: choice
-    prompt: "The ADC1241 shown in the lecture is..."
-    options: ["12 bits plus sign, 13.8 µs conversion, self-calibrating, with an internal sample-and-hold", "8 bits, 1 ns", "24 bits, 10 samples per second", "A flash converter"]
-    answer: 0
-    explain: "The National Semiconductor ADC1241 is a successive-approximation converter: 12-bit plus sign, 13.8 microsecond conversion time, self-calibrating, with an internal sample and hold."
 card:
   front: "Compare single-ramp and successive approximation."
   back: "Single ramp: a counter drives a D/A; count until the D/A output passes Vx; count = result; time depends on Vx (up to 2^N counts). Successive approximation: a binary search, one bit per step, MSB first, N comparisons; deterministic, the workhorse for 12-18 bits."

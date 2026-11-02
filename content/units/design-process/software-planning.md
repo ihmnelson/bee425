@@ -9,20 +9,15 @@ sources:
   - { type: slide, ref: "L1 s52", quote: "Write a function that returns a representative hardware" }
 checks:
   - type: choice
-    prompt: "A teammate says 'I can't start the software until the hardware is done'. What does the lecture answer?"
-    options: ["That is not true: write modular test software that looks like hardware to your program", "They are right", "Buy more hardware", "Skip the software"]
+    prompt: "A teammate says 'I can't start the software until the hardware is done'. What is the right answer?"
+    options: ["Untrue: write test code that stands in for the hardware so software can start now", "True: software must wait until the board is built and powered up", "Partly true: the application can start, but drivers must wait", "True, because simulators cannot reproduce hardware behaviour"]
     answer: 0
     explain: "If you plan the software modularly you can write test code that looks like hardware. Example: write a function that returns a representative hardware value for an A/D read and let the rest of your code process it."
   - type: choice
-    prompt: "You found **driver code on the internet**. What does the lecture say?"
-    options: ["You still must understand how it works", "Use it without reading it", "Never use internet code", "Rewrite it in assembly"]
+    prompt: "You found driver code on the internet. What should you still do?"
+    options: ["Understand how it works", "Use it without reading it", "Never use internet code", "Rewrite it in assembly"]
     answer: 0
     explain: "Even if you found driver code on the internet, you had better understand how it works."
-  - type: choice
-    prompt: "What language do **Arduinos** speak, according to the lecture?"
-    options: ["A dialect of C++, not Java", "Java", "Python", "Pascal"]
-    answer: 0
-    explain: "Arduinos speak a dialect of C++, not Java. If you haven't learned C or C++, you are in for a crash course."
 card:
   front: "How should you treat software in a hardware project?"
   back: "Plan it from the start (it is a notorious time-sink). Write it modularly with stub functions returning representative hardware values so you can test before the hardware exists. Understand any driver code you borrow. Arduino code is a C++ dialect."

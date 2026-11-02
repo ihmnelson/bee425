@@ -13,17 +13,18 @@ checks:
   - gen: bjt.baseResistor
   - type: choice
     prompt: "A transistor's beta is specified as 75 to 200. Which value do you use to size the base resistor?"
-    options: ["75, the minimum, so there is enough base current in the worst case", "200, the maximum", "The average", "Any value"]
+    options: ["75, the minimum, so there is enough base current in the worst case", "200, the maximum, since that needs the least base current", "The average of 75 and 200, as the typical value", "Whichever value makes the arithmetic easiest"]
     answer: 0
     explain: "Choose a value that will supply the correct amount of current for worst-case conditions: assume β = 75. Beta varies with temperature, collector current and between devices (min/max can differ by 3 times)."
   - type: choice
-    prompt: "In the lecture's example (5 V pin, 100 mA load, β = 75), the calculated resistor is 3.38 kΩ. Which standard value is chosen, and why?"
-    options: ["3.3 kΩ, the next standard value below, giving slightly more base current", "3.9 kΩ", "10 kΩ", "1 MΩ"]
+    prompt: "A 5 V pin drives a transistor with a 100 mA load and a beta of 75; the calculated base resistor is 3.38 kilohms. Which standard value is chosen, and why?"
+    figure: {"src":"slides/L8-s16.png", "alt":"Slide: worked example sizing the base resistor for a 100 mA load with a beta of at least 75", "caption":"Lecture 8, slide 356: the base resistor example"}
+    options: ["3.3 kilohms, the next standard value down, giving slightly more base current", "3.9 kilohms, the next standard value up, to stay above the calculated value", "10 kilohms, to keep the pin current as low as possible", "1 kilohm, for a large safety margin on the pin current"]
     answer: 0
     explain: "Base current = 100 mA / 75 = 1.3 mA; R = (5 - 0.6) / 1.3 mA = 3.38 kΩ. The closest standard value 3.3 kΩ is a bit lower, which gives slightly more base current than needed (safe)."
   - type: choice
-    prompt: "The I/O pin can supply only 1 mA but the transistor needs more base current. What does the lecture suggest asking?"
-    options: ["Add a second transistor (a Darlington pair) or use a MOSFET, since the base current is too small for one transistor", "Use a larger resistor", "Use two I/O pins in series", "Nothing can be done"]
+    prompt: "The I/O pin can supply only 1 mA but the transistor needs more base current. What can you do?"
+    options: ["Add a second transistor (a Darlington pair) or use a MOSFET", "Use a larger base resistor to raise the current", "Connect two I/O pins in series to double the drive", "Nothing can be done; pick a different load"]
     answer: 0
     explain: "If one transistor needs more base current than the pin can give, boost the current with a second transistor (Darlington or compound pair) or use a voltage-controlled MOSFET, which needs almost no gate current."
 card:

@@ -36,23 +36,18 @@ programs:
     expect: {"mem": {"16384": [69, 21]}, "regs": {"D0": 43007, "D3": 21845}}
 checks:
   - type: choice
-    prompt: "What is the **word value at $4000** when the program is about to loop back (the homework question)?"
-    options: ["$4515", "$4F17", "$5555", "$A7FF"]
-    answer: 0
-    explain: "`MOVE.B D1,(A0)+` stores %01001111 = $4F at $4000 and `MOVE.B D2,(A0)+` stores %00010111 = $17 at $4001, so the word at $4000 is $4F17 (big endian). `AND.W D3,(A1)` ANDs it with $5555: $4F17 AND $5555 = $4515. Verified by running it."
-  - type: choice
-    prompt: "After `MOVE.B D1,(A0)+`, what is A0?"
-    options: ["$4001 (A0 advanced by one byte)", "$4000", "$4002", "$4F"]
+    prompt: "With A0 = $4000, what is A0 after MOVE.B D1,(A0)+?"
+    options: ["$4001 (A0 advanced by one byte)", "$4000 (unchanged)", "$4002 (advanced by one word)", "$4F (the byte that was moved)"]
     answer: 0
     explain: "Post-increment by the operand size: .B adds 1. The second byte goes to $4001, and A0 ends at $4002."
   - type: choice
-    prompt: "Why does the memory window show **bytes** even for a word AND?"
-    options: ["The simulator displays bytes; a word occupies two consecutive bytes, high byte at the lower address (big endian)", "The AND is a byte operation", "The window is broken", "It shows words only"]
+    prompt: "Why does the simulator's memory window show bytes even for a word AND?"
+    options: ["The simulator shows bytes; a word is two bytes, high byte first", "The AND is really two separate byte operations", "The window is broken and shows the wrong size", "It shows words only, never single bytes"]
     answer: 0
     explain: "Remember the simulator displays bytes even though the program writes words or long words. The word value $4515 appears as $45 at $4000 and $15 at $4001."
   - type: choice
-    prompt: "Which 68000 flags does `AND.W D3,(A1)` set from $4515?"
-    options: ["N = 0 (top bit clear), Z = 0 (non-zero), V = 0, C = 0", "N = 1", "Z = 1", "All set"]
+    prompt: "AND.W D3,(A1) leaves the result $4515 in memory. Which 68000 flags does it set?"
+    options: ["N = 0 (top bit clear), Z = 0 (non-zero), V = 0, C = 0", "N = 1, since the result is positive", "Z = 1, since the AND found no common bits", "All four flags set"]
     answer: 0
     explain: "AND sets N and Z from the result and clears V and C; $4515 is positive and non-zero."
 card:

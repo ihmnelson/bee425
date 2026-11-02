@@ -27,8 +27,8 @@ programs:
       mem: { 16384: [0x22, 0x33], 16640: [0xAA, 0xBB, 0xCC, 0xDD] }
 checks:
   - type: choice
-    prompt: "After `MOVE.B D0,D1`, what is in D0?"
-    options: ["Unchanged: MOVE copies, it does not remove the source", "Zero", "The old value of D1", "The sum of both"]
+    prompt: "After MOVE.B D0,D1, what is in D0?"
+    options: ["Unchanged: MOVE copies and leaves the source as it was", "Cleared to zero, because MOVE takes the data away", "Holds the old value of D1, because MOVE swaps the two", "Holds the sum of the two registers"]
     answer: 0
     explain: "'MOVE' or 'LOAD' is misleading: it means copy. The source stays unchanged; the destination gets a copy of the data."
   - type: choice
@@ -37,8 +37,8 @@ checks:
     answer: 0
     explain: "68000 assembly writes the source first and the destination second: the word in D7 is copied to memory location $004AAA00."
   - type: choice
-    prompt: "What does `MOVE.L (A3),D4` do?"
-    options: ["Copies the long word stored at the memory address held in A3 into D4", "Copies A3 itself into D4", "Copies D4 into memory", "Adds A3 to D4"]
+    prompt: "What does MOVE.L (A3),D4 do?"
+    options: ["Copies the long word at the address held in A3 into D4", "Copies the contents of A3 itself into D4", "Copies D4 into the memory addressed by A3", "Adds the long word at A3's address to D4"]
     answer: 0
     explain: "The parentheses mean 'the memory location pointed to by A3'. A 32-bit long word is read from there into D4."
   - type: choice

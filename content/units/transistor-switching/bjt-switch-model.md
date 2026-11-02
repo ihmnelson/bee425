@@ -10,8 +10,8 @@ sources:
   - { type: slide, ref: "L8 s353", quote: "β can range in value from 10 to 10,000" }
 checks:
   - type: choice
-    prompt: "Why use a **discrete transistor** with a microcontroller pin?"
-    options: ["The pin can safely give only 1-20 mA at 3.3-5 V, but the load may need hundreds of amps or 1000 V", "Pins have no voltage", "Transistors are cheaper than wire", "Microcontrollers cannot output logic"]
+    prompt: "Why use a discrete transistor with a microcontroller pin?"
+    options: ["The pin gives only 1-20 mA at 3.3-5 V, but the load may need far more current or voltage", "Microcontroller pins cannot output a logic high", "A transistor is cheaper than a wire to the load", "A transistor makes the output signal faster than the pin"]
     answer: 0
     explain: "The I/O pins of a typical microcontroller can safely output 1 mA to 20 mA at 3.3 V to 5 V; loads can need hundreds of amperes at 1000 V or more, so the pin controls a transistor that switches the load."
   - type: choice
@@ -20,13 +20,13 @@ checks:
     answer: 0
     explain: "The collector current is the base current multiplied by β (the current gain, hFE), and the emitter current is the sum of the collector and base currents."
   - type: choice
-    prompt: "What is the **base-emitter junction** like, and what voltage is dropped across it?"
-    options: ["A forward-biased diode; Vbe is about 0.6 V", "An open circuit; 0 V", "A short; 5 V", "A resistor; 1 kΩ"]
+    prompt: "What is the base-emitter junction like, and what voltage is dropped across it?"
+    options: ["A forward-biased diode; Vbe is about 0.6 V", "An open circuit with 0 V across it", "A short circuit with the full 5 V across it", "A reverse-biased diode with about -5 V across it"]
     answer: 0
     explain: "The base-emitter junction looks like a forward-biased diode with a drop of approximately 0.6 V (Vbe). The I/O voltage must exceed that for base current to flow."
   - type: choice
-    prompt: "In which **two modes** can a transistor be used, and which does digital design use?"
-    options: ["Linear (amplifier) and switching (cutoff or saturation); digital systems almost always use switching", "Only linear", "AC and DC; DC", "Fast and slow; slow"]
+    prompt: "In which two modes can a transistor be used, and which does digital design use?"
+    options: ["Linear (amplifier) and switching (cutoff or saturation); digital design uses switching", "AC and DC; digital design uses DC", "Fast and slow; digital design uses slow", "Linear and switching; digital design uses linear"]
     answer: 0
     explain: "In linear mode the output varies over a narrow region and is a multiple of the input. In switching mode the input either cuts off all current (cutoff) or drives the transistor until the output current cannot go higher (saturation)."
 card:

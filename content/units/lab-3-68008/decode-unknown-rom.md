@@ -10,23 +10,23 @@ sources:
   - { type: handout, ref: "lab3 §XIII", quote: "If you see the BSR or JSR instruction, that’s the red flag that the program is going off to a subroutine" }
 checks:
   - type: choice
-    prompt: "A trace fills the analyzer buffer entirely with a **loop**. How do you find what comes after it?"
-    options: ["Trigger on an address just past the loop's last address, with the trigger point 10-20% into the buffer to see the last iterations", "Make the buffer bigger", "Reset the board", "Count every iteration"]
+    prompt: "A trace fills the analyzer buffer entirely with a loop. How do you find what comes after it?"
+    options: ["Trigger just past the loop's last address, 10-20% into the buffer", "Make the buffer bigger until the loop no longer fills it", "Reset the board and capture again from power-up", "Count every iteration of the loop by hand"]
     answer: 0
     explain: "Set the trigger to an address slightly past the last address seen in the loop; when the program leaves the loop it hits the address and refills the buffer. Place the trigger point about 10%-20% in so you capture the last loop iterations too."
   - type: choice
-    prompt: "You see a **BSR** or **JSR**. What does the handout advise?"
-    options: ["Note its address and trigger on the instruction after it, to see what happens when the subroutine returns", "Ignore it", "Stop the trace", "Report every call"]
+    prompt: "You see a BSR or JSR in the trace. What does the handout advise?"
+    options: ["Note its address and trigger on the instruction after it", "Ignore it; subroutines never matter for the algorithm", "Stop the trace and report the subroutine as unknown", "Report every call to the instructor before continuing"]
     answer: 0
     explain: "A BSR or JSR is the red flag that the program leaves for a subroutine, which may itself loop many times. Trigger when it returns, typically at the next address after the call."
   - type: choice
     prompt: "What do you write in the report about the unknown ROM?"
-    options: ["A short paragraph on what the whole algorithm does (for example fills memory with a constant), plus the disassembled source file", "A line per instruction", "Only the hex dump", "Nothing"]
+    options: ["A short paragraph on what the algorithm does, plus the disassembled source", "A line per instruction describing its op-code bits", "Only the hex dump of the ROM contents", "A copy of the raw analyzer trace for every capture"]
     answer: 0
     explain: "No points for explaining each instruction by itself: each chip contains an algorithm that does a task, and you must say what that task is. Also include the filtered spreadsheet, the disassembly and a bibliography."
   - type: choice
     prompt: "After you think you have the program flow, what is the next step?"
-    options: ["Run it in the EASy68K simulator (it simulates program execution, not bus activity), and take more traces if it seems incomplete", "Submit it", "Rewrite it in Z80", "Burn a new ROM"]
+    options: ["Run it in EASy68K (program execution only), and take more traces if it looks incomplete", "Submit it; the simulator can add no new information", "Rewrite it in Z80 assembly to double-check the result", "Burn a new ROM and compare the two traces"]
     answer: 0
     explain: "Use the simulator to understand the program; remember it does not simulate bus activity. If the program seems incomplete it probably is, and you should take more traces with different trigger conditions."
 card:

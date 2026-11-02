@@ -11,23 +11,23 @@ sources:
   - { type: slide, ref: "L10 s491", quote: "Bugs are easily dealt with, even in the field!" }
 checks:
   - type: choice
-    prompt: "Match each style with its character in the lecture."
-    options: ["Dedicated hardware: fast, inflexible, expensive. Reconfigurable hardware: fast, flexible, more expensive. Software: slower, more flexible, cheaper", "Dedicated hardware: slow. Software: fast", "All three are equal", "Software is faster and more expensive"]
+    prompt: "Which description of the three implementation styles is right?"
+    options: ["Dedicated hardware: fast, inflexible, expensive. Reconfigurable hardware: fast, flexible, more expensive. Software: slower, more flexible, cheaper", "Dedicated hardware: slow, flexible, cheap. Reconfigurable hardware: slow, inflexible. Software: fast, inflexible, expensive", "All three styles are equal in speed and flexibility, differing only in cost", "Software is the fastest and the most expensive; dedicated hardware the slowest and cheapest"]
     answer: 0
     explain: "This is the 'duality' slide: partitioning is usually dictated by speed and cost, and the laser-printer example splits data formatting, mechanical control, error handling and the laser engine between the two."
   - type: choice
-    prompt: "Which is a **pro of a hardware solution**?"
-    options: ["Can be 10x, 100x or more faster, with a simpler processor and less software time", "Easy to change in the field", "No NRE", "Cheap tools"]
+    prompt: "Which is a pro of a hardware solution?"
+    options: ["It can be 10x, 100x or more faster, with a simpler processor and less software", "It is easy to change in the field after shipping", "It needs no up-front NRE or tooling cost", "It uses only cheap, widely available tools"]
     answer: 0
     explain: "Hardware PROs: big speed-ups, less processor complexity, less software design time. CONs: bill-of-materials cost, circuit complexity (power, board space, RFI), NRE of about $100K, about a 3-month cycle, little margin for error (only 50% of ASICs work the first time), IP royalties, tools at $50K-$100K per seat."
   - type: choice
-    prompt: "Which is a **pro of a software solution**?"
-    options: ["No added bill of materials, power or circuit complexity; bugs can be fixed even in the field; cheap tools; insensitive to sales volume", "Always faster", "No development time", "No schedule risk"]
+    prompt: "Which is a pro of a software solution?"
+    options: ["No extra parts or power, field-fixable bugs, cheap tools, insensitive to volume", "It is always faster than a hardware implementation", "It needs no development time or schedule planning", "It carries no schedule risk, because code cannot run late"]
     answer: 0
     explain: "Software CONs: much lower performance, so a bigger processor, more memory and power; an RTOS may be needed (royalties); schedule uncertainty and a larger team add cost."
   - type: choice
-    prompt: "Why is the partitioning decision iterative?"
-    options: ["Mistakes here make an inferior product, and you may have to repartition several times during the design phase", "It never changes", "It is set by the compiler", "It is fixed by marketing"]
+    prompt: "Why is the hardware/software partitioning decision iterative?"
+    options: ["Mistakes here give an inferior product, so you may repartition several times during design", "It never changes once the first review is done", "The compiler sets the partition after the code is written", "Marketing fixes the partition at the start of the project"]
     answer: 0
     explain: "EEs lean toward hardware and software developers toward software; the right split emerges by iterating."
 card:

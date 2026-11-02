@@ -23,8 +23,8 @@ checks:
     answer: 0
     explain: "The top bit of the 16-bit address is 1, so it is sign-extended with ones: $FFFFA3C0. That is why the short form covers only $000000-$007FFF and $FF8000-$FFFFFF, and cannot reach $008000-$FF7FFF."
   - type: choice
-    prompt: "Why does the lecture say to **avoid absolute addressing**?"
-    options: ["It prevents code from being relocated, slows the processor and takes extra memory", "It does not work with data registers", "It is illegal", "It only works for bytes"]
+    prompt: "Why avoid absolute addressing?"
+    options: ["It prevents relocating the code, and costs time and memory", "It does not work with data registers at all", "It is illegal for word-sized operands", "It works only with byte-sized operands"]
     answer: 0
     explain: "Absolute addressing needs extra fetches (the address words), so it is slower and bigger, and it ties code to fixed addresses, which prevents relocation. Use address registers for repeatedly used addresses."
   - type: choice

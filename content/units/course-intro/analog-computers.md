@@ -15,15 +15,10 @@ checks:
     answer: 0
     explain: "Op-amp based analog computers had a typical accuracy of about 5% and a limited numeric range."
   - type: choice
-    prompt: "How can an op-amp circuit **multiply** two variables?"
-    options: ["With a logarithmic amplifier: add the logs, then take the antilog", "By adding the voltages", "By using a clock", "It cannot"]
+    prompt: "How can an op-amp circuit multiply two variables?"
+    options: ["Take logarithms with log amplifiers, add them, then take the antilog", "Feed both voltages into a summing amplifier and read the output", "Clock one voltage into a counter that scales the other", "It cannot; op-amps can only add and integrate"]
     answer: 0
     explain: "A log amplifier uses the logarithmic relationship between the transistor's current and voltage. Once you have log and antilog circuits you can multiply, divide and raise to a power; op-amps can also differentiate and integrate."
-  - type: choice
-    prompt: "Which of these is an example of a **WWII analog computer** named in the lecture?"
-    options: ["The Torpedo Data Computer and the Norden bombsight", "ENIAC", "The Teensy 4.1", "The Z80"]
-    answer: 0
-    explain: "The TDC computed when to fire a torpedo from the angle between ships, speeds and range; the Norden bombsight computed the bomb release point from height, distance, speed, wind and air resistance. ENIAC, in contrast, was the first general-purpose electronic digital computer."
 card:
   front: "What could analog computers do, and how accurate were they?"
   back: "Op-amp circuits could add, subtract, multiply (by a constant or another variable via log amps), divide, exponentiate, take log/antilog, differentiate, integrate and generate sine waves, with about 5% accuracy and limited range. Examples: the Torpedo Data Computer and the Norden bombsight."

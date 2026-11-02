@@ -13,17 +13,17 @@ checks:
   - gen: lab.patternOnes
   - type: choice
     prompt: "In state mode, which clock does the analyzer use to decide when to record?"
-    options: ["The system (circuit board) clock, CLK1, on the edge you choose; it should not be the edge where the outputs are changing", "Its own internal 500 MHz clock", "No clock", "The USB clock"]
+    options: ["The board's clock (CLK1), on an edge where outputs are stable", "Its own internal 500 MHz clock, free-running", "No clock: it records whenever any input changes", "The USB clock from the connection to the PC"]
     answer: 0
     explain: "State mode uses the board's clock as the external sample clock. The D flip-flops change on the rising edge, so sampling on the rising edge risks capturing outputs while they are changing; the lab asks you to decide and justify the edge."
   - type: choice
-    prompt: "What does a **pre-trigger buffer** of 1% mean?"
-    options: ["Only 1% of the memory holds states from before the trigger; the rest is after", "The trigger arrives 1% of the time", "1% of signals are traced", "The clock is 1% slower"]
+    prompt: "What does a pre-trigger buffer setting of 1% mean?"
+    options: ["Only 1% of memory holds states from before the trigger", "The trigger fires on only 1% of the clock edges", "Only 1% of the signals are traced", "The analyzer clock runs 1% slower"]
     answer: 0
     explain: "The number of states saved before the trigger is 1% of the analyzer memory (the smallest the lab uses), so most of the buffer shows what follows the trigger."
   - type: choice
     prompt: "In what order do you connect the power and the analyzer?"
-    options: ["Analyzer connected to the PC (yellow light on) first, then power the board; reverse the order when turning off", "Board power first", "Together", "Order does not matter"]
+    options: ["Connect the analyzer to the PC first, then power the board; reverse on shutdown", "Power the board first, then connect the analyzer to the PC", "Power both together from one switch at the bench", "The order does not matter for either of the two devices"]
     answer: 0
     explain: "Have the logic analyzer connected before applying power to the board; turn the board off first and then disconnect the analyzer. Also check polarity before plugging in the supply, and touch the bench ground plate to avoid static damage."
 card:

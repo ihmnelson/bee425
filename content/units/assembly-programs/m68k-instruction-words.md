@@ -34,8 +34,8 @@ checks:
     answer: 0
     explain: "The first word is the op-code word (add immediate, word size, destination D5). The immediate value follows as an extension word."
   - type: choice
-    prompt: "`MOVE.W $0A550000,$1000BB00` assembles to `$33F9 $0A55 $0000 $1000 $BB00`. What do the last four words hold?"
-    options: ["The 32-bit source address, then the 32-bit destination address", "Four data values", "The register contents", "Four copies of the op-code"]
+    prompt: "MOVE.W $0A550000,$1000BB00 assembles to $33F9 $0A55 $0000 $1000 $BB00. What do the last four words hold?"
+    options: ["The 32-bit source address, then the 32-bit destination address", "Four 16-bit data values that are to be moved", "The contents of the registers at that moment", "Four copies of the op-code for error checking"]
     answer: 0
     explain: "Absolute operands exactly specify the memory addresses: source high word $0A55, source low word $0000, destination high word $1000, destination low word $BB00. The op-code word $33F9 says MOVE.W with both operands absolute long."
 card:

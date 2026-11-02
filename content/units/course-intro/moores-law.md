@@ -9,16 +9,16 @@ sources:
   - { type: slide, ref: "L1 s42", quote: "AMD Ryzen 9 uses 7nm CMOS FinFET technology" }
   - { type: slide, ref: "L1 s42", quote: "Atmel AVR microcontrollers (Arduino) use 180 nm processes" }
 checks:
-  - gen: trends.moore
-  - gen: trends.moore
+  - gen: "trends.moore"
+  - gen: "trends.moore"
   - type: choice
-    prompt: "What does **Moore's law** say, in the lecture's wording?"
-    options: ["The number of transistors on an integrated circuit roughly doubles about every 18 months", "Clock speeds double every year", "Memory prices halve every 6 months", "Power use doubles every 18 months"]
+    prompt: "What does Moore's law say?"
+    options: ["The number of transistors on a chip roughly doubles about every 18 months", "Processor clock speed roughly doubles about every 18 months", "The price of a given amount of memory halves about every 18 months", "A chip's power consumption roughly doubles every 18 months"]
     answer: 0
     explain: "Moore's Law roughly states that the number of transistors on an integrated circuit will double approximately every 18 months. It was first predicted by Intel founder Gordon Moore."
   - type: choice
-    prompt: "What do **finer manufacturing processes** (smaller geometry) give?"
-    options: ["Higher speeds, lower power and more functionality on one chip", "Larger chips", "Slower clocks", "Fewer transistors"]
+    prompt: "What do finer manufacturing processes (smaller geometries) give?"
+    options: ["Higher speed, lower power and more functions on one chip", "Higher speed, but proportionally higher power per gate", "Lower cost per wafer, but slower and simpler chips", "More functions on one chip, but a lower clock-speed ceiling"]
     answer: 0
     explain: "Finer processes mean higher speeds, lower power and more functionality on a single IC. The lecture contrasts 7 nm for a Ryzen 9 with 180 nm for the Arduino's AVR."
 card:

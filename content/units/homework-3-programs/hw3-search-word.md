@@ -55,23 +55,23 @@ programs:
     expect: {"regs": {"A2": 0}}
 checks:
   - type: choice
-    prompt: "In the solution, why is the address of the match `A0 - 2` and not A0?"
-    options: ["`CMP.W (A0)+,D0` post-increments A0 by 2 after the compare, so A0 points one word past the match", "A0 is always wrong", "The match is 2 bytes before the block", "LEA adds 2"]
+    prompt: "A loop searches for a word using CMP.W (A0)+,D0. When it finds the match, why is the match's address A0 - 2 rather than A0?"
+    options: ["(A0)+ post-increments A0 by 2 after the compare, so A0 points one word past the match", "A0 is always off by two because of the prefetch", "The match is stored two bytes before the start of the block", "LEA adds 2 to the pointer when it loads"]
     answer: 0
     explain: "The compare consumes the word and advances the pointer, so after a match A0 is one word beyond it. `LEA -2(A0),A2` recovers the match address."
   - type: choice
-    prompt: "Why is the loop ended with the **unsigned** test BHS after `CMPA.L A1,A0`?"
-    options: ["Addresses are unsigned: compare A0 with the end address as unsigned numbers", "BHS means branch if halted", "Signed is not allowed", "It is faster"]
+    prompt: "Why is the search loop ended with the unsigned test BHS after CMPA.L A1,A0?"
+    options: ["Addresses are unsigned, so compare A0 with the end address as unsigned numbers", "BHS means 'branch if halted', which ends the program", "Signed branches are not allowed after CMPA", "BHS is faster than the signed branches"]
     answer: 0
     explain: "Addresses are unsigned quantities (the lecture's example: 0006 is a lower address than FFFE although signed it is greater). BHS (higher or same) exits when A0 reaches or passes the end address."
   - type: choice
-    prompt: "The data words are $1234, $55AA, $AA55, ... starting at $2000. What does the program leave in A2?"
-    options: ["$2004 (the first $AA55 is the third word)", "$2000", "$2002", "0"]
+    prompt: "A program searches for $AA55 in the words $1234, $55AA, $AA55, ... starting at $2000. What address does it leave in A2?"
+    options: ["$2004 (the first $AA55 is the third word)", "$2000, the start of the block", "$2002, the second word", "0, the 'not found' value"]
     answer: 0
     explain: "Words at $2000, $2002, $2004: the third, at $2004, is the first $AA55. $55AA is not a match (bytes swapped). Verified by running it."
   - type: choice
-    prompt: "What does the program leave in A2 when the pattern is **not** in the block?"
-    options: ["0 (the 'not found' value set by SUBA.L A2,A2)", "The end address", "$FFFFFFFF", "Undefined"]
+    prompt: "If the pattern is not in the block, what does the search program leave in A2?"
+    options: ["0 (the 'not found' value set by SUBA.L A2,A2)", "The end address of the block", "$FFFFFFFF, an all-ones error value", "Undefined: A2 is never written"]
     answer: 0
     explain: "A2 is cleared first so that 0 means not found; the second test program confirms it."
 card:

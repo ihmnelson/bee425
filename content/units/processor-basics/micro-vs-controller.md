@@ -9,13 +9,13 @@ sources:
   - { type: slide, ref: "L3 s107", quote: "Functional blocks are located on the Printed Circuit Board" }
 checks:
   - type: choice
-    prompt: "Which statement best separates a **microcontroller** from a microprocessor?"
-    options: ["A microcontroller integrates peripherals (serial ports, timers, A/D) with the processor in one package", "A microcontroller is always faster", "A microprocessor has no memory interface", "A microcontroller cannot run programs"]
+    prompt: "Which statement best separates a microcontroller from a microprocessor?"
+    options: ["A microcontroller integrates peripherals (ports, timers, A/D) with the CPU in one package", "A microcontroller always runs at a higher clock speed", "A microprocessor has no external memory interface at all", "A microcontroller cannot run user programs from flash"]
     answer: 0
     explain: "A microprocessor is the CPU alone and needs additional support circuitry. A microcontroller is a microprocessor plus peripheral devices (ports, timers, converters, and so on) in a single package."
   - type: choice
-    prompt: "Which of these is a **microprocessor** (not a microcontroller) from the lecture's examples?"
-    options: ["MC68000", "Arduino", "TIVA TM4C123", "Raspberry Pi Pico"]
+    prompt: "Which of these is a microprocessor (not a microcontroller)?"
+    options: ["MC68000", "Arduino Uno", "TIVA TM4C123", "Raspberry Pi Pico"]
     answer: 0
     explain: "The lecture lists MC68000, Z80, RISC-V and ARM cores as microprocessors; Arduino, Raspberry Pi and TIVA are microcontrollers."
   - type: choice

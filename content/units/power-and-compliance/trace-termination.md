@@ -13,12 +13,12 @@ checks:
   - gen: conv.termLength
   - type: choice
     prompt: "Why terminate a trace at all?"
-    options: ["Traces are transmission lines: without termination the signal reflects at the receiver, causing RF interference and a lower noise margin", "To save power", "To speed up the clock", "To add capacitance"]
+    options: ["Unterminated traces reflect the signal at the receiver, causing interference", "Termination saves power by removing the driver's load", "Termination speeds up the clock by raising the edge rate", "Termination adds capacitance that stabilises the supply"]
     answer: 0
     explain: "Reflected signals cause RF interference and lower the noise margin. Impedance control matters when the rise time approaches the round-trip propagation time."
   - type: choice
-    prompt: "Which are the common termination methods in the lecture?"
-    options: ["Parallel (R = ZT at the receiver), Thévenin (R1 || R2 = ZT with the Thévenin voltage at the switching point, not for floating outputs), and with a capacitor to reduce steady-state current", "Only series", "None", "Only capacitors"]
+    prompt: "Which are the common trace termination methods?"
+    options: ["Parallel (R = ZT), Thévenin (R1 || R2 = ZT) and parallel with a capacitor", "Series termination only, placed at the receiver", "Capacitor-only termination placed at the driver", "No termination at all: use short traces only"]
     answer: 0
     explain: "Parallel termination: a resistor equal to the characteristic impedance. Thévenin: two resistors whose parallel value equals ZT. The capacitor variant blocks DC and reduces steady-state current drain."
 card:

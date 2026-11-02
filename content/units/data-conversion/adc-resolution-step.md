@@ -11,13 +11,13 @@ checks:
   - gen: adc.stepSize
   - gen: adc.stepSize
   - type: choice
-    prompt: "An 8-bit converter spans 0-10 V. What is one step, per the lecture?"
-    options: ["10 / 255 = about 0.04 V", "10 / 256 = 0.039 V exactly", "10 / 8 = 1.25 V", "10 / 65,535 V"]
+    prompt: "An 8-bit converter spans 0-10 V. What is one step?"
+    options: ["About 0.04 V (10 V divided by 255 steps)", "1.25 V (10 V divided by 8 bits)", "About 0.0001 V (10 V divided by 65,535)", "About 2.5 V (10 V divided by 4)"]
     answer: 0
     explain: "The lecture divides the range into 2^N - 1 = 255 steps: about 0.04 V per step (a 16-bit converter over the same range gives 10 / 65,535 = 0.00015 V)."
   - type: choice
-    prompt: "A 16-bit converter spans 0-10 V (0.00015 V steps) and your signal is only 0.00015 V. What do you do?"
-    options: ["Amplify it so it spans most of the converter's range; unamplified you get about 1 bit of resolution", "Nothing, 16 bits is plenty", "Use a slower clock", "Lower the reference"]
+    prompt: "A 16-bit converter spans 0-10 V (0.00015 V per step) and your signal is only 0.00015 V. What do you do?"
+    options: ["Amplify it so it spans most of the converter's range; unamplified you get about 1 bit", "Nothing: 16 bits is plenty of resolution for any signal", "Slow the clock so the converter averages more", "Use a slower conversion method, which improves resolution"]
     answer: 0
     explain: "Without amplification the whole signal is one step: 1 bit of resolution. Amplify the signal to use the converter's full-scale range."
 card:

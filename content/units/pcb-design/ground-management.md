@@ -9,8 +9,8 @@ sources:
   - { type: slide, ref: "L2 s71", quote: "Isolating planes prevents digital return currents from creating noise on analog signals" }
 checks:
   - type: choice
-    prompt: "Why are **separate (split) ground planes** used on a board with both analog and digital circuits?"
-    options: ["Digital switching current spikes would add noise to low-level analog signals", "Analog circuits need a higher voltage", "To save copper", "To make the board easier to solder"]
+    prompt: "Why use separate (split) ground planes on a board with both analog and digital circuits?"
+    options: ["Digital switching spikes would otherwise add noise to low-level analog signals", "Analog parts need a higher ground voltage than digital parts", "Two planes use less copper and so reduce board cost", "Separate planes make the board pass emission tests automatically"]
     answer: 0
     explain: "Digital circuitry is electrically noisy from switching current spikes. Analog circuitry, especially one measuring low-amplitude signals, needs a quiet ground. Isolating the planes keeps digital return currents from creating noise on analog signals."
   - type: choice
@@ -19,8 +19,8 @@ checks:
     answer: 0
     explain: "Planes should come together at only one point. Several connections allow small voltage differences to drive current between them: a ground loop, which causes noise, 60 cycle hum or oscillations."
   - type: choice
-    prompt: "What is a **ground loop**?"
-    options: ["Current flowing between two ground connection points because their voltages differ slightly", "A trace that loops back on itself", "A grounded antenna", "A capacitor to ground"]
+    prompt: "What is a ground loop?"
+    options: ["Current flowing between two ground points whose voltages differ slightly", "A trace that curls back and ends on its own start pad", "A bypass capacitor connected between supply and ground", "A ground wire shaped like a loop antenna for emissions"]
     answer: 0
     explain: "The slide's footnote: slight differences in voltage between the contact points allow current to flow between them, often causing noise, 60 cycle hum or oscillations."
 card:

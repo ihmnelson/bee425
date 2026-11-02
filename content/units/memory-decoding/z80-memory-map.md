@@ -14,7 +14,7 @@ checks:
     explain: "1 MB / 64 KB = 16 pages. The slide selects one of them by writing a value from 0000 to 1111 to a special register."
   - type: choice
     prompt: "How does the processor tell the hardware **which** of the 16 pages to switch in?"
-    options: ["It writes the page number to a special register (a memory or I/O location)", "It sets address lines A16-A19 on the bus", "It runs the clock faster", "It reads the page from the disk"]
+    options: ["It writes the page number to a special register", "It sets address lines A16-A19 on the bus", "It runs the clock faster for the chosen page", "It reads the page number from the disk"]
     answer: 0
     explain: "The Z80 has no address lines above A15, so the page number is written to a special register whose output feeds the page decoder. Writing to it swaps the page."
 card:

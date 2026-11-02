@@ -14,7 +14,7 @@ checks:
     answer: 0
     explain: "A fast logic edge needs a large instantaneous current to charge the load capacitance. The bypass capacitor supplies that current locally and so reduces voltage spikes on the supply."
   - type: choice
-    prompt: "The lecture's rule of thumb for bypass capacitors is about one capacitor per..."
+    prompt: "A common rule of thumb places about one bypass capacitor per..."
     options: ["1 to 2 ICs", "10 ICs", "The whole board (just one)", "Every pin of every IC"]
     answer: 0
     explain: "Rule of thumb from the slide: 1 capacitor per 1-2 ICs."

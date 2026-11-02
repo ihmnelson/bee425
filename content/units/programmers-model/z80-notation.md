@@ -19,7 +19,7 @@ checks:
     explain: "55H is valid hex (it begins with a digit and ends in H). $55 is the 68000 style and 0x55 the C style."
   - type: choice
     prompt: "Why is `FFFFH` a problem and `0FFFFH` correct?"
-    options: ["A number starting with A-F would be read as a label/name, so a leading 0 is required", "FFFF is not a valid hex number", "H must be lowercase", "It would be too large"]
+    options: ["A number starting with A-F would be read as a name, so a leading 0 is needed", "FFFF is not a valid hexadecimal number", "The H must be written in lower case", "FFFF would be too large for a 16-bit register"]
     answer: 0
     explain: "The rule on the slide: put a 0 in front of any number beginning with A-F."
 card:

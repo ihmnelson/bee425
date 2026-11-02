@@ -39,8 +39,8 @@ programs:
       regs: { A2: 0x00AA2603 }
 checks:
   - type: choice
-    prompt: "What does the instruction `MOVE.W D0,(A0)` do?"
-    options: ["Copies the word in D0 to the memory location whose address is in A0", "Copies D0 into register A0", "Copies the memory at D0 into A0", "Adds D0 to A0"]
+    prompt: "What does the instruction MOVE.W D0,(A0) do?"
+    options: ["Copies the word in D0 to the memory location whose address is in A0", "Copies D0 into register A0 as a 16-bit value", "Copies the word at the address held in D0 into A0", "Adds D0 to A0 and keeps the sum in A0"]
     answer: 0
     explain: "The parentheses around an address register mean indirect addressing: A0 is a pointer, and the data goes to the memory location it contains. `MOVEA.W D0,A0` (no parentheses) copies D0 into A0 itself."
   - type: choice
@@ -49,10 +49,10 @@ checks:
     answer: 0
     explain: "A byte operation at $2000 touches only the first (most significant) byte of the big-endian long word: $3F + $27 = $66, so the long word becomes $66D90146. Verified by running it."
   - type: choice
-    prompt: "In the second problem, after `ADDQ.L #3,A2` the AND works on which byte of the long word at $00AA2600?"
-    options: ["The last (fourth) byte, $AA, giving $AA AND $55 = $00", "The first byte", "All four bytes", "The second byte"]
+    prompt: "A2 holds $00AA2600, the address of a long word. After ADDQ.L #3,A2, an AND.B D1,(A2) changes which byte of that long word?"
+    options: ["The last (fourth) byte, at $00AA2603", "The first byte, at $00AA2600", "All four bytes of the long word", "The second byte, at $00AA2601"]
     answer: 0
-    explain: "ADDQ.L #3,A2 moves the pointer to $00AA2603, the fourth byte (the long word is $3F D9 01 AA). $AA AND $55 = $00, so the long word becomes $3FD90100. Verified by running it."
+    explain: "ADDQ.L #3,A2 makes A2 = $00AA2603, the address of the fourth byte of the long word (big endian, so the bytes sit at +0 to +3). A byte AND at (A2) therefore changes only that last byte."
   - type: choice
     prompt: "In a memory read `MOVE.W (A5),D3` with A5 = $0085AB6E and the word at that address $0A30, what is D3's low word?"
     options: ["$0A30; the upper word is unchanged", "$0085", "The long word at A5", "$AB6E"]

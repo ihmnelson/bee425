@@ -9,18 +9,18 @@ sources:
   - { type: slide, ref: "L10 s475", quote: "Typical versus worst-case current specifications" }
 checks:
   - type: choice
-    prompt: "Which is an advantage of **local regulation** (a regulator on each board)?"
-    options: ["It tolerates a loosely regulated supply and voltage drop in the distribution, at the cost of extra parts and heat on each board", "It is cheaper", "It needs no regulators", "It removes the need for a supply"]
+    prompt: "Which is an advantage of local regulation (a regulator on each board)?"
+    options: ["It tolerates a loose supply and distribution drop, at the cost of parts and heat", "It is always cheaper, since each board needs fewer parts", "It removes the need for a supply to feed the boards", "It keeps every board cool, because the regulator sits elsewhere"]
     answer: 0
     explain: "Local regulation lets each board have its own regulator fed from a loosely regulated supply: additional cost and heat dissipation on each board, but the voltage drop between supply and board matters less."
   - type: choice
-    prompt: "What is the drawback of **central regulation**?"
-    options: ["The well-regulated supply may cost more and you must worry about the voltage drop between the supply and each board", "It needs more regulators", "Boards need big capacitors", "It has no drawbacks"]
+    prompt: "What is the drawback of central regulation?"
+    options: ["The regulated supply may cost more, and the drop to each board must be handled", "It needs a separate regulator on every board", "Each board then needs larger bypass capacitors", "It has no drawbacks compared with local regulation"]
     answer: 0
     explain: "Each board then only needs a local filter capacitor, but the tightly regulated supply may be more expensive than a loosely regulated one and the distribution drop must be checked."
   - type: choice
     prompt: "When calculating power requirements, which current specification should you design for?"
-    options: ["Check both the typical and worst-case specifications; supplies must meet the worst case", "Typical only", "Minimum only", "None"]
+    options: ["Check both typical and worst case; the supply must meet the worst case", "Typical only, since that is what the part usually draws", "Minimum only, since it is the guaranteed figure", "The average of the typical and worst-case figures"]
     answer: 0
     explain: "The lecture says to calculate the requirement from typical versus worst-case current specifications; the supply and cooling must handle the worst case."
 card:

@@ -12,18 +12,18 @@ checks:
   - gen: conv.cmosPower
   - gen: conv.cmosPower
   - type: choice
-    prompt: "Why does a CMOS gate dissipate power mainly when it is **switching**?"
-    options: ["While high or low only leakage flows, but while switching there is a short window with both transistors conducting", "It dissipates only when idle", "The load heats it", "Leakage dominates"]
+    prompt: "Why does a CMOS gate dissipate power mainly when it is switching?"
+    options: ["Only leakage flows when static; during a transition both transistors conduct briefly", "It dissipates mostly when idle, because leakage dominates", "Power depends on the supply voltage only, not on switching", "The heat comes from the connected load, not from the gate"]
     answer: 0
     explain: "When a CMOS gate is steady high or low the only current is leakage; during a transition there is a small window when both transistors conduct, and charging the load capacitance also takes current."
   - type: choice
     prompt: "Which of these reduces CMOS power dissipation?"
-    options: ["Lower supply voltage, lower clock frequency, fewer gates switching, faster edges", "Over-clocking", "Higher Vcc", "Slower rise and fall times"]
+    options: ["Lower supply voltage, lower clock frequency and fewer gates switching", "Higher supply voltage, to finish each switch sooner", "Overclocking the processor above its rated speed", "Adding more gates that toggle on every clock"]
     answer: 0
     explain: "Power depends on gates switching per unit time (disable clocks to unused regions), falls as Vcc squared, rises with slower rise/fall times and linearly with clock frequency; over-clocking may exceed the package's ability to shed heat."
   - type: choice
-    prompt: "The slide says 68K power is 0.13 W at 8 MHz and 0.38 W at 20 MHz. Is that exactly linear?"
-    options: ["Not exactly: linear scaling of 0.13 W gives 0.325 W at 20 MHz; the slide's 0.38 W is higher", "Exactly linear", "Exactly quadratic", "Independent of frequency"]
+    prompt: "A 68K is quoted at 0.13 W at 8 MHz and 0.38 W at 20 MHz. Is that exactly linear in frequency?"
+    options: ["Not exactly: linear scaling of 0.13 W gives 0.325 W at 20 MHz, below the quoted 0.38 W", "Exactly linear: 0.13 W x 20/8 is 0.38 W", "Exactly quadratic: 0.13 W x (20/8)^2 is about 0.81 W", "Independent of frequency, so both figures should match"]
     answer: 0
     explain: "0.13 x 20/8 = 0.325 W. The real figure of 0.38 W is about 17% higher, so 'scales linearly' is an approximation (other terms do not scale with the clock)."
 card:

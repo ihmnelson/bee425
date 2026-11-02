@@ -11,23 +11,23 @@ sources:
   - { type: handout, ref: "lab2 I", quote: "the notch in the EPROM" }
 checks:
   - type: choice
-    prompt: "Where are the Z80 board's **ROM and RAM**?"
-    options: ["EPROM (27C256) at 0000H-7FFFH and RAM (62256) at 8000H-FFFFH", "RAM at 0000H, ROM at 8000H", "ROM only", "Both at 0000H"]
+    prompt: "Where are the Z80 lab board's ROM and RAM?"
+    options: ["EPROM (27C256) at 0000H-7FFFH and RAM (62256) at 8000H-FFFFH", "RAM at 0000H-7FFFH and EPROM at 8000H-FFFFH", "EPROM only, covering the whole 64K", "EPROM and RAM both at 0000H-7FFFH"]
     answer: 0
     explain: "Both are 32K x 8, so one address bit (A15) selects between them: the Z80 starts executing at 0000H after reset, which is in the EPROM. The 74LS00 NAND gate is the glue logic."
   - type: choice
-    prompt: "Why is a 40-pin connector put on the board (it is not needed functionally)?"
-    options: ["To make connecting the logic analyzer easy: designing for testability", "To power the board", "For the display", "To hold the ROM"]
+    prompt: "Why is a 40-pin connector put on the board when it is not needed functionally?"
+    options: ["To make connecting the logic analyzer easy: designing for testability", "To supply power to the board from the bench", "To drive the board's seven-segment display", "To hold the EPROM firmly in its socket"]
     answer: 0
     explain: "Connecting 40 individual grabber clips (as in Lab 1) would be difficult; the 40-pin connector matches the analyzer's connector. This is 'designing for testability'."
   - type: choice
-    prompt: "How do you insert the EPROM into the **ZIF socket**?"
-    options: ["Power off, lever up, notch toward the 40-pin edge connector, check for bent pins, insert, then rotate the lever to lock; hold the chip by the long sides and keep it in conductive foam otherwise", "Power on, push hard", "Notch away from the connector", "Bend the pins to fit"]
+    prompt: "How do you insert the EPROM into the ZIF socket?"
+    options: ["Power off, lever up, notch toward the connector, check pins, insert, lock the lever", "Power on, notch away from the connector, push hard, lock the lever", "Power off, notch away from the connector, bend the pins to fit", "Power on, lever down, press the chip in from its long sides"]
     answer: 0
     explain: "Lever vertical opens the socket fingers; the notch (between pins 1 and 28) faces the 40-pin edge connector; do not try to fix bent pins; keep the EPROM in anti-static foam, ground yourself, and check the EPROM/FLASH jumper settings."
   - type: choice
-    prompt: "What does the **wake-up EPROM** do at power on?"
-    options: ["Lights the display segments in turn, or shows b-E-E-4-2-5, so you can verify the board works", "Runs the unknown program", "Resets the analyzer", "Nothing"]
+    prompt: "What does the wake-up EPROM do at power on?"
+    options: ["Lights the display segments in turn, or shows b-E-E-4-2-5, so you can verify the board works", "Runs the unknown program that the lab asks you to decode", "Resets the logic analyzer before each capture", "Does nothing until the first push button is pressed"]
     answer: 0
     explain: "The EPROM labelled 'BEE 425 Z80 Lab Display Wake-up' is a quick check; before running the unknown code remove power, open the ZIF lever, and replace it with the instructor's EPROM."
 card:

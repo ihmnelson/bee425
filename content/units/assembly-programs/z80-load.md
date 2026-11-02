@@ -33,8 +33,8 @@ checks:
     answer: 0
     explain: "The Z80 writes the destination first: LD A,C copies register C into register A. C is unchanged."
   - type: choice
-    prompt: "What does `LD (HL),A` do?"
-    options: ["Copies A into the memory location whose address is in HL", "Copies HL into A", "Loads HL with A", "Copies memory into A"]
+    prompt: "What does LD (HL),A do?"
+    options: ["Copies A into the memory location addressed by HL", "Copies HL into the accumulator", "Loads HL with the contents of A", "Copies the memory location addressed by HL into A"]
     answer: 0
     explain: "The parentheses (or brackets in Oshonsoft style) mean 'the memory location pointed to by HL'; the byte in A is stored there."
   - type: choice

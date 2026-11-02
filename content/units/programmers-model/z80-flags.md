@@ -15,7 +15,7 @@ checks:
     explain: "F holds Carry (C), Add/Subtract (N), Parity/Overflow (P/V), Half carry (H), Zero (Z) and Sign (S)."
   - type: choice
     prompt: "On the Z80, what does the **P/V flag** indicate?"
-    options: ["Overflow for arithmetic, and parity (an even number of 1 bits) for some other operations", "Only overflow", "Only parity", "A pending interrupt"]
+    options: ["Overflow after arithmetic; parity after some logic", "Only overflow, never parity", "Only parity, never overflow", "A pending interrupt request"]
     answer: 0
     explain: "The slide says P/V is set if the 2's complement result overflows the register; on the Z80 it also indicates an even number of bits set to 1 (parity)."
   - type: choice

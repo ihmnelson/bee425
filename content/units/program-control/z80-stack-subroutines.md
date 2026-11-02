@@ -27,18 +27,18 @@ programs:
       mem: { 61438: [0x0E, 0x01] }
 checks:
   - type: choice
-    prompt: "SP = F000H. After `PUSH BC`, what is SP?"
-    options: ["EFFEH (a register pair is 2 bytes and the stack grows down)", "F002H", "F001H", "F000H"]
+    prompt: "SP = F000H. After PUSH BC, what is SP?"
+    options: ["EFFEH: a register pair is 2 bytes and the stack grows down", "F002H: the stack grows up by 2 bytes", "F001H: only one byte is pushed", "F000H: PUSH leaves SP unchanged"]
     answer: 0
     explain: "PUSH stores a 16-bit pair, so SP decreases by 2 to EFFEH. The stack grows toward lower memory, like the 68000's."
   - type: choice
-    prompt: "What does `CALL 2000H` do?"
-    options: ["Pushes the current PC (the return address) on the stack and loads 2000H into the PC", "Jumps without saving", "Pops the stack", "Loads 2000H into SP"]
+    prompt: "What does CALL 2000H do?"
+    options: ["Pushes the return address (the PC) on the stack, then loads 2000H into the PC", "Loads 2000H into the PC without saving a return address", "Pops 2000H off the stack and jumps there", "Loads 2000H into SP and continues with the next instruction"]
     answer: 0
     explain: "CALL automatically transfers the current PC value to the stack and loads the target address. RET pops the return address back into the PC."
   - type: choice
     prompt: "How wide is the return address that the Z80's CALL pushes, compared with the 68000's JSR?"
-    options: ["16 bits (2 bytes) versus 32 bits (4 bytes)", "32 bits versus 16", "Both 16", "Both 32"]
+    options: ["Z80: 2 bytes. 68000: 4 bytes", "Z80: 4 bytes. 68000: 2 bytes", "Both push 2 bytes", "Both push 4 bytes"]
     answer: 0
     explain: "The Z80 has a 16-bit PC, so CALL pushes 2 bytes. The 68000's JSR pushes a long word (the PC register is 32 bits)."
   - type: choice

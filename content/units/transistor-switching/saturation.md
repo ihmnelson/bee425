@@ -18,8 +18,8 @@ checks:
     answer: 0
     explain: "IB = 4.4 mA gives a wanted IC of 440 mA, but the load can only pass (25 - 0.4) / 330 = 74.5 mA. The transistor is driven into saturation: the collector cannot go below about 0.4 V. Input = 0 V gives collector = 25 V; input = 5 V gives 0.4 V: a switch."
   - type: choice
-    prompt: "Why must the simple formula V = Vcc - β x IB x RL always get a **sanity check**?"
-    options: ["It can predict a collector voltage below ground, which is impossible; then the transistor is saturated", "It always gives the right answer", "It only works for PNP", "It ignores Vcc"]
+    prompt: "Why must the simple formula V = Vcc - beta x IB x RL always get a sanity check?"
+    options: ["It can predict a collector voltage below ground, which means the transistor is saturated", "It always gives the right answer for NPN transistors", "It only applies to PNP transistors", "It leaves Vcc out, so its result is only relative"]
     answer: 0
     explain: "The lecture's exercise: iB = 3 mA with β = 100 and 100 Ω on 25 V predicts -5 V. That fails the sanity check, because the collector cannot go below ground; it saturates at about 0.4 V. Any base current above about 2.45 mA saturates it."
 card:

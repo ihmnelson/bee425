@@ -13,12 +13,12 @@ checks:
   - gen: conv.dualSlope
   - type: choice
     prompt: "Why is voltage-to-frequency conversion good in electrically noisy factories?"
-    options: ["Counting pulses over a long window acts like a digital integrator, so noise averages out (the longer the period, the more noise rejection)", "It is the fastest", "It is unaffected by the reference", "It only measures AC"]
+    options: ["Counting pulses over a long window acts like a digital integrator, so noise averages out", "It is the fastest converter type, so noise has no time to enter", "It is unaffected by its reference, so noise cancels", "It measures only AC signals, which are free of noise"]
     answer: 0
     explain: "It has the highest resolution (not necessarily the most accurate), excellent noise performance for industrial control, but it is not useful for AC voltages and it is slow."
   - type: choice
     prompt: "Why is a dual-slope converter more accurate than a single-ramp one?"
-    options: ["Errors introduced during the first slope are cancelled during the second slope", "It uses more bits", "It is faster", "It uses no reference"]
+    options: ["Errors introduced during the first slope are cancelled during the second slope", "It uses more bits than a single-ramp converter", "It runs faster, which reduces drift", "It needs no reference voltage at all"]
     answer: 0
     explain: "Dual slope is built from discrete components (more costly) and the errors of one slope cancel in the second. Triple and quad slope refine it for even higher accuracy but about 10 measurements per second."
 card:
