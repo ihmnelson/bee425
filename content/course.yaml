@@ -1,7 +1,7 @@
 id: bee425
 title: BEE 425 Quest
 subtitle: Microprocessor System Design, University of Washington Bothell
-note: "Rebuild in progress. Lessons 1 to 8, 10 and 11, Labs 1 to 3, Homework 1 to 3, the midterm practice problems, simulators and games are in. Linked readings added: Chapters 6, 9 and 12 (DMA, logic and shift instructions, interrupts, I/O ports, converter resolution), the State Machines notes, the logic analyzer application note, the analog computer and transistor articles and the HP reliability page. Chapters 7 and 8 overlap Lessons 4 and 5 and were not added again. Lesson 9 is missing from the course folder."
+note: "Rebuild in progress. Lessons 1 to 8, 10 and 11, Labs 1 to 3, Homework 1 to 4, the midterm practice problems, simulators and games are in. Linked readings added: Chapters 6, 9 and 12 (DMA, logic and shift instructions, interrupts, I/O ports, converter resolution), the State Machines notes, the logic analyzer application note, the analog computer and transistor articles and the HP reliability page. Chapters 7 and 8 overlap Lessons 4 and 5 and were not added again. Lesson 9 is missing from the course folder."
 
 # Tracks share one learning model. A track with "follows" must give every concept a bridge back to the track it follows.
 tracks:
@@ -19,6 +19,7 @@ handouts:
   hw1: "../../Homework/BEE425hw1.pdf"
   hw2: "../../Homework/BEE425F26HW2(1).pdf"
   hw3: "../../Homework/BEE425F26HW3.pdf"
+  hw4: "../../Homework/BEE 425F2026 HW 4.pdf"
   lab1: "../../lab1/Lab Experiment 1-Rev5.pdf"
   lab2: "../../lab2/BEE425 Lab Experiment 2 -Rev 10-remediated.pdf"
   lab3: "../../lab3/BEE425 Lab Experiment 3 -Rev 6-corrected.docx"
@@ -216,3 +217,9 @@ units:
     blurb: "Add longwords, search a block for a word, and find the smallest byte (signed or unsigned)."
     concepts:
       shared: [hw3-add-longwords, hw3-search-word, hw3-smallest-byte]
+  - id: homework-4-memory-decoding
+    title: "Homework 4: memory decoding"
+    lesson: "Homework"
+    blurb: "Chip enables for ROM and RAM, chips and pages for a 32-bit processor, the zero-wait-state clock limit, and 16 pages from two 74138 decoders."
+    concepts:
+      shared: [hw4-chip-enables, hw4-bus-pages, hw4-zero-wait-state, hw4-expand-138]
